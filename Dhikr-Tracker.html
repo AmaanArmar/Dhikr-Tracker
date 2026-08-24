@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Islamic Counter & Deed Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+    .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0f172a; display: flex; flex-direction: column; position: relative; }
+    .hidden { display: none !important; }
+
+    /* AUTH SCREEN */
+    .auth-container { padding: 30px 20px; display: flex; flex-direction: column; justify-content: center; flex-grow: 1; }
+    .auth-card { background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
+    .auth-card h2 { color: #00e5ff; margin-top: 0; text-align: center; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 14px; }
+    .form-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; }
+    .auth-btn { width: 100%; padding: 12px; background: #00e5ff; color: #0b131e; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; }
+
+    /* TOP NAV & MAIN APP */
+    .top-nav { display: flex; background-color: #00e5ff; padding: 10px; justify-content: space-around; }
+    .nav-btn { background: none; border: none; font-size: 14px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 12px; border-radius: 20px; }
+    .nav-btn.active { background-color: #0b131e; color: #00e5ff; }
+
+    .user-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; }
+    .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+
+    .tab-content { display: none; padding: 20px; flex-grow: 1; }
+    .tab-content.active { display: flex; flex-direction: column; }
+
+    select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 8px; font-size: 14px; font-weight: bold; }
+    
+    .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); }
+    .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; color: #94a3b8; font-size: 14px; }
+
+    .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 15px; }
+    .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    .chart-box { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 10px; }
+    .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+    .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #00e5ff; font-size: 14px; }
+    .history-body { font-size: 12px; color: #cbd5e1; margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- PAGE 1: AUTH SCREEN -->
+  <div id="authScreen" class="auth-container">
+    <div class="auth-card">
+      <h2 id="authTitle">Sign In</h2>
+      
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="authEmail" placeholder="user@example.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="••••••••">
+      </div>
+
+      <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
+      <div class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: DASHBOARD -->
+  <div id="mainDashboard" class="hidden">
+    
+    <div class="user-bar">
+      <span>User: <strong id="userDisplay" style="color:#00e5ff;">--</strong></span>
+      <button class="logout-btn" onclick="logOut()">Sign Out</button>
+    </div>
+
+    <div class="top-nav">
+      <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
+      <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
+    </div>
+
+    <!-- COUNTER TAB -->
+    <div id="counterTab" class="tab-content active">
+      <select id="dhikrSelect" onchange="resetCounter()">
+        <option value="Wudu before going to sleep">Wudu before going to sleep (Angels make dua)</option>
+        <option value="Last 2 verses of Surah Baqarah">Last 2 verses of Surah Baqarah (Sufficient for night prayer)</option>
+        <option value="Istighfaar (especially at Suhoor time)">Istighfaar / Astaghfirullah (Sins forgiven)</option>
+        <option value="Surah Ikhlaas (10 times)">Surah Ikhlaas (10 times - House in Jannah)</option>
+        <option value="Dua of Market Place">Dua of Market Place (1M Deeds recorded/erased)</option>
+        <option value="SubhanAllah (100 times)">SubhanAllah (100 times - 1000 good deeds written)</option>
+        <option value="SubhanAllahi wa bihamdihi (100 times)">SubhanAllahi wa bihamdihi (100 times - Sins forgiven like sea foam)</option>
+        <option value="SubhanAllah (100 times - Freeing Slaves)">SubhanAllah (100 times - Freeing 100 slaves)</option>
+        <option value="Alhamdulillah (100 times)">Alhamdulillah (100 times - 100 horses in path of Allah)</option>
+        <option value="Laa ilaha illAllah (100 times)">Laa ilaha illAllah (100 times - Fills heaven & earth)</option>
+        <option value="Allahu Akbar (100 times)">Allahu Akbar (100 times - 100 camels for Allah)</option>
+        <option value="Laa hawla wa laa quwwata illa billah">Laa hawla wa laa quwwata illa billah (Treasure from Jannah)</option>
+        <option value="SubhanAllahi wa bihamdihi SubhanAllahil Adheem">SubhanAllahi wa bihamdihi SubhanAllahil Adheem (Beloved to Allah / Heavy on Meezan)</option>
+        <option value="Darood Shareef">Darood Shareef (10 Hasanaat, 10 Sins wiped, 10 Ranks raised)</option>
+        <option value="Dhikr better than 24 hrs dhikr">Dhikr better than 24 hrs dhikr (Paragraph replacement)</option>
+        <option value="Dua before tasleem (Allahumma a'inee...)">Dua before tasleem (Allahumma a'inee...)</option>
+        <option value="Dua for Taqwa (Allahumma aati nafsi taqwaaha...)">Dua for Taqwa (Purify soul)</option>
+        <option value="Sitting after Fard prayers">Sitting after Fard prayers (Angels send blessings)</option>
+        <option value="Salatut Duha">Salatut Duha (Sadaqah for 360 joints)</option>
+        <option value="SubhanAllah, Alhamdulillah, Laa ilaha illAllah, Allahu Akbar">SubhanAllah, Alhamdulillah, Laa ilaha illAllah, Allahu Akbar (4 Beloved Words)</option>
+      </select>
+
+      <div class="counter-wrapper">
+        <button class="main-circle-btn" id="counterBtn" onclick="increment()">0</button>
+        <div class="counter-info">
+          <span>Rounds: <strong id="roundsCount" style="color:#00e5ff;">0</strong></span>
+          <span>Count: <strong id="lapCount" style="color:#00e5ff;">0/33</strong></span>
+        </div>
+      </div>
+
+      <div class="tool-bar">
+        <button class="tool-btn" onclick="resetCounter()" title="Reset">↻</button>
+        <button class="tool-btn" onclick="decrement()" title="Undo">-</button>
+        <button class="tool-btn" onclick="saveSessionToCloud()" title="Sync to Cloud">☁️ Save</button>
+      </div>
+    </div>
+
+    <!-- USAGE TAB -->
+    <div id="usageTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
+      <div class="chart-box">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- LOG TAB -->
+    <div id="historyTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">Cloud Recitation Log</h3>
+      <div id="logContainer"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FIREBASE INTEGRATION -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // UPDATED FIREBASE KEYS
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNjTCd-LE0buyE2aDktb-ORN0Ncwvzcgo",
+    authDomain: "dhikr-tracker-9930.firebaseapp.com",
+    projectId: "dhikr-tracker-9930",
+    storageBucket: "dhikr-tracker-9930.firebasestorage.app",
+    messagingSenderId: "147563812299",
+    appId: "1:147563812299:web:876d19edf65160e300124e",
+    measurementId: "G-YBWPX3C2HR"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let isSignUpMode = false;
+  let currentUser = null;
+  let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } };
+
+  window.toggleAuthMode = function() {
+    isSignUpMode = !isSignUpMode;
+    document.getElementById('authTitle').innerText = isSignUpMode ? "Create Account" : "Sign In";
+    document.getElementById('mainAuthBtn').innerText = isSignUpMode ? "Register" : "Sign In";
+    document.getElementById('toggleAuthText').innerText = isSignUpMode ? "Already have an account? Sign In" : "Need an account? Register here";
+  };
+
+  window.processAuth = async function() {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+
+    if (!email || !password) return alert("Please fill in all fields.");
+
+    try {
+      if (isSignUpMode) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", userCredential.user.uid), userData);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+    } catch (error) {
+      alert("Auth Error: " + error.message);
+    }
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('userDisplay').innerText = user.email.split('@')[0];
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainDashboard').classList.remove('hidden');
+
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        userData = docSnap.data();
+      }
+    } else {
+      currentUser = null;
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('mainDashboard').classList.add('hidden');
+    }
+  });
+
+  window.logOut = function() {
+    signOut(auth);
+  };
+
+  window.saveSessionToCloud = async function() {
+    if (currentCount === 0 || !currentUser) return;
+
+    const selectedDhikr = document.getElementById('dhikrSelect').value;
+    const now = new Date();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const currentDayStr = dayNames[now.getDay()];
+    const formattedDate = `${currentDayStr}, ${now.toLocaleDateString()} at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+    userData.logs.unshift({ dhikr: selectedDhikr, count: currentCount, timestamp: formattedDate });
+    userData.weeklyUsage[currentDayStr] = (userData.weeklyUsage[currentDayStr] || 0) + currentCount;
+
+    await setDoc(doc(db, "users", currentUser.uid), userData);
+    
+    alert("Saved securely to Cloud!");
+    resetCounter();
+  };
+
+  let currentCount = 0;
+  let totalSessionCount = 0;
+
+  window.increment = function() {
+    currentCount++;
+    totalSessionCount++;
+    document.getElementById('counterBtn').innerText = currentCount;
+    document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
+    document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
+  };
+
+  window.decrement = function() {
+    if (currentCount > 0) {
+      currentCount--;
+      totalSessionCount--;
+      document.getElementById('counterBtn').innerText = currentCount;
+      document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
+      document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
+    }
+  };
+
+  window.resetCounter = function() {
+    currentCount = 0;
+    totalSessionCount = 0;
+    document.getElementById('counterBtn').innerText = 0;
+    document.getElementById('roundsCount').innerText = 0;
+    document.getElementById('lapCount').innerText = '0/33';
+  };
+
+  window.switchTab = function(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+
+    if (tabId === 'historyTab') {
+      const container = document.getElementById('logContainer');
+      container.innerHTML = userData.logs.length ? '' : '<p style="color:#64748b;">No logs in Cloud.</p>';
+      userData.logs.forEach(item => {
+        container.innerHTML += `<div class="history-card"><div class="history-header"><span>${item.dhikr}</span><span>+${item.count}</span></div><div class="history-body">${item.timestamp}</div></div>`;
+      });
+    }
+
+    if (tabId === 'usageTab') {
+      const ctx = document.getElementById('usageChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
+          datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#00e5ff' }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
+    }
+  };
+</script>
+
+</body>
+</html>
