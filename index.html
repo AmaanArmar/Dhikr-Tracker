@@ -22,8 +22,8 @@
     .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; }
 
     /* TOP NAV & MAIN APP */
-    .top-nav { display: flex; background-color: #00e5ff; padding: 10px; justify-content: space-around; }
-    .nav-btn { background: none; border: none; font-size: 14px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 12px; border-radius: 20px; }
+    .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; }
+    .nav-btn { background: none; border: none; font-size: 12px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 8px; border-radius: 20px; white-space: nowrap; }
     .nav-btn.active { background-color: #0b131e; color: #00e5ff; }
 
     .user-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; }
@@ -45,6 +45,12 @@
     .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
     .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #00e5ff; font-size: 14px; }
     .history-body { font-size: 12px; color: #cbd5e1; margin-top: 5px; }
+
+    /* DUAS REFERENCE TAB STYLES */
+    .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+    .dua-title { color: #00e5ff; font-size: 15px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+    .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 10px; line-height: 1.8; font-family: 'Traditional Arabic', serif; }
+    .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; }
   </style>
 </head>
 <body>
@@ -83,6 +89,7 @@
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
       <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas</button>
     </div>
 
     <!-- COUNTER TAB -->
@@ -139,6 +146,30 @@
       <div id="logContainer"></div>
     </div>
 
+    <!-- DUAS REFERENCE TAB -->
+    <div id="duasTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">Essential Duas & Adhkar</h3>
+      
+      <div class="dua-card">
+        <div class="dua-title">Dua When Entering The Market</div>
+        <div class="arabic-text">لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لاَ يَمُوتُ، بِيَدِهِ الْخَيْرُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+        <div class="dua-translation">"There is no true god except Allah, Alone, without partner. To Him belongs sovereignty and praise. He gives life and causes death, and He is Ever-Living and does not die. In His Hand is all good, and He is over all things competent." <br><em>Reward: 1 Million deeds recorded/erased.</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua for Taqwa</div>
+        <div class="arabic-text">اللَّهُمَّ آتِ نَفْسِي تَقْوَاهَا، وَزَكِّهَا أَنْتَ خَيْرُ مَنْ زَكَّاهَا، أَنْتَ وَلِيُّهَا وَمَوْلَاهَا</div>
+        <div class="dua-translation">"O Allah! Grant me the sense of piety and purify my soul as You are the Best to purify it. You are its Guardian and its Protecting Friend."</div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dhikr Better Than 24 Hours of Dhikr</div>
+        <div class="arabic-text">الْحَمْدُ لِلَّهِ عَدَدَ مَا خَلَقَ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا خَلَقَ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا فِي الأَرْضِ وَالسَّمَاءِ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا فِي الأَرْضِ وَالسَّمَاءِ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا أَحْصَى كِتَابُهُ، وَالْحَمْدُ لِلَّهِ عَدَدَ كُلِّ شَيْءٍ، وَالْحَمْدُ لِلَّهِ مِلْءَ كُلِّ شَيْءٍ</div>
+        <div class="dua-translation">"Praise be to Allah equal to the number of His creation... [Repeat replacing 'Alhamdulillah' with 'SubhanAllah']."</div>
+      </div>
+
+    </div>
+
   </div>
 
 </div>
@@ -149,7 +180,6 @@
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // UPDATED FIREBASE KEYS
   const firebaseConfig = {
     apiKey: "AIzaSyDNjTCd-LE0buyE2aDktb-ORN0Ncwvzcgo",
     authDomain: "dhikr-tracker-9930.firebaseapp.com",
@@ -167,6 +197,7 @@
   let isSignUpMode = false;
   let currentUser = null;
   let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } };
+  let myChartInstance = null; // Track chart instance to prevent canvas errors
 
   window.toggleAuthMode = function() {
     isSignUpMode = !isSignUpMode;
@@ -279,7 +310,13 @@
 
     if (tabId === 'usageTab') {
       const ctx = document.getElementById('usageChart').getContext('2d');
-      new Chart(ctx, {
+      
+      // Destroy existing chart instance to prevent canvas conflict script errors
+      if (myChartInstance) {
+        myChartInstance.destroy();
+      }
+
+      myChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
