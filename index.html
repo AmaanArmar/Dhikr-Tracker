@@ -327,6 +327,40 @@
     }
   };
 </script>
+<script>
+  // 1. Register the Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+      try {
+        await navigator.serviceWorker.register('sw.js');
+        console.log('Service Worker registered successfully!');
+      } catch (error) {
+        console.log('Service Worker registration failed:', error);
+      }
+    });
+  }
 
+  // 2. Function to ask user for notification permission
+  async function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+      alert('This browser does not support desktop notifications.');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      new Notification('Notifications Enabled', {
+        body: 'Jazakallah Khair! You will now receive reminders.',
+        icon: 'icon.png'
+      });
+    } else {
+      alert('Permission denied for notifications.');
+    }
+  }
+</script>
+  <button onclick="requestNotificationPermission()" style="padding: 10px 20px; background: #d4af37; color: white; border: none; border-radius: 5px; font-weight: bold;">
+  Enable Daily Reminders
+  </button>
+  
 </body>
 </html>
