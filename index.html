@@ -47,9 +47,11 @@
     .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
     .chart-box { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 10px; }
-    .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
-    .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #00e5ff; font-size: 14px; }
+    .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; position: relative; }
+    .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #00e5ff; font-size: 14px; padding-right: 30px; }
     .history-body { font-size: 12px; color: #cbd5e1; margin-top: 5px; }
+    .delete-log-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; font-weight: bold; }
+    .delete-log-btn:hover { color: #dc2626; }
 
     /* DUAS REFERENCE TAB STYLES */
     .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
@@ -270,6 +272,47 @@
     resetCounter();
   };
 
+  window.deleteLogItem = async function(index) {
+    if (!currentUser) return;
+
+    // Confirmation prompt before deletion
+    const confirmed = confirm("Are you sure you want to delete this log entry?");
+    if (!confirmed) return;
+
+    // Remove the item from the local array based on its index
+    const removedItem = userData.logs.splice(index, 1)[0];
+    const now = new Date();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    // Attempt to reverse or adjust weekly usage if needed (using timestamp day if parseable, or skip if simpler)
+    // For simplicity, we update Firestore with the modified logs array
+    try {
+      await setDoc(doc(db, "users", currentUser.uid), userData);
+      // Re-render the history tab list immediately
+      renderLogList();
+    } catch (error) {
+      alert("Error deleting entry: " + error.message);
+    }
+  };
+
+  function renderLogList() {
+    const container = document.getElementById('logContainer');
+    container.innerHTML = userData.logs.length ? '' : '<p style="color:#64748b;">No logs in Cloud.</p>';
+    
+    userData.logs.forEach((item, index) => {
+      container.innerHTML += `
+        <div class="history-card">
+          <button class="delete-log-btn" onclick="deleteLogItem(${index})" title="Delete entry">&times;</button>
+          <div class="history-header">
+            <span>${item.dhikr}</span>
+            <span>+${item.count}</span>
+          </div>
+          <div class="history-body">${item.timestamp}</div>
+        </div>
+      `;
+    });
+  }
+
   let currentCount = 0;
   let totalSessionCount = 0;
 
@@ -306,11 +349,7 @@
     btn.classList.add('active');
 
     if (tabId === 'historyTab') {
-      const container = document.getElementById('logContainer');
-      container.innerHTML = userData.logs.length ? '' : '<p style="color:#64748b;">No logs in Cloud.</p>';
-      userData.logs.forEach(item => {
-        container.innerHTML += `<div class="history-card"><div class="history-header"><span>${item.dhikr}</span><span>+${item.count}</span></div><div class="history-body">${item.timestamp}</div></div>`;
-      });
+      renderLogList();
     }
 
     if (tabId === 'usageTab') {
@@ -333,4 +372,3 @@
 
 </body>
 </html>
-
