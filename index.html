@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cloud Islamic Counter & Deed Tracker</title>
   
-  <!-- HOME SCREEN APP MANIFEST LINK -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#00e5ff">
 
@@ -41,8 +40,8 @@
     
     .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; position: relative; }
     
-    /* BACKGROUND SQUARE REMOVED / FIXED TO BE CLEAN */
-    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; }
+    /* BACKGROUND SQUARE COMPLETELY REMOVED & CLEANED */
+    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; outline: none; }
     
     .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; color: #94a3b8; font-size: 14px; }
 
@@ -131,7 +130,7 @@
       </select>
 
       <div class="counter-wrapper">
-        <!-- Clean circular button with background artifact completely resolved -->
+        <!-- Square artifact completely gone; crisp glowing circular clicker remains -->
         <button class="main-circle-btn" id="counterBtn" onclick="increment()">0</button>
         <div class="counter-info">
           <span>Rounds: <strong id="roundsCount" style="color:#00e5ff;">0</strong></span>
@@ -365,6 +364,10 @@
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
     btn.classList.add('active');
+
+    if (tabId === 'historyTab') {
+      renderLogList();
+    }
 
     if (tabId === 'usageTab') {
       const ctx = document.getElementById('usageChart').getContext('2d');
