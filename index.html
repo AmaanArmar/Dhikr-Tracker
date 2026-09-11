@@ -9,23 +9,14 @@
   <meta name="theme-color" content="#00e5ff">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  /* Force global override of any remaining cyan/blue */
-  * { 
-    border-color: #d4af37 !important; 
-  }
-  
-  body { 
-    background-color: #050505 !important; 
-    color: #f5f5f5 !important; 
-  }
+  <style>
+  /* Global Hard Overrides */
+  * { border-color: #d4af37 !important; }
+  body { background-color: #050505 !important; color: #f5f5f5 !important; }
+  .app-container { background-color: #0a0a0a !important; }
 
-  .app-container { 
-    background-color: #0a0a0a !important; 
-  }
-
-  /* Fix the counter square background issue */
-  .main-circle-btn, .main-circle-btn svg, .main-circle-btn canvas, div[style*="background"] {
+  /* Fix Counter Box and Canvas Backgrounds */
+  .main-circle-btn, .main-circle-btn canvas, .main-circle-btn svg {
     background: transparent !important;
     background-color: transparent !important;
   }
@@ -34,29 +25,32 @@
     width: 220px !important; 
     height: 220px !important; 
     border-radius: 50% !important; 
-    background: rgba(20, 20, 20, 0.6) !important; 
+    background: rgba(20, 20, 20, 0.7) !important; 
     border: 3px solid #d4af37 !important; 
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     box-shadow: 0 0 25px rgba(212, 175, 55, 0.15) !important;
+    position: relative;
   }
 
-  /* Make counter digits large and gold */
-  #count-display, .counter-value, .main-circle-btn span { 
+  /* Force Large Gold Counter Digits */
+  #count-display, .counter-value, .main-circle-btn span, .main-circle-btn div { 
     font-size: 58px !important; 
     font-weight: bold !important; 
     color: #f3e5ab !important; 
   }
 
-  /* Force all headings, counts, and labels to gold */
+  /* Force All Text Elements to Gold/White instead of Cyan */
   h1, h2, h3, .top-nav + div h2, .tab-content h2, 
   .counter-info, span[id*="count"], div[id*="count"], 
-  .rounds-text, .count-text { 
+  .rounds-text, .count-text, 
+  div[style*="color: #00e5ff"], span[style*="color: #00e5ff"],
+  div[style*="color: cyan"], span[style*="color: cyan"] { 
     color: #f3e5ab !important; 
   }
 
-  /* Navigation and cards styling */
+  /* Navigation, Cards, and Charts Styling */
   .top-nav { background-color: #141414 !important; border-bottom: 1px solid #d4af37 !important; }
   .nav-btn.active { background-color: #0a0a0a !important; color: #f3e5ab !important; }
   .auth-card, .chart-box, .history-card, .dua-card, select { 
@@ -65,9 +59,15 @@
     color: #f3e5ab !important; 
   }
 
-  /* Chart bars override */
-  .chart-bar, .bar-fill { background-color: #d4af37 !important; }
-</style>
+  /* Target chart background boxes turning yellow/blue */
+  .chart-box, canvas {
+    background: #141414 !important;
+  }
+  .chart-bar, .bar-fill, rect[fill="#00e5ff"], path[fill="#00e5ff"] { 
+    fill: #d4af37 !important;
+    background-color: #d4af37 !important; 
+  }
+  </style>
   
 </head>
 <body>
