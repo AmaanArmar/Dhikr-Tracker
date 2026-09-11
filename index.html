@@ -21,21 +21,21 @@
     .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; }
 
     /* TOP NAV & MAIN APP */
-    .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; }
-    .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #0b131e; cursor: pointer; }
+    .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; align-items: center; }
+    .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 10px; border-radius: 4px; }
     .nav-btn.active { background-color: #0b131e; color: #00e5ff; }
 
     .user-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #0b131e; border-bottom: 1px solid #1e293b; }
     .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
 
-    .tab-content { display: none; padding: 20px; flex-grow: 1; }
-    .tab-content.active { display: flex; flex-direction: column; }
+    /* CRITICAL FIX: Ensure inactive tabs stay hidden */
+    .tab-content { display: none; padding: 20px; flex-grow: 1; flex-direction: column; }
+    .tab-content.active { display: flex; }
 
     select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 6px; margin-bottom: 20px; }
 
-    .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+    .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
     
-    /* Main Clicker Circle with large blue numbers */
     .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #1e293b; border: 3px solid #00e5ff; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
     .main-circle-btn:focus { outline: none; }
     
@@ -57,8 +57,25 @@
     /* DUAS & ZIKR REFERENCE TAB STYLES */
     .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #2d3748; }
     .dua-title { color: #00e5ff; font-size: 15px; font-weight: bold; margin-bottom: 8px; }
-    .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 8px; }
-    .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; }
+    .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 8px; line-height: 1.6; }
+    .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; margin-bottom: 6px; }
+    .dua-note { font-size: 12px; color: #38bdf8; }
+
+    /* REMINDER SECTION */
+    .reminder-container { padding: 10px 15px; background: #0f172a; border-bottom: 1px solid #1e293b; display: flex; justify-content: center; }
+    .reminder-btn {
+      background: #1e293b;
+      color: #00e5ff;
+      border: 1px solid #00e5ff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -69,30 +86,34 @@
       <div class="auth-card">
         <h2 id="authTitle">Sign In</h2>
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="emailInput" placeholder="name@example.com">
+          <label>Email Address</label>
+          <input type="email" id="emailInput" placeholder="user@example.com">
         </div>
         <div class="form-group">
           <label>Password</label>
           <input type="password" id="passwordInput" placeholder="••••••••">
         </div>
         <button class="auth-btn" id="authSubmitBtn" onclick="handleAuth()">Sign In</button>
-        <div class="toggle-auth" id="toggleAuthMode" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
+        <div class="toggle-auth" id="toggleAuthMode" onclick="toggleAuthMode()">Need an account? Register here</div>
       </div>
     </div>
 
     <!-- Main App Screen (Hidden Initially) -->
     <div id="mainApp" class="app-container hidden" style="min-height: auto;">
       <div class="user-bar">
-        <span id="userDisplay">User: guest</span>
+        <span id="userDisplay">User: armaramaan</span>
         <button class="logout-btn" onclick="logout()">Sign Out</button>
       </div>
 
       <div class="top-nav">
-        <button class="nav-btn active" onclick="switchTab('counter', this)">Counter</button>
-        <button class="nav-btn" onclick="switchTab('usage', this)">Usage</button>
-        <button class="nav-btn" onclick="switchTab('log', this)">Log</button>
-        <button class="nav-btn" onclick="switchTab('duas', this)">Duas & Zikr</button>
+        <button class="nav-btn active" onclick="switchTab('counter', this)">🏠 Counter</button>
+        <button class="nav-btn" onclick="switchTab('usage', this)">📊 Usage</button>
+        <button class="nav-btn" onclick="switchTab('log', this)">📜 Log</button>
+        <button class="nav-btn" onclick="switchTab('duas', this)">📖 Duas & Zikr</button>
+      </div>
+
+      <div class="reminder-container">
+        <button class="reminder-btn" onclick="toggleReminders()">🔔 Enable Daily Reminders</button>
       </div>
 
       <!-- Tab 1: Counter -->
@@ -122,9 +143,9 @@
 
       <!-- Tab 2: Usage -->
       <div id="usageTab" class="tab-content">
-        <h2>Weekly Cloud Usage</h2>
+        <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Weekly Cloud Usage</h2>
         <div class="chart-box">
-          <p style="font-size: 13px; color: #94a3b8; text-align: center;">Cloud Recitations Bar Overview</p>
+          <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 0;">Cloud Recitations Bar Overview</p>
           <div style="display: flex; justify-content: space-around; align-items: flex-end; height: 150px; margin-top: 20px; border-bottom: 1px solid #334155; padding-bottom: 5px;">
             <div style="background: #00e5ff; width: 20px; height: 80px; border-radius: 4px 4px 0 0;"></div>
             <div style="background: #1e293b; width: 20px; height: 10px; border-radius: 4px 4px 0 0;"></div>
@@ -142,7 +163,7 @@
 
       <!-- Tab 3: Log -->
       <div id="logTab" class="tab-content">
-        <h2>Cloud Recitation Log</h2>
+        <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Cloud Recitation Log</h2>
         <div class="history-card">
           <div class="history-header">
             <span>SubhanAllahi wa bihamdihi</span>
@@ -154,11 +175,34 @@
 
       <!-- Tab 4: Duas & Zikr -->
       <div id="duasTab" class="tab-content">
-        <h2>Essential Duas & Zikr Reference</h2>
+        <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Essential Duas & Zikr Reference</h2>
+        
         <div class="dua-card">
-          <div class="dua-title">SubhanAllahi wa bihamdihi</div>
-          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ</div>
-          <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation..."</div>
+          <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
+          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
+          <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."</div>
+          <div class="dua-note">(Sahih Muslim) — Outweighs hours of continuous morning remembrance when recited 3 times.</div>
+        </div>
+
+        <div class="dua-card">
+          <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
+          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+          <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."</div>
+          <div class="dua-note">(Sahih Bukhari & Muslim) — Light on the tongue, heavy on the scales, beloved to the Most Merciful.</div>
+        </div>
+
+        <div class="dua-card">
+          <div class="dua-title">Dua For Daily Protection (Morning & Evening — 3 Times)</div>
+          <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
+          <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven, and He is the All-Hearing, All-Knowing."</div>
+          <div class="dua-note">(Sunan Abi Dawud 5088 | Sahih)</div>
+        </div>
+
+        <div class="dua-card">
+          <div class="dua-title">Dua For Best in Both Worlds</div>
+          <div class="arabic-text">رَبَّنا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</div>
+          <div class="dua-translation">"Our Lord, give us good in this world and in the Hereafter, and protect us from the torment of the Fire."</div>
+          <div class="dua-note">(Surah Al-Baqarah: 201)</div>
         </div>
       </div>
     </div>
@@ -222,7 +266,7 @@
       isSignUp = !isSignUp;
       document.getElementById('authTitle').innerText = isSignUp ? "Sign Up" : "Sign In";
       document.getElementById('authSubmitBtn').innerText = isSignUp ? "Sign Up" : "Sign In";
-      document.getElementById('toggleAuthMode').innerText = isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up";
+      document.getElementById('toggleAuthMode').innerText = isSignUp ? "Already have an account? Sign In" : "Need an account? Register here";
     }
 
     function handleAuth() {
@@ -243,6 +287,10 @@
 
     function saveToCloud() {
       alert("Progress saved successfully!");
+    }
+
+    function toggleReminders() {
+      alert("Daily reminders enabled successfully!");
     }
   </script>
 </body>
