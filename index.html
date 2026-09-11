@@ -27,7 +27,7 @@
 
     /* TOP NAV & MAIN APP */
     .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; }
-    .nav-btn { background: none; border: none; font-size: 12px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 8px; border-radius: 20px; white-space: nowrap; }
+    .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 6px; border-radius: 20px; white-space: nowrap; }
     .nav-btn.active { background-color: #0b131e; color: #00e5ff; }
 
     .user-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; }
@@ -40,7 +40,6 @@
     
     .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; position: relative; }
     
-    /* PRECISELY MATCHED OPTION 2: PERFECT CIRCLE CLICK AREA, BACKGROUND, AND TOUCH HIGHLIGHT */
     .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; outline: none; display: flex; align-items: center; justify-content: center; user-select: none; }
     .main-circle-btn:focus { outline: none; border: none; }
     
@@ -56,7 +55,7 @@
     .delete-log-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; font-weight: bold; }
     .delete-log-btn:hover { color: #dc2626; }
 
-    /* DUAS REFERENCE TAB STYLES */
+    /* DUAS & ZIKR REFERENCE TAB STYLES */
     .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
     .dua-title { color: #00e5ff; font-size: 15px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
     .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 10px; line-height: 1.8; font-family: 'Traditional Arabic', serif; }
@@ -99,12 +98,14 @@
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
       <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
-      <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas</button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
     </div>
 
     <!-- COUNTER TAB -->
     <div id="counterTab" class="tab-content active">
       <select id="dhikrSelect" onchange="resetCounter()">
+        <option value="SubhanAllahi wa bihamdihi ('adada khalqihi...)">SubhanAllahi wa bihamdihi ('adada khalqihi...) - Juwayriyah's High Reward Zikr</option>
+        <option value="SubhanAllahi wa bihamdihi & SubhanAllahil Adheem">SubhanAllahi wa bihamdihi & SubhanAllahil Adheem (Beloved & Heavy on Scales)</option>
         <option value="Dua For Daily Protection (3 times morning/evening)">Dua For Daily Protection (Bismillahi-ladhi la yadurru...)</option>
         <option value="Dua For Best in Both Worlds (Rabbana atina...)">Dua For Best in Both Worlds (Surah Al-Baqarah: 201)</option>
         <option value="Dua For The Evil Eye Protection">Dua For The Evil Eye Protection (A'oothu bikalimaatil-laahit-taammaati...)</option>
@@ -115,12 +116,10 @@
         <option value="Dua of Market Place">Dua of Market Place (1M Deeds recorded/erased)</option>
         <option value="SubhanAllah (100 times)">SubhanAllah (100 times - 1000 good deeds written)</option>
         <option value="SubhanAllahi wa bihamdihi (100 times)">SubhanAllahi wa bihamdihi (100 times - Sins forgiven like sea foam)</option>
-        <option value="SubhanAllah (100 times - Freeing Slaves)">SubhanAllah (100 times - Freeing 100 slaves)</option>
         <option value="Alhamdulillah (100 times)">Alhamdulillah (100 times - 100 horses in path of Allah)</option>
         <option value="Laa ilaha illAllah (100 times)">Laa ilaha illAllah (100 times - Fills heaven & earth)</option>
         <option value="Allahu Akbar (100 times)">Allahu Akbar (100 times - 100 camels for Allah)</option>
         <option value="Laa hawla wa laa quwwata illa billah">Laa hawla wa laa quwwata illa billah (Treasure from Jannah)</option>
-        <option value="SubhanAllahi wa bihamdihi SubhanAllahil Adheem">SubhanAllahi wa bihamdihi SubhanAllahil Adheem (Beloved to Allah / Heavy on Meezan)</option>
         <option value="Darood Shareef">Darood Shareef (10 Hasanaat, 10 Sins wiped, 10 Ranks raised)</option>
         <option value="Dhikr better than 24 hrs dhikr">Dhikr better than 24 hrs dhikr (Paragraph replacement)</option>
         <option value="Dua before tasleem (Allahumma a'inee...)">Dua before tasleem (Allahumma a'inee...)</option>
@@ -131,7 +130,6 @@
       </select>
 
       <div class="counter-wrapper">
-        <!-- Exactly styled to match Option 2 with complete circular boundary behavior -->
         <button class="main-circle-btn" id="counterBtn" onclick="increment()">0</button>
         <div class="counter-info">
           <span>Rounds: <strong id="roundsCount" style="color:#00e5ff;">0</strong></span>
@@ -160,10 +158,22 @@
       <div id="logContainer"></div>
     </div>
 
-    <!-- DUAS REFERENCE TAB -->
+    <!-- DUAS & ZIKR REFERENCE TAB -->
     <div id="duasTab" class="tab-content">
-      <h3 style="color:#00e5ff; margin-top:0;">Essential Duas & Adhkar</h3>
+      <h3 style="color:#00e5ff; margin-top:0;">Essential Duas & Zikr Reference</h3>
       
+      <div class="dua-card">
+        <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
+        <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."<br><em>(Sahih Muslim) — Outweighs hours of continuous morning remembrance when recited 3 times.</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+        <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."<br><em>(Sahih Bukhari & Muslim) — Light on the tongue, heavy on the scales, beloved to the Most Merciful.</em></div>
+      </div>
+
       <div class="dua-card">
         <div class="dua-title">Dua For Daily Protection (Morning & Evening — 3 Times)</div>
         <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
@@ -185,19 +195,13 @@
       <div class="dua-card">
         <div class="dua-title">Dua When Entering The Market</div>
         <div class="arabic-text">لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لاَ يَمُوتُ، بِيَدِهِ الْخَيْرُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
-        <div class="dua-translation">"There is no true god except Allah, Alone, without partner. To Him belongs sovereignty and praise. He gives life and causes death, and He is Ever-Living and does not die. In His Hand is all good, and He is over all things competent." <br><em>Reward: 1 Million deeds recorded/erased.</em></div>
+        <div class="dua-translation">"There is no true god except Allah, Alone, without partner. To Him belongs sovereignty and praise... <br><em>Reward: 1 Million deeds recorded/erased.</em></div>
       </div>
 
       <div class="dua-card">
         <div class="dua-title">Dua for Taqwa</div>
         <div class="arabic-text">اللَّهُمَّ آتِ نَفْسِي تَقْوَاهَا، وَزَكِّهَا أَنْتَ خَيْرُ مَنْ زَكَّاهَا، أَنْتَ وَلِيُّهَا وَمَوْلَاهَا</div>
         <div class="dua-translation">"O Allah! Grant me the sense of piety and purify my soul as You are the Best to purify it. You are its Guardian and its Protecting Friend."</div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dhikr Better Than 24 Hours of Dhikr</div>
-        <div class="arabic-text">الْحَمْدُ لِلَّهِ عَدَدَ مَا خَلَقَ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا خَلَقَ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا فِي الأَرْضِ وَالسَّمَاءِ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا فِي الأَرْضِ وَالسَّمَاءِ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا أَحْصَى كِتَابُهُ، وَالْحَمْدُ لِلَّهِ عَدَدَ كُلِّ شَيْءٍ، وَالْحَمْدُ لِلَّهِ مِلْءَ كُلِّ شَيْءٍ</div>
-        <div class="dua-translation">"Praise be to Allah equal to the number of His creation... [Repeat replacing 'Alhamdulillah' with 'SubhanAllah']."</div>
       </div>
 
     </div>
