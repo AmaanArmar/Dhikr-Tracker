@@ -3,281 +3,394 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dhikr Tracker - Full Version</title>
+  <title>Cloud Islamic Counter & Deed Tracker</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00e5ff">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; }
-    .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0b131e; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+    .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0f172a; display: flex; flex-direction: column; position: relative; }
     .hidden { display: none !important; }
 
     /* AUTH SCREEN */
     .auth-container { padding: 30px 20px; display: flex; flex-direction: column; justify-content: center; flex-grow: 1; }
-    .auth-card { background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid #00e5ff; }
+    .auth-card { background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
     .auth-card h2 { color: #00e5ff; margin-top: 0; text-align: center; }
     .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 13px; }
-    .form-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #1e293b; color: #ffffff; border-radius: 6px; }
-    .auth-btn { width: 100%; padding: 12px; background: #00e5ff; color: #0b131e; border: none; font-weight: bold; border-radius: 6px; cursor: pointer; }
-    .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; }
+    .form-group label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 14px; }
+    .form-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; outline: none; }
+    .auth-btn { width: 100%; padding: 12px; background: #00e5ff; color: #0b131e; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; }
 
     /* TOP NAV & MAIN APP */
-    .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; align-items: center; }
-    .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 10px; border-radius: 4px; }
+    .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; }
+    .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 6px; border-radius: 20px; white-space: nowrap; }
     .nav-btn.active { background-color: #0b131e; color: #00e5ff; }
 
-    .user-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #0b131e; border-bottom: 1px solid #1e293b; }
-    .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+    .user-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; }
+    .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
-    .tab-content { display: none; padding: 20px; flex-grow: 1; flex-direction: column; }
-    .tab-content.active { display: flex; }
+    .tab-content { display: none; padding: 20px; flex-grow: 1; }
+    .tab-content.active { display: flex; flex-direction: column; }
 
-    select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 6px; margin-bottom: 20px; }
-
-    .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 10px; }
+    select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 8px; font-size: 14px; font-weight: bold; outline: none; }
     
-    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #1e293b; border: 3px solid #00e5ff; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-    .main-circle-btn:focus { outline: none; }
+    .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; position: relative; }
     
-    #count-display { font-size: 52px; font-weight: bold; color: #00e5ff; }
-
-    .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 20px; color: #ffffff; font-size: 14px; }
-    .counter-info span { color: #00e5ff; font-weight: bold; }
+    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; outline: none; display: flex; align-items: center; justify-content: center; user-select: none; }
+    .main-circle-btn:focus { outline: none; border: none; }
     
-    .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 20px; }
-    .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; color: #94a3b8; font-size: 14px; }
 
-    .chart-box { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 15px; }
-    .history-card { background: #1e293b; border-radius: 8px; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; position: relative; }
-    .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #ffffff; }
-    .history-body { font-size: 13px; color: #cbd5e1; margin-top: 5px; }
-    .delete-log-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #94a3b8; cursor: pointer; }
+    .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 15px; }
+    .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; }
+
+    .chart-box { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 10px; }
+    .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; position: relative; }
+    .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #00e5ff; font-size: 14px; padding-right: 30px; }
+    .history-body { font-size: 12px; color: #cbd5e1; margin-top: 5px; }
+    .delete-log-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; font-weight: bold; }
     .delete-log-btn:hover { color: #dc2626; }
 
     /* DUAS & ZIKR REFERENCE TAB STYLES */
-    .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #2d3748; }
-    .dua-title { color: #00e5ff; font-size: 15px; font-weight: bold; margin-bottom: 8px; }
-    .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 8px; line-height: 1.6; }
-    .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; margin-bottom: 6px; }
-    .dua-note { font-size: 12px; color: #38bdf8; }
-
-    .reminder-container { padding: 10px 15px; background: #0f172a; border-bottom: 1px solid #1e293b; display: flex; justify-content: center; }
-    .reminder-btn {
-      background: #1e293b;
-      color: #00e5ff;
-      border: 1px solid #00e5ff;
-      padding: 8px 14px;
-      border-radius: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: bold;
-      font-size: 12px;
-      cursor: pointer;
-    }
+    .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+    .dua-title { color: #00e5ff; font-size: 15px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+    .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 10px; line-height: 1.8; font-family: 'Traditional Arabic', serif; }
+    .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Auth Screen -->
-    <div id="authScreen" class="auth-container">
-      <div class="auth-card">
-        <h2 id="authTitle">Sign In</h2>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="emailInput" placeholder="user@example.com">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="passwordInput" placeholder="••••••••">
-        </div>
-        <button class="auth-btn" id="authSubmitBtn" onclick="handleAuth()">Sign In</button>
-        <div class="toggle-auth" id="toggleAuthMode" onclick="toggleAuthMode()">Need an account? Register here</div>
-      </div>
-    </div>
+<div class="app-container">
 
-    <!-- Main App Screen -->
-    <div id="mainApp" class="app-container hidden" style="min-height: auto;">
-      <div class="user-bar">
-        <span id="userDisplay">User: armaramaan</span>
-        <button class="logout-btn" onclick="logout()">Sign Out</button>
+  <!-- PAGE 1: AUTH SCREEN -->
+  <div id="authScreen" class="auth-container">
+    <div class="auth-card">
+      <h2 id="authTitle">Sign In</h2>
+      
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="authEmail" placeholder="user@example.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="••••••••">
       </div>
 
-      <div class="top-nav">
-        <button class="nav-btn active" onclick="switchTab('counter', this)">🏠 Counter</button>
-        <button class="nav-btn" onclick="switchTab('usage', this)">📊 Usage</button>
-        <button class="nav-btn" onclick="switchTab('log', this)">📜 Log</button>
-        <button class="nav-btn" onclick="switchTab('duas', this)">📖 Duas & Zikr</button>
-      </div>
-
-      <div class="reminder-container">
-        <button class="reminder-btn" onclick="toggleReminders()">🔔 Enable Daily Reminders</button>
-      </div>
-
-      <!-- Tab 1: Counter -->
-      <div id="counterTab" class="tab-content active">
-        <select id="zIndexSelect" onchange="updateTargetCount()">
-          <option value="33">SubhanAllahi wa bihamdihi (Juwairiya Tradition) - 33</option>
-          <option value="10">Darood Shareef (10 Good Deeds / Ranks) - 10</option>
-          <option value="100">Astaghfirullah - 100</option>
-        </select>
-
-        <div class="counter-wrapper">
-          <button class="main-circle-btn" onclick="incrementCount()">
-            <span id="count-display">0</span>
-          </button>
-
-          <div class="counter-info">
-            <div>Rounds: <span id="rounds-display">0</span></div>
-            <div>Count: <span id="current-progress">0</span>/<span id="target-display">33</span></div>
-          </div>
-
-          <div class="tool-bar">
-            <button class="tool-btn" onclick="resetCounter()" title="Reset">↺</button>
-            <button class="tool-btn" onclick="decrementCount()" title="Minus">-</button>
-            <button class="tool-btn" onclick="saveToCloud()" title="Save">☁️</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 2: Usage -->
-      <div id="usageTab" class="tab-content">
-        <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Weekly Cloud Usage</h2>
-        <div class="chart-box">
-          <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 0;">Cloud Recitations Bar Overview</p>
-          <div style="display: flex; justify-content: space-around; align-items: flex-end; height: 150px; margin-top: 20px; border-bottom: 1px solid #334155; padding-bottom: 5px;">
-            <div style="background: #00e5ff; width: 20px; height: 80px; border-radius: 4px 4px 0 0;"></div>
-            <div style="background: #1e293b; width: 20px; height: 10px; border-radius: 4px 4px 0 0;"></div>
-            <div style="background: #1e293b; width: 20px; height: 15px; border-radius: 4px 4px 0 0;"></div>
-            <div style="background: #1e293b; width: 20px; height: 15px; border-radius: 4px 4px 0 0;"></div>
-            <div style="background: #1e293b; width: 20px; height: 15px; border-radius: 4px 4px 0 0;"></div>
-            <div style="background: #1e293b; width: 20px; height: 10px; border-radius: 4px 4px 0 0;"></div>
-            <div style="background: #00e5ff; width: 20px; height: 30px; border-radius: 4px 4px 0 0;"></div>
-          </div>
-          <div style="display: flex; justify-content: space-around; font-size: 11px; color: #94a3b8; margin-top: 5px;">
-            <span>Fri</span><span>Sat</span><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 3: Log -->
-      <div id="logTab" class="tab-content">
-        <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Cloud Recitation Log</h2>
-        <div class="history-card">
-          <div class="history-header">
-            <span>SubhanAllahi wa bihamdihi</span>
-            <span>+33</span>
-          </div>
-          <div class="history-body">Fri, 11/09/2026 at 19:57 (Synced to Firestore)</div>
-        </div>
-      </div>
-
-      <!-- Tab 4: Duas & Zikr -->
-      <div id="duasTab" class="tab-content">
-        <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Essential Duas & Zikr Reference</h2>
-        
-        <div class="dua-card">
-          <div class="dua-title">SubhanAllahi wa bihamdihi (Juwairiya Tradition)</div>
-          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
-          <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."</div>
-          <div class="dua-note">Taught by the Prophet (ﷺ) to Juwairiya (RA): Outweighs hours of morning remembrance when recited 3 times.</div>
-        </div>
-
-        <div class="dua-card">
-          <div class="dua-title">Darood Shareef (Virtue of Blessings)</div>
-          <div class="arabic-text">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ</div>
-          <div class="dua-translation">"O Allah, send prayers upon Muhammad and upon the family of Muhammad."</div>
-          <div class="dua-note">Whoever sends blessings upon the Prophet once, Allah sends 10 blessings upon him, removes 10 bad deeds, and raises him 10 ranks.</div>
-        </div>
-      </div>
+      <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
+      <div class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</div>
     </div>
   </div>
 
-  <script>
-    let count = 0;
-    let rounds = 0;
-    let target = 33;
-    let isSignUp = false;
+  <!-- PAGE 2: DASHBOARD -->
+  <div id="mainDashboard" class="hidden">
+    
+    <div class="user-bar">
+      <span>User: <strong id="userDisplay" style="color:#00e5ff;">--</strong></span>
+      <button class="logout-btn" onclick="logOut()">Sign Out</button>
+    </div>
 
-    function incrementCount() {
-      count++;
-      if (count >= target) {
-        rounds++;
-        count = 0;
+    <div class="top-nav">
+      <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
+      <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
+    </div>
+
+    <!-- COUNTER TAB -->
+    <div id="counterTab" class="tab-content active">
+      <select id="dhikrSelect" onchange="resetCounter()">
+        <option value="SubhanAllahi wa bihamdihi ('adada khalqihi...)">SubhanAllahi wa bihamdihi ('adada khalqihi...) - Juwayriyah's High Reward Zikr</option>
+        <option value="SubhanAllahi wa bihamdihi & SubhanAllahil Adheem">SubhanAllahi wa bihamdihi & SubhanAllahil Adheem (Beloved & Heavy on Scales)</option>
+        <option value="Dua For Daily Protection (3 times morning/evening)">Dua For Daily Protection (Bismillahi-ladhi la yadurru...)</option>
+        <option value="Dua For Best in Both Worlds (Rabbana atina...)">Dua For Best in Both Worlds (Surah Al-Baqarah: 201)</option>
+        <option value="Dua For The Evil Eye Protection">Dua For The Evil Eye Protection (A'oothu bikalimaatil-laahit-taammaati...)</option>
+        <option value="Wudu before going to sleep">Wudu before going to sleep (Angels make dua)</option>
+        <option value="Last 2 verses of Surah Baqarah">Last 2 verses of Surah Baqarah (Sufficient for night prayer)</option>
+        <option value="Istighfaar (especially at Suhoor time)">Istighfaar / Astaghfirullah (Sins forgiven)</option>
+        <option value="Surah Ikhlaas (10 times)">Surah Ikhlaas (10 times - House in Jannah)</option>
+        <option value="Dua of Market Place">Dua of Market Place (1M Deeds recorded/erased)</option>
+        <option value="SubhanAllah (100 times)">SubhanAllah (100 times - 1000 good deeds written)</option>
+        <option value="SubhanAllahi wa bihamdihi (100 times)">SubhanAllahi wa bihamdihi (100 times - Sins forgiven like sea foam)</option>
+        <option value="Alhamdulillah (100 times)">Alhamdulillah (100 times - 100 horses in path of Allah)</option>
+        <option value="Laa ilaha illAllah (100 times)">Laa ilaha illAllah (100 times - Fills heaven & earth)</option>
+        <option value="Allahu Akbar (100 times)">Allahu Akbar (100 times - 100 camels for Allah)</option>
+        <option value="Laa hawla wa laa quwwata illa billah">Laa hawla wa laa quwwata illa billah (Treasure from Jannah)</option>
+        <option value="Darood Shareef">Darood Shareef (10 Hasanaat, 10 Sins wiped, 10 Ranks raised)</option>
+        <option value="Dhikr better than 24 hrs dhikr">Dhikr better than 24 hrs dhikr (Paragraph replacement)</option>
+        <option value="Dua before tasleem (Allahumma a'inee...)">Dua before tasleem (Allahumma a'inee...)</option>
+        <option value="Dua for Taqwa (Allahumma aati nafsi taqwaaha...)">Dua for Taqwa (Purify soul)</option>
+        <option value="Sitting after Fard prayers">Sitting after Fard prayers (Angels send blessings)</option>
+        <option value="Salatut Duha">Salatut Duha (Sadaqah for 360 joints)</option>
+        <option value="SubhanAllah, Alhamdulillah, Laa ilaha illAllah, Allahu Akbar">SubhanAllah, Alhamdulillah, Laa ilaha illAllah, Allahu Akbar (4 Beloved Words)</option>
+      </select>
+
+      <div class="counter-wrapper">
+        <button class="main-circle-btn" id="counterBtn" onclick="increment()">0</button>
+        <div class="counter-info">
+          <span>Rounds: <strong id="roundsCount" style="color:#00e5ff;">0</strong></span>
+          <span>Count: <strong id="lapCount" style="color:#00e5ff;">0/33</strong></span>
+        </div>
+      </div>
+
+      <div class="tool-bar">
+        <button class="tool-btn" onclick="resetCounter()" title="Reset">↻</button>
+        <button class="tool-btn" onclick="decrement()" title="Undo">-</button>
+        <button class="tool-btn" onclick="saveSessionToCloud()" title="Sync to Cloud">☁️ Save</button>
+      </div>
+    </div>
+
+    <!-- USAGE TAB -->
+    <div id="usageTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
+      <div class="chart-box">
+        <canvas id="usageChart"></canvas>
+      </div>
+    </div>
+
+    <!-- LOG TAB -->
+    <div id="historyTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">Cloud Recitation Log</h3>
+      <div id="logContainer"></div>
+    </div>
+
+    <!-- DUAS & ZIKR REFERENCE TAB -->
+    <div id="duasTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">Essential Duas & Zikr Reference</h3>
+      
+      <div class="dua-card">
+        <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
+        <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."<br><em>(Sahih Muslim) — Outweighs hours of continuous morning remembrance when recited 3 times.</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
+        <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."<br><em>(Sahih Bukhari & Muslim) — Light on the tongue, heavy on the scales, beloved to the Most Merciful.</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua For Daily Protection (Morning & Evening — 3 Times)</div>
+        <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
+        <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven, and He is the All-Hearing, All-Knowing."<br><em>(Sunan Abi Dawud 5088 | Sahih)</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua For Best in Both Worlds (Most Often Recited by the Prophet ﷺ)</div>
+        <div class="arabic-text">رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</div>
+        <div class="dua-translation">"Our Lord, give us good in this world and in the Hereafter, and protect us from the torment of the Fire."<br><em>[Surah Al-Baqarah: 201]</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua For The Evil Eye Protection</div>
+        <div class="arabic-text">أَعُوذُ بِكلِمَاتِ اللهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ</div>
+        <div class="dua-translation">"I seek refuge for you both in the Perfect Words of Allah, from every devil and every poisonous reptile, and from every evil eye."<br><em>(Sunan Ibn Majah Vol. 4, Book 31, Hadith 3525)</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua When Entering The Market</div>
+        <div class="arabic-text">لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لاَ يَمُوتُ، بِيَدِهِ الْخَيْرُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
+        <div class="dua-translation">"There is no true god except Allah, Alone, without partner. To Him belongs sovereignty and praise... <br><em>Reward: 1 Million deeds recorded/erased.</em></div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua for Taqwa</div>
+        <div class="arabic-text">اللَّهُمَّ آتِ نَفْسِي تَقْوَاهَا، وَزَكِّهَا أَنْتَ خَيْرُ مَنْ زَكَّاهَا، أَنْتَ وَلِيُّهَا وَمَوْلَاهَا</div>
+        <div class="dua-translation">"O Allah! Grant me the sense of piety and purify my soul as You are the Best to purify it. You are its Guardian and its Protecting Friend."</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FIREBASE INTEGRATION -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDNjTCd-LE0buyE2aDktb-ORN0Ncwvzcgo",
+    authDomain: "dhikr-tracker-9930.firebaseapp.com",
+    projectId: "dhikr-tracker-9930",
+    storageBucket: "dhikr-tracker-9930.firebasestorage.app",
+    messagingSenderId: "147563812299",
+    appId: "1:147563812299:web:876d19edf65160e300124e",
+    measurementId: "G-YBWPX3C2HR"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let isSignUpMode = false;
+  let currentUser = null;
+  let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } };
+  let myChartInstance = null;
+
+  window.toggleAuthMode = function() {
+    isSignUpMode = !isSignUpMode;
+    document.getElementById('authTitle').innerText = isSignUpMode ? "Create Account" : "Sign In";
+    document.getElementById('mainAuthBtn').innerText = isSignUpMode ? "Register" : "Sign In";
+    document.getElementById('toggleAuthText').innerText = isSignUpMode ? "Already have an account? Sign In" : "Need an account? Register here";
+  };
+
+  window.processAuth = async function() {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+
+    if (!email || !password) return alert("Please fill in all fields.");
+
+    try {
+      if (isSignUpMode) {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await setDoc(doc(db, "users", userCredential.user.uid), userData);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
       }
-      updateDisplay();
+    } catch (error) {
+      alert("Auth Error: " + error.message);
     }
+  };
 
-    function decrementCount() {
-      if (count > 0) {
-        count--;
-        updateDisplay();
-      }
-    }
-
-    function resetCounter() {
-      count = 0;
-      rounds = 0;
-      updateDisplay();
-    }
-
-    function updateTargetCount() {
-      const select = document.getElementById('zIndexSelect');
-      target = parseInt(select.value);
-      document.getElementById('target-display').innerText = target;
-      count = 0;
-      updateDisplay();
-    }
-
-    function updateDisplay() {
-      document.getElementById('count-display').innerText = count;
-      document.getElementById('rounds-display').innerText = rounds;
-      document.getElementById('current-progress').innerText = count;
-    }
-
-    function switchTab(tabName, btnElement) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-
-      if (tabName === 'counter') document.getElementById('counterTab').classList.add('active');
-      if (tabName === 'usage') document.getElementById('usageTab').classList.add('active');
-      if (tabName === 'log') document.getElementById('logTab').classList.add('active');
-      if (tabName === 'duas') document.getElementById('duasTab').classList.add('active');
-
-      btnElement.classList.add('active');
-    }
-
-    function toggleAuthMode() {
-      isSignUp = !isSignUp;
-      document.getElementById('authTitle').innerText = isSignUp ? "Sign Up" : "Sign In";
-      document.getElementById('authSubmitBtn').innerText = isSignUp ? "Sign Up" : "Sign In";
-      document.getElementById('toggleAuthMode').innerText = isSignUp ? "Already have an account? Sign In" : "Need an account? Register here";
-    }
-
-    function handleAuth() {
-      const email = document.getElementById('emailInput').value;
-      if(!email) {
-        alert("Please enter an email");
-        return;
-      }
-      document.getElementById('userDisplay').innerText = "User: " + email.split('@')[0];
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      document.getElementById('userDisplay').innerText = user.email.split('@')[0];
       document.getElementById('authScreen').classList.add('hidden');
-      document.getElementById('mainApp').classList.remove('hidden');
-    }
+      document.getElementById('mainDashboard').classList.remove('hidden');
 
-    function logout() {
-      document.getElementById('mainApp').classList.add('hidden');
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        userData = docSnap.data();
+      }
+    } else {
+      currentUser = null;
       document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('mainDashboard').classList.add('hidden');
+    }
+  });
+
+  window.logOut = function() {
+    signOut(auth);
+  };
+
+  window.saveSessionToCloud = async function() {
+    if (currentCount === 0 || !currentUser) return;
+
+    const selectedDhikr = document.getElementById('dhikrSelect').value;
+    const now = new Date();
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const currentDayStr = dayNames[now.getDay()];
+    const formattedDate = `${currentDayStr}, ${now.toLocaleDateString()} at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+    userData.logs.unshift({ dhikr: selectedDhikr, count: currentCount, timestamp: formattedDate });
+    userData.weeklyUsage[currentDayStr] = (userData.weeklyUsage[currentDayStr] || 0) + currentCount;
+
+    await setDoc(doc(db, "users", currentUser.uid), userData);
+    
+    alert("Saved securely to Cloud!");
+    resetCounter();
+  };
+
+  window.deleteLogItem = async function(index) {
+    if (!currentUser) return;
+
+    const confirmed = confirm("Are you sure you want to delete this log entry?");
+    if (!confirmed) return;
+
+    userData.logs.splice(index, 1);
+    
+    try {
+      await setDoc(doc(db, "users", currentUser.uid), userData);
+      renderLogList();
+    } catch (error) {
+      alert("Error deleting entry: " + error.message);
+    }
+  };
+
+  function renderLogList() {
+    const container = document.getElementById('logContainer');
+    container.innerHTML = userData.logs.length ? '' : '<p style="color:#64748b;">No logs in Cloud.</p>';
+    
+    userData.logs.forEach((item, index) => {
+      container.innerHTML += `
+        <div class="history-card">
+          <button class="delete-log-btn" onclick="deleteLogItem(${index})" title="Delete entry">&times;</button>
+          <div class="history-header">
+            <span>${item.dhikr}</span>
+            <span>+${item.count}</span>
+          </div>
+          <div class="history-body">${item.timestamp}</div>
+        </div>
+      `;
+    });
+  }
+
+  let currentCount = 0;
+  let totalSessionCount = 0;
+
+  window.increment = function() {
+    currentCount++;
+    totalSessionCount++;
+    document.getElementById('counterBtn').innerText = currentCount;
+    document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
+    document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
+  };
+
+  window.decrement = function() {
+    if (currentCount > 0) {
+      currentCount--;
+      totalSessionCount--;
+      document.getElementById('counterBtn').innerText = currentCount;
+      document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
+      document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
+    }
+  };
+
+  window.resetCounter = function() {
+    currentCount = 0;
+    totalSessionCount = 0;
+    document.getElementById('counterBtn').innerText = 0;
+    document.getElementById('roundsCount').innerText = 0;
+    document.getElementById('lapCount').innerText = '0/33';
+  };
+
+  window.switchTab = function(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+
+    if (tabId === 'historyTab') {
+      renderLogList();
     }
 
-    function saveToCloud() {
-      // Placeholder representation where Firestore sync functions hook in
-      alert("Progress successfully synced to Firestore cloud database!");
-    }
+    if (tabId === 'usageTab') {
+      const ctx = document.getElementById('usageChart').getContext('2d');
+      if (myChartInstance) {
+        myChartInstance.destroy();
+      }
 
-    function toggleReminders() {
-      alert("Daily reminder notifications enabled!");
+      myChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
+          datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#00e5ff' }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
     }
-  </script>
+  };
+</script>
+
 </body>
 </html>
