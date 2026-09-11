@@ -10,7 +10,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
     body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
     .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0f172a; display: flex; flex-direction: column; position: relative; }
     .hidden { display: none !important; }
@@ -21,7 +21,7 @@
     .auth-card h2 { color: #00e5ff; margin-top: 0; text-align: center; }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 14px; }
-    .form-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; }
+    .form-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; outline: none; }
     .auth-btn { width: 100%; padding: 12px; background: #00e5ff; color: #0b131e; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; }
 
@@ -36,17 +36,18 @@
     .tab-content { display: none; padding: 20px; flex-grow: 1; }
     .tab-content.active { display: flex; flex-direction: column; }
 
-    select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 8px; font-size: 14px; font-weight: bold; }
+    select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 8px; font-size: 14px; font-weight: bold; outline: none; }
     
     .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; position: relative; }
     
-    /* BACKGROUND SQUARE COMPLETELY REMOVED & CLEANED */
-    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; outline: none; }
+    /* PRECISELY MATCHED OPTION 2: PERFECT CIRCLE CLICK AREA, BACKGROUND, AND TOUCH HIGHLIGHT */
+    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; outline: none; display: flex; align-items: center; justify-content: center; user-select: none; }
+    .main-circle-btn:focus { outline: none; border: none; }
     
     .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; color: #94a3b8; font-size: 14px; }
 
     .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 15px; }
-    .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; }
 
     .chart-box { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 10px; }
     .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; position: relative; }
@@ -130,7 +131,7 @@
       </select>
 
       <div class="counter-wrapper">
-        <!-- Square artifact completely gone; crisp glowing circular clicker remains -->
+        <!-- Exactly styled to match Option 2 with complete circular boundary behavior -->
         <button class="main-circle-btn" id="counterBtn" onclick="increment()">0</button>
         <div class="counter-info">
           <span>Rounds: <strong id="roundsCount" style="color:#00e5ff;">0</strong></span>
