@@ -99,8 +99,59 @@
       <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
       <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
+      <button id="notifyBtn" onclick="enableReminders()" class="notification-toggle-btn">
+  🔔 Enable Daily Reminders
+      </button>
     </div>
+     <script>
+       async function enableReminders() {
+  if (!("Notification" in window)) {
+    alert("This browser does not support notifications.");
+    return;
+  }
 
+  let permission = await Notification.requestPermission();
+  
+  if (permission === "granted") {
+    new Notification("Dhikr Tracker Reminders Active", {
+      body: "Jazakallah khair! You will now receive your daily remembrance prompts.",
+      icon: "icon.png"
+    });
+    
+    // Example: Set a daily check or timer for reminders
+    scheduleDailyReminder(8, 0); // Triggers at 8:00 AM daily
+  } else {
+    alert("Permission for notifications was denied.");
+  }
+}
+
+function scheduleDailyReminder(hour, minute) {
+  const now = new Date();
+  const target = new Date();
+  target.setHours(hour, minute, 0, 0);
+
+  if (now > target) {
+    target.setDate(target.getDate() + 1);
+  }
+
+  const timeToWait = target - now;
+
+  setTimeout(() => {
+    sendNotification();
+    // Repeat every 24 hours
+    setInterval(sendNotification, 24 * 60 * 60 * 1000);
+  }, timeToWait);
+}
+
+function sendNotification() {
+  if (Notification.permission === "granted") {
+    new Notification("Time for Daily Zikr", {
+      body: "Take a quiet moment to remember Allah and send Salawat upon the Prophet (ﷺ).",
+      icon: "icon.png"
+    });
+  }
+}
+     </script>
     <!-- COUNTER TAB -->
     <div id="counterTab" class="tab-content active">
       <select id="dhikrSelect" onchange="resetCounter()">
@@ -167,60 +218,7 @@
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
         <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."<br><em>(Sahih Muslim) — Outweighs hours of continuous morning remembrance when recited 3 times.</em></div>
       </div>
-      <div>
-        <button id="notifyBtn" onclick="enableReminders()" class="notification-toggle-btn">
-  🔔 Enable Daily Reminders
-        </button>
-        <script>
-          async function enableReminders() {
-  if (!("Notification" in window)) {
-    alert("This browser does not support notifications.");
-    return;
-  }
-
-  let permission = await Notification.requestPermission();
-  
-  if (permission === "granted") {
-    new Notification("Dhikr Tracker Reminders Active", {
-      body: "Jazakallah khair! You will now receive your daily remembrance prompts.",
-      icon: "icon.png"
-    });
     
-    // Example: Set a daily check or timer for reminders
-    scheduleDailyReminder(8, 0); // Triggers at 8:00 AM daily
-  } else {
-    alert("Permission for notifications was denied.");
-  }
-}
-
-function scheduleDailyReminder(hour, minute) {
-  const now = new Date();
-  const target = new Date();
-  target.setHours(hour, minute, 0, 0);
-
-  if (now > target) {
-    target.setDate(target.getDate() + 1);
-  }
-
-  const timeToWait = target - now;
-
-  setTimeout(() => {
-    sendNotification();
-    // Repeat every 24 hours
-    setInterval(sendNotification, 24 * 60 * 60 * 1000);
-  }, timeToWait);
-}
-
-function sendNotification() {
-  if (Notification.permission === "granted") {
-    new Notification("Time for Daily Zikr", {
-      body: "Take a quiet moment to remember Allah and send Salawat upon the Prophet (ﷺ).",
-      icon: "icon.png"
-    });
-  }
-}  
-        </script>
-      </div>
       <div class="dua-card">
         <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
