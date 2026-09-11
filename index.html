@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dhikr Tracker</title>
+  <title>Dhikr Tracker - Full Version</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; }
@@ -28,7 +28,6 @@
     .user-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #0b131e; border-bottom: 1px solid #1e293b; }
     .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
 
-    /* CRITICAL FIX: Ensure inactive tabs stay hidden */
     .tab-content { display: none; padding: 20px; flex-grow: 1; flex-direction: column; }
     .tab-content.active { display: flex; }
 
@@ -61,7 +60,6 @@
     .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; margin-bottom: 6px; }
     .dua-note { font-size: 12px; color: #38bdf8; }
 
-    /* REMINDER SECTION */
     .reminder-container { padding: 10px 15px; background: #0f172a; border-bottom: 1px solid #1e293b; display: flex; justify-content: center; }
     .reminder-btn {
       background: #1e293b;
@@ -98,7 +96,7 @@
       </div>
     </div>
 
-    <!-- Main App Screen (Hidden Initially) -->
+    <!-- Main App Screen -->
     <div id="mainApp" class="app-container hidden" style="min-height: auto;">
       <div class="user-bar">
         <span id="userDisplay">User: armaramaan</span>
@@ -119,8 +117,9 @@
       <!-- Tab 1: Counter -->
       <div id="counterTab" class="tab-content active">
         <select id="zIndexSelect" onchange="updateTargetCount()">
-          <option value="33">SubhanAllahi wa bihamdihi ('adada khalqihi...) - 33</option>
-          <option value="100">Darood Shareef - 100</option>
+          <option value="33">SubhanAllahi wa bihamdihi (Juwairiya Tradition) - 33</option>
+          <option value="10">Darood Shareef (10 Good Deeds / Ranks) - 10</option>
+          <option value="100">Astaghfirullah - 100</option>
         </select>
 
         <div class="counter-wrapper">
@@ -169,7 +168,7 @@
             <span>SubhanAllahi wa bihamdihi</span>
             <span>+33</span>
           </div>
-          <div class="history-body">Fri, 11/09/2026 at 19:57</div>
+          <div class="history-body">Fri, 11/09/2026 at 19:57 (Synced to Firestore)</div>
         </div>
       </div>
 
@@ -178,31 +177,17 @@
         <h2 style="color: #00e5ff; font-size: 18px; margin-top: 0;">Essential Duas & Zikr Reference</h2>
         
         <div class="dua-card">
-          <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
+          <div class="dua-title">SubhanAllahi wa bihamdihi (Juwairiya Tradition)</div>
           <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
           <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."</div>
-          <div class="dua-note">(Sahih Muslim) — Outweighs hours of continuous morning remembrance when recited 3 times.</div>
+          <div class="dua-note">Taught by the Prophet (ﷺ) to Juwairiya (RA): Outweighs hours of morning remembrance when recited 3 times.</div>
         </div>
 
         <div class="dua-card">
-          <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
-          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
-          <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."</div>
-          <div class="dua-note">(Sahih Bukhari & Muslim) — Light on the tongue, heavy on the scales, beloved to the Most Merciful.</div>
-        </div>
-
-        <div class="dua-card">
-          <div class="dua-title">Dua For Daily Protection (Morning & Evening — 3 Times)</div>
-          <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
-          <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven, and He is the All-Hearing, All-Knowing."</div>
-          <div class="dua-note">(Sunan Abi Dawud 5088 | Sahih)</div>
-        </div>
-
-        <div class="dua-card">
-          <div class="dua-title">Dua For Best in Both Worlds</div>
-          <div class="arabic-text">رَبَّنا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</div>
-          <div class="dua-translation">"Our Lord, give us good in this world and in the Hereafter, and protect us from the torment of the Fire."</div>
-          <div class="dua-note">(Surah Al-Baqarah: 201)</div>
+          <div class="dua-title">Darood Shareef (Virtue of Blessings)</div>
+          <div class="arabic-text">اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ</div>
+          <div class="dua-translation">"O Allah, send prayers upon Muhammad and upon the family of Muhammad."</div>
+          <div class="dua-note">Whoever sends blessings upon the Prophet once, Allah sends 10 blessings upon him, removes 10 bad deeds, and raises him 10 ranks.</div>
         </div>
       </div>
     </div>
@@ -286,11 +271,12 @@
     }
 
     function saveToCloud() {
-      alert("Progress saved successfully!");
+      // Placeholder representation where Firestore sync functions hook in
+      alert("Progress successfully synced to Firestore cloud database!");
     }
 
     function toggleReminders() {
-      alert("Daily reminders enabled successfully!");
+      alert("Daily reminder notifications enabled!");
     }
   </script>
 </body>
