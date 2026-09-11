@@ -26,10 +26,12 @@
   .auth-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #d4af37, #aa8c2c); color: #000000; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
   .toggle-auth { color: #f3e5ab; text-align: center; margin-top: 15px; cursor: pointer; font-size: 14px; }
 
-  /* TOP NAV & MAIN APP */
+  /* TOP NAV & HEADINGS */
   .top-nav { display: flex; background-color: #141414; padding: 8px 4px; justify-content: space-around; border-bottom: 1px solid #d4af37; }
   .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #aaaaaa; cursor: pointer; padding: 6px; }
   .nav-btn.active { background-color: #0a0a0a; color: #f3e5ab; border-radius: 4px; border: 1px solid #333333; }
+  
+  h1, h2, h3, .top-nav + div h2, .tab-content h2 { color: #f3e5ab !important; }
   
   .user-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #141414; border-bottom: 1px solid #222; font-size: 13px; color: #d4af37; }
   .logout-btn { background: #8B0000; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
@@ -39,16 +41,43 @@
 
   select { width: 100%; padding: 12px; background: #141414; color: #f3e5ab; border: 1px solid #d4af37; border-radius: 6px; }
   
+  /* COUNTER AREA & LARGE NUMBERS */
   .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
-  .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: radial-gradient(circle, #1f1f1f 0%, #0a0a0a 100%); border: 3px solid #d4af37; cursor: pointer; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+  
+  /* Main circle button with transparent/translucent dark center */
+  .main-circle-btn { 
+    width: 220px; 
+    height: 220px; 
+    border-radius: 50%; 
+    background: rgba(20, 20, 20, 0.4); 
+    border: 3px solid #d4af37; 
+    cursor: pointer; 
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.15); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .main-circle-btn:focus { outline: none; border-color: #f3e5ab; }
 
-  .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 20px; color: #f5f5f5; font-size: 14px; }
+  /* Make the main active count number large and prominent */
+  .main-circle-btn span, #count-display, .counter-value { 
+    font-size: 54px !important; 
+    font-weight: bold; 
+    color: #f3e5ab; 
+  }
+
+  .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 25px; color: #f5f5f5; font-size: 16px; font-weight: bold; }
   
-  .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 20px; }
+  .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 25px; }
   .tool-btn { background: #141414; border: 1px solid #d4af37; color: #f3e5ab; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
   
+  /* USAGE CHARTS & LOGS */
   .chart-box { background: #141414; border-radius: 12px; padding: 15px; margin-top: 15px; border: 1px solid #222; }
+  
+  /* Overriding chart bars from cyan to gold */
+  .chart-bar, canvas, .bar-fill { background-color: #d4af37 !important; fill: #d4af37 !important; }
+  div[style*="background: cyan"], div[style*="background: #00e5ff"] { background: #d4af37 !important; }
+
   .history-card { background: #141414; border-radius: 8px; border-left: 4px solid #d4af37; padding: 12px; margin-bottom: 10px; position: relative; border-top: 1px solid #222; border-right: 1px solid #222; border-bottom: 1px solid #222; }
   .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #f3e5ab; }
   .history-body { font-size: 13px; color: #cccccc; margin-top: 5px; }
