@@ -9,58 +9,78 @@
   <meta name="theme-color" content="#00e5ff">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
-    .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0f172a; display: flex; flex-direction: column; position: relative; }
-    .hidden { display: none !important; }
+<style>
+  * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  body { background-color: #050505; color: #f5f5f5; margin: 0; padding: 0; display: flex; justify-content: center; }
+  .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0a0a0a; display: flex; flex-direction: column; }
+  .hidden { display: none !important; }
 
-    /* AUTH SCREEN */
-    .auth-container { padding: 30px 20px; display: flex; flex-direction: column; justify-content: center; flex-grow: 1; }
-    .auth-card { background: #1e293b; border-radius: 12px; padding: 25px; border: 1px solid #00e5ff; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
-    .auth-card h2 { color: #00e5ff; margin-top: 0; text-align: center; }
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; color: #94a3b8; font-size: 14px; }
-    .form-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; outline: none; }
-    .auth-btn { width: 100%; padding: 12px; background: #00e5ff; color: #0b131e; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .toggle-auth { color: #00e5ff; text-align: center; margin-top: 15px; cursor: pointer; font-size: 13px; }
+  /* AUTH SCREEN */
+  .auth-container { padding: 30px 20px; display: flex; flex-direction: column; justify-content: center; flex-grow: 1; }
+  .auth-card { background: #141414; border-radius: 12px; padding: 25px; border: 1px solid #d4af37; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1); }
+  .auth-card h2 { color: #f3e5ab; margin-top: 0; text-align: center; }
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; margin-bottom: 5px; color: #d4af37; font-size: 14px; }
+  .form-group input { width: 100%; padding: 12px; background: #050505; border: 1px solid #333333; color: #ffffff; border-radius: 6px; }
+  .form-group input:focus { border-color: #d4af37; outline: none; }
+  .auth-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #d4af37, #aa8c2c); color: #000000; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+  .toggle-auth { color: #f3e5ab; text-align: center; margin-top: 15px; cursor: pointer; font-size: 14px; }
 
-    /* TOP NAV & MAIN APP */
-    .top-nav { display: flex; background-color: #00e5ff; padding: 8px 4px; justify-content: space-around; }
-    .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #0b131e; cursor: pointer; padding: 6px 6px; border-radius: 20px; white-space: nowrap; }
-    .nav-btn.active { background-color: #0b131e; color: #00e5ff; }
+  /* TOP NAV & MAIN APP */
+  .top-nav { display: flex; background-color: #141414; padding: 8px 4px; justify-content: space-around; border-bottom: 1px solid #d4af37; }
+  .nav-btn { background: none; border: none; font-size: 11px; font-weight: bold; color: #aaaaaa; cursor: pointer; padding: 6px; }
+  .nav-btn.active { background-color: #0a0a0a; color: #f3e5ab; border-radius: 4px; border: 1px solid #333333; }
+  
+  .user-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #141414; border-bottom: 1px solid #222; font-size: 13px; color: #d4af37; }
+  .logout-btn { background: #8B0000; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
 
-    .user-bar { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 15px; font-size: 13px; color: #94a3b8; border-bottom: 1px solid #334155; }
-    .logout-btn { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+  .tab-content { display: none; padding: 20px; flex-grow: 1; }
+  .tab-content.active { display: flex; flex-direction: column; }
 
-    .tab-content { display: none; padding: 20px; flex-grow: 1; }
-    .tab-content.active { display: flex; flex-direction: column; }
+  select { width: 100%; padding: 12px; background: #141414; color: #f3e5ab; border: 1px solid #d4af37; border-radius: 6px; }
+  
+  .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+  .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: radial-gradient(circle, #1f1f1f 0%, #0a0a0a 100%); border: 3px solid #d4af37; cursor: pointer; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+  .main-circle-btn:focus { outline: none; border-color: #f3e5ab; }
 
-    select { width: 100%; padding: 12px; background: #1e293b; color: #00e5ff; border: 1px solid #00e5ff; border-radius: 8px; font-size: 14px; font-weight: bold; outline: none; }
-    
-    .counter-wrapper { display: flex; flex-direction: column; align-items: center; margin: 20px 0; position: relative; }
-    
-    .main-circle-btn { width: 210px; height: 210px; border-radius: 50%; background: #00e5ff; color: #0b131e; border: none; font-size: 3.5em; font-weight: bold; cursor: pointer; box-shadow: 0 0 25px rgba(0, 229, 255, 0.4); z-index: 2; position: relative; outline: none; display: flex; align-items: center; justify-content: center; user-select: none; }
-    .main-circle-btn:focus { outline: none; border: none; }
-    
-    .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 15px; color: #94a3b8; font-size: 14px; }
+  .counter-info { display: flex; justify-content: space-between; width: 100%; margin-top: 20px; color: #f5f5f5; font-size: 14px; }
+  
+  .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 20px; }
+  .tool-btn { background: #141414; border: 1px solid #d4af37; color: #f3e5ab; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  
+  .chart-box { background: #141414; border-radius: 12px; padding: 15px; margin-top: 15px; border: 1px solid #222; }
+  .history-card { background: #141414; border-radius: 8px; border-left: 4px solid #d4af37; padding: 12px; margin-bottom: 10px; position: relative; border-top: 1px solid #222; border-right: 1px solid #222; border-bottom: 1px solid #222; }
+  .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #f3e5ab; }
+  .history-body { font-size: 13px; color: #cccccc; margin-top: 5px; }
+  .delete-log-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #888; cursor: pointer; }
+  .delete-log-btn:hover { color: #ff4d4d; }
 
-    .tool-bar { display: flex; justify-content: space-around; width: 100%; margin-top: 15px; }
-    .tool-btn { background: #1e293b; border: 1px solid #00e5ff; color: #00e5ff; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none; }
+  /* DUAS & ZIKR REFERENCE TAB STYLES */
+  .dua-card { background: #141414; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #333333; }
+  .dua-title { color: #f3e5ab; font-size: 15px; font-weight: bold; margin-bottom: 8px; }
+  .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #ffffff; margin-bottom: 8px; }
+  .dua-translation { font-size: 13px; color: #aaaaaa; font-style: italic; }
 
-    .chart-box { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 10px; }
-    .history-card { background: #1e293b; border-left: 4px solid #00e5ff; padding: 12px; margin-bottom: 10px; border-radius: 6px; position: relative; }
-    .history-header { display: flex; justify-content: space-between; font-weight: bold; color: #00e5ff; font-size: 14px; padding-right: 30px; }
-    .history-body { font-size: 12px; color: #cbd5e1; margin-top: 5px; }
-    .delete-log-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: #ef4444; font-size: 16px; cursor: pointer; font-weight: bold; }
-    .delete-log-btn:hover { color: #dc2626; }
-
-    /* DUAS & ZIKR REFERENCE TAB STYLES */
-    .dua-card { background: #1e293b; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #334155; }
-    .dua-title { color: #00e5ff; font-size: 15px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
-    .arabic-text { font-size: 18px; text-align: right; direction: rtl; color: #f8fafc; margin-bottom: 10px; line-height: 1.8; font-family: 'Traditional Arabic', serif; }
-    .dua-translation { font-size: 13px; color: #94a3b8; font-style: italic; }
-  </style>
+  /* REMINDER NOTIFICATION BUTTON */
+  .reminder-btn {
+    background: #141414;
+    color: #f3e5ab;
+    border: 1px solid #d4af37;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+    justify-content: center;
+  }
+  .reminder-btn:hover {
+    background: rgba(212, 175, 55, 0.15);
+  }
+</style>
 </head>
 <body>
 
@@ -99,8 +119,9 @@
       <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
       <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
-      <button id="notifyBtn" onclick="enableReminders()" class="notification-toggle-btn">🔔 Enable Daily Reminders</button>
-      
+      <button onclick="enableReminders()" class="reminder-btn">
+  <span class="bell-icon">🔔</span> Enable Daily Reminders
+      </button>
     </div>
 <script>
   async function enableReminders() {
