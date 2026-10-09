@@ -221,8 +221,6 @@ function appendUserMessage(text) {
 function appendBotMessage(item) {
     const msg = document.createElement('div');
     msg.className = 'message bot-message';
-    
-    const fullTextToSpeech = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
 
     msg.innerHTML = `
         <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
@@ -241,7 +239,7 @@ function appendBotMessage(item) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     msg.querySelector('#speakBtn').addEventListener('click', () => {
-        speakText(fullTextToSpeech);
+        speakBilingualWisdom(item);
     });
 }
 
@@ -253,14 +251,28 @@ window.askRandomWisdom = function() {
     }, 300);
 }
 
-function speakText(text) {
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.95;
-        utterance.pitch = 1.0;
-        window.speechSynthesis.speak(utterance);
-    } else {
+function speakBilingualWisdom(item) {
+    if (!('speechSynthesis' in window)) {
         alert("Text-to-speech is not supported on your browser.");
+        return;
     }
-}
+    window.speechSynthesis.cancel();
+
+    // 1. Read Arabic text using Arabic voice locale ('ar-SA')
+    const arabicUtterance = new SpeechSynthesisUtterance(item.arabic);
+    arabicUtterance.lang = 'ar-SA';
+    arabicUtterance.rate = 0.9;
+
+    // 2. Read English translation & reflection using English voice locale ('en-US')
+    const englishText = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
+    const englishUtterance = new SpeechSynthesisUtterance(englishText);
+    englishUtterance.lang = 'en-US';
+    englishUtterance.rate = 0.95;
+
+    // Chain them sequentially so Arabic reads first, then English follows naturally
+    arabicUtterance.onend = () => {
+        window.speechSynthesis.speak(englishUtterance);
+    };
+
+    window.speechSynthesis.speak(arabicUtterance);
+      }
