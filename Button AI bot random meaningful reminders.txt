@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhikr Tracker - Massive Sahih & Quranic Wisdom Stream</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- Landing Screen Styles --- */
+        #landingScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .launch-btn {
+            background: #262626;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .launch-btn:hover {
+            background: #d4af37;
+            color: #121212;
+        }
+
+        .landing-subtitle {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* --- Full Chat App Interface --- */
+        #chatApp {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        header {
+            width: 100%;
+            padding: 12px 20px;
+            text-align: center;
+            background: #1a1a1a;
+            border-bottom: 1.5px solid #d4af37;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #d4af37;
+            letter-spacing: 1px;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #888;
+            border: 1px solid #444;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            color: #fff;
+            border-color: #d4af37;
+        }
+
+        .chat-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            overflow-y: auto;
+            gap: 15px;
+            box-sizing: border-box;
+        }
+
+        .watermark {
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            transform: rotate(-25deg);
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: rgba(180, 140, 40, 0.05);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            align-content: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .message {
+            position: relative;
+            z-index: 1;
+            max-width: 92%;
+            padding: 14px 18px;
+            border-radius: 10px;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: #2a2a2a;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            border: 1px solid #333;
+            font-size: 0.85rem;
+        }
+
+        .bot-message {
+            background: #fffdf9;
+            color: #2c2c2c;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border-left: 4px solid #d4af37;
+            width: 100%;
+        }
+
+        .bot-header {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #b38f27;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .arabic-text {
+            font-family: 'Traditional Arabic', 'Amiri', serif;
+            font-size: 1.15rem;
+            text-align: right;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .translation-text {
+            font-size: 0.8rem;
+            color: #333;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .reflection-box {
+            background: rgba(212, 175, 55, 0.08);
+            padding: 10px 12px;
+            border-radius: 6px;
+            border-left: 2px solid #d4af37;
+            margin-bottom: 12px;
+        }
+
+        .reflection-title {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #8c7120;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .reflection-text {
+            font-size: 0.75rem;
+            color: #444;
+            line-height: 1.35;
+        }
+
+        .audio-btn {
+            background: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 6px 12px;
+            font-weight: bold;
+            font-size: 0.72rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .audio-btn:hover {
+            background: #e6c55c;
+        }
+
+        .button-panel {
+            width: 100%;
+            max-width: 700px;
+            padding: 15px;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-sizing: border-box;
+            border-top: 1.5px solid #333;
+        }
+
+        .main-action-btn {
+            background: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .main-action-btn:hover {
+            background: #e6c55c;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. INITIAL LANDING SCREEN -->
+    <div id="landingScreen">
+        <button class="launch-btn" onclick="openChatApp()">Open Dhikr AI Companion</button>
+        <div class="landing-subtitle">Massive Compendium — Part 1 Loaded (Entries 1–30)</div>
+    </div>
+
+    <!-- 2. FULL CHAT APPLICATION INTERFACE -->
+    <div id="chatApp">
+        <header>
+            <button class="back-btn" onclick="closeChatApp()">&larr; Back</button>
+            <h1>Dhikr Tracker AI</h1>
+            <div style="width: 45px;"></div>
+        </header>
+
+        <div class="chat-container" id="chatContainer">
+            <div class="watermark">DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull;</div>
+            
+            <div class="message bot-message">
+                <div class="bot-header"><span>Dhikr AI Companion</span><span>Massive Stream Active</span></div>
+                <div class="translation-text">As-salamu alaykum! Part 1 of the massive wisdom database is loaded. Tap below for random reminders.</div>
+            </div>
+        </div>
+
+        <div class="button-panel">
+            <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        function openChatApp() {
+            document.getElementById('landingScreen').style.display = 'none';
+            document.getElementById('chatApp').style.display = 'flex';
+        }
+
+        function closeChatApp() {
+            document.getElementById('chatApp').style.display = 'none';
+            document.getElementById('landingScreen').style.display = 'flex';
+        }
+
+        // Massive Wisdom Database — Part 1 (Entries 1 to 30)
+        const wisdomDatabase = [
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ash-Sharh (94:5–6)",
+                arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا • إِنَّ مَعَ الْعُسْرِ يُسْرًا",
+                translation: "For indeed, with hardship comes ease. Indeed, with hardship comes ease.",
+                reflection: "Relief and hope are present alongside the struggle, not just waiting at the end."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2999)",
+                arabic: "عَجَبًا لِأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ",
+                translation: "How wonderful is the affair of the believer, for his entire affair is good. If an adversity befalls him, he is patient, and that is good for him.",
+                reflection: "Every trial faced with patient perseverance transforms into a spiritual victory."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6114)",
+                arabic: "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ، إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ",
+                translation: "The strong person is not the one who overcomes people by his strength, but the strong person is the one who controls himself when angry.",
+                reflection: "True power is measured by emotional self-restraint under pressure."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (5027)",
+                arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+                translation: "The best of you are those who learn the Quran and teach it.",
+                reflection: "Engaging with sacred words and sharing that light brings lasting barakah."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ar-Ra'd (13:28)",
+                arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+                translation: "Those who have believed and whose hearts are assured by the remembrance of Allah. Unquestionably, by the remembrance of Allah hearts find peace.",
+                reflection: "True calm in a busy world comes from taking a moment to connect with God."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6407)",
+                arabic: "مَثَلُ الَّذِي يَذْكُرُ رَبَّهُ وَالَّذِي لاَ يَذْكُرُ رَبَّهُ مَثَلُ الْحَيِّ وَالْمَيِّتِ",
+                translation: "The example of the one who remembers his Lord and the one who does not is like that of the living and the dead.",
+                reflection: "Keeping your heart engaged in Dhikr breathes spiritual vitality into your routine."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Az-Zumar (39:53)",
+                arabic: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ",
+                translation: "Say, 'O My servants who have transgressed against themselves, do not despair of the mercy of Allah.'",
+                reflection: "No matter how heavy past mistakes feel, God’s door of repentance is always open."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (7507)",
+                arabic: "لَلَّهُ أَفْرَحُ بِتَوْبَةِ عَبْدِهِ مِنْ أَحَدِكُمْ بِضَالَّتِهِ",
+                translation: "Allah is more pleased with the repentance of His servant than anyone of you is with finding his lost camel.",
+                reflection: "God eagerly accepts your return. Every sincere step toward forgiveness meets immense divine grace."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (13)",
+                arabic: "لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
+                translation: "None of you truly believes until he loves for his brother what he loves for himself.",
+                reflection: "True community and character are built on selflessness and wishing well for others."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2594)",
+                arabic: "إِنَّ الرُّفْقَ لَا يَكُونُ فِي شَيْءٍ إِلَّا زَانَهُ، وَلَا يُنْزَعُ مِنْ شَيْءٍ إِلَّا شَانَهُ",
+                translation: "Whenever gentleness is added to something, it beautifies it, and whenever it is withdrawn from something, it leaves it tarnished.",
+                reflection: "Leading with soft speech and gentleness transforms difficult encounters into grace."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6416)",
+                arabic: "كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ",
+                translation: "Be in this world as though you were a stranger or a traveler along a path.",
+                reflection: "Keeping the perspective of a traveler helps prioritize what matters eternally."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:152)",
+                arabic: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ",
+                translation: "So remember Me; I will remember you. And be grateful to Me and do not deny Me.",
+                reflection: "Whenever you take a quiet moment to remember God, you are remembered in return."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ibrahim (14:7)",
+                arabic: "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ",
+                translation: "If you are grateful, I will surely increase you [in favor].",
+                reflection: "Gratitude is the key to preserving blessings and inviting greater contentment."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6018)",
+                arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
+                translation: "Whoever believes in Allah and the Last Day should either speak good or remain silent.",
+                reflection: "Mindfulness of speech protects your heart and preserves peace."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2564)",
+                arabic: "إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ، وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ",
+                translation: "Indeed, Allah does not look at your appearance or your wealth, but He looks at your hearts and your deeds.",
+                reflection: "True worth is measured by sincere intentions rather than outward status."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:286)",
+                arabic: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا",
+                translation: "Allah does not charge a soul except [with that within] its capacity.",
+                reflection: "Whatever challenge you face, you have been given the inner capacity to endure it."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sunan an-Nasa'i (3443)",
+                arabic: "الدُّنْيَا مَتَاعٌ، وَخَيْرُ مَتَاعِ الدُّنْيَا الْمَرْأَةُ الصَّالِحَةُ",
+                translation: "The world is temporary enjoyment, and the best provision of this world is a righteous companion.",
+                reflection: "Surrounding yourself with righteous company is a profound blessing."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (477)",
+                arabic: "احَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا وَإِنْ قَلَّ",
+                translation: "The most beloved deeds to Allah are those that are consistent, even if they are small.",
+                reflection: "Consistency in small daily habits builds towering spiritual strength over time."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:159)",
+                arabic: "فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ",
+                translation: "And when you have decided, then rely upon Allah.",
+                reflection: "Do your absolute best with planning, then leave the outcome entirely in God's hands."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (1035)",
+                arabic: "تَحَرَّوْا لَيْلَةَ الْقَدْرِ فِي الْعَشْرِ الأَوَاخِرِ",
+                translation: "Seek Laylat al-Qadr in the last ten nights of Ramadan.",
+                reflection: "A reminder of the incredible value of hidden, dedicated effort during sacred times."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6502)",
+                arabic: "نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ: الصِّحَّةُ وَالْفَرَاغُ",
+                translation: "There are two blessings which many people lose: health and free time.",
+                reflection: "Appreciate youth, health, and free moments before they transition into busier seasons."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2588)",
+                arabic: "الْحَيَاءُ لَا يَأْتِي إِلَّا بِخَيْرٍ",
+                translation: "Modesty brings nothing except good.",
+                reflection: "Dignity and self-respect safeguard a believer from unmindful actions."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Ankabut (29:69)",
+                arabic: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا",
+                translation: "And those who strive for Us - We will surely guide them to Our ways.",
+                reflection: "Sincere effort toward good brings divine guidance right when you need it most."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (2555)",
+                arabic: "رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ وَإِذَا اشْتَرَى",
+                translation: "May Allah have mercy on a person who is lenient when he sells, when he buys, and when he makes a claim.",
+                reflection: "Kindness and fairness in everyday financial interactions invite divine mercy."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Hujurat (49:10)",
+                arabic: "إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ فَأَصْلِحُوا بَيْنَ أَخَيكُمْ",
+                translation: "The believers are but brothers, so make settlement between your brothers.",
+                reflection: "Preserving unity and healing broken bonds within a community is paramount."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2674)",
+                arabic: "مَنْ نَفَّسَ عَنْ مُؤْمِنٍ كُرْبَةً مِنْ كُرَبِ الدُّنْيَا نَفَّسَ اللَّهُ عَنْهُ كُرْبَةً مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ",
+                translation: "Whoever relieves a believer's distress of the distressful aspects of this world, Allah will rescue him from a difficulty of the difficulties of the Hereafter.",
+                reflection: "Helping others in times of trouble is your best investment for the Day of Judgment."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6021)",
+                arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ جَارَهُ",
+                translation: "Whoever believes in Allah and the Last Day should honor his neighbor.",
+                reflection: "Good character is demonstrated through mutual respect and care for those living around you."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Luqman (31:17)",
+                arabic: "يَا بُنَيَّ أَقِمِ الصَّلَاةَ وَأْمُرْ بِالْمَعْرُوفِ وَانْهَ عَنِ الْمُنكَرِ وَاصْبِرْ عَلَىٰ مَا أَصَابَكَ",
+                translation: "O my son, establish prayer, enjoin what is right, forbid what is wrong, and be patient over what befalls you.",
+                reflection: "A timeless blueprint for personal discipline, social responsibility, and resilience."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (2749)",
+                arabic: "خَيْرُ النَّاسِ أَنْفَعُهُمْ لِلنَّاسِ",
+                translation: "The best of people are those who are most beneficial to others.",
+                reflection: "Your true legacy is measured by how much positive value you bring to the lives of those around you."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2245)",
+                arabic: "الطُّهُورُ شَطْرُ الإِيمَانِ",
+                translation: "Purification is half of faith.",
+                reflection: "Outer cleanliness and inner spiritual purity go hand in hand in daily life."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6446)",
+                arabic: "لَيْسَ الْغِنَى عَنْ كَثْرَةِ الْعَرَضِ، وَلَكِنَّ الْغِنَى غِنَى النَّفْسِ",
+                translation: "Riches do not mean having a great amount of property, but riches is the contentment of the soul.",
+                reflection: "True wealth is found in an inner state of contentment rather than material accumulation."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:133)",
+                arabic: "وَسَارِعُوا إِلَىٰ مَغْفِرَةٍ مِّن رَّبِّكُمْ وَجَنَّةٍ عَرْضُهَا السَّمَاوَاتُ وَالْأَرْضُ",
+                translation: "And hasten to forgiveness from your Lord and a garden as wide as the heavens and earth.",
+                reflection: "Let divine forgiveness be the ultimate goal you actively race toward every day."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2593)",
+                arabic: "إِنَّ اللَّهَ رَفِيقٌ يُحِبُّ الرِّفْقَ فِي الْأَمْرِ كُلِّهِ",
+                translation: "Indeed, Allah is gentle and loves gentleness in all matters.",
+                reflection: "Infusing gentleness into your daily communications reflects divine character."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:45)",
+                arabic: "وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ",
+                translation: "And seek help through patience and prayer.",
+                reflection: "When pressure builds up, anchor yourself through deliberate patience and turning to prayer."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2565)",
+                arabic: "مَنْ لَا يَرْحَمُ النَّاسَ لَا يَرْحَمُهُ اللَّهُ",
+                translation: "Whoever does not show mercy to people, Allah will not show mercy to him.",
+                reflection: "Empathy and compassion toward fellow human beings unlock heavenly mercy."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2699)",
+                arabic: "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
+                translation: "Whoever takes a path upon which he seeks knowledge, Allah makes a path to Paradise easy for him.",
+                reflection: "Every moment spent learning beneficial knowledge brings you closer to eternal peace."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Ma'idah (5:32)",
+                arabic: "وَمَنْ أَحْيَاهَا فَكَأَنَّما أَحْيَا النَّاسَ جَمِيعًا",
+                translation: "And whoever saves one - it is as if he had saved mankind entirely.",
+                reflection: "A single act of saving or uplifting a life carries monumental cosmic significance."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (33)",
+                arabic: "آيَةُ الْمُنَافِقِ ثَلَاثٌ: إِذَا حَدَّثَ كَذَبَ، وَإِذَا وَعَدَ أَخْلَفَ، وَإِذَا اوْتُمِنَ خَانَ",
+                translation: "The signs of a hypocrite are three: when he speaks he lies, when he makes a promise he breaks it, and when he is trusted he betrays.",
+                reflection: "Integrity, honesty, and trustworthiness are non-negotiable pillars of true character."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sunan al-Tirmidhi (1639)",
+                arabic: "عَيْنَانِ لَا تَمَسُّهُمَا النَّارُ: عَيْنٌ بَكَتْ مِنْ خَشْيَةِ اللَّهِ، وَعَيْنٌ بَاتتْ تَحْرُسُ فِي سَبِيلِ اللَّهِ",
+                translation: "Two eyes will not be touched by the Fire: an eye that wept out of fear of Allah, and an eye that spent the night guarding in the cause of Allah.",
+                reflection: "Sincere reverence and protecting others leave an everlasting spiritual mark."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Insan (76:9)",
+                arabic: "إِنَّمَا نُطْعِمُكُمْ لِوَجْهِ اللَّهِ لَا نُرِيدُ مِنْكُمْ جَزَاءً وَلَا شُكُورًا",
+                translation: "[Saying], 'We feed you only for the countenance of Allah. We wish not from you reward or gratitude.'",
+                reflection: "True altruism seeks validation from the Creator alone, expecting no worldly praise."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6039)",
+                arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ ضَيْفَهُ",
+                translation: "Whoever believes in Allah and the Last Day, let him honor his guest.",
+                reflection: "Hospitality and warm generosity are hallmarks of an elevated, noble heart."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:153)",
+                arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ إِنَّ اللَّهَ مَعَ الصَّابِرِينَ",
+                translation: "O you who have believed, seek help through patience and prayer. Indeed, Allah is with the patient.",
+                reflection: "Knowing that God stands closely beside the patient gives absolute peace in hardship."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2553)",
+                arabic: "إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى أَجْسَادِكُمْ وَلَا إِلَى صُوَرِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ",
+                translation: "Indeed, Allah does not look at your bodies or your forms, but He looks at your hearts.",
+                reflection: "Cleanse your inner intentions; spiritual beauty far outweighs outward appearances."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah At-Talaq (65:3)",
+                arabic: "وَيَرْزُقْهُ مِنْ حَيْثُ لَا يَحْتَسِبُ وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ",
+                translation: "And will provide for him from where he does not expect. And whoever relies upon Allah - then He is sufficient for him.",
+                reflection: "Trusting completely in divine provision removes anxiety over unpredictable futures."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6509)",
+                arabic: "اغْتَنِمْ خَمْسًا قَبْلَ خَمْسٍ: شَبَابَكَ قَبْلَ هَرَمِكَ، وَصِحَّتَكَ قَبْلَ سَقَمِكَ",
+                translation: "Take advantage of five before five: your youth before your old age, your health before your sickness...",
+                reflection: "Urgency in doing good while you possess health and capability is true wisdom."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:134)",
+                arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ",
+                translation: "Who restrain anger and who pardon the people - and Allah loves the doers of good.",
+                reflection: "Forgiving others when you have the power to retaliate is a supreme act of grace."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (5673)",
+                arabic: "مَا يُصِيبُ الْمُسْلِمَ مِنْ نَصَبٍ وَلَا وَصَبٍ وَلَا هَمٍّ وَلَا حُزْنٍ... إِلَّا كَفَّرَ اللَّهُ بِهَا مِنْ خَطَايَاهُ",
+                translation: "No fatigue, disease, sorrow, sadness, hurt, or distress befalls a Muslim... except that Allah expiates some of his sins for it.",
+                reflection: "Even minor discomforts carry a hidden cleansing mechanism for your spiritual record."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Anfal (8:2)",
+                arabic: "إِنَّمَا الْمُؤْمِنُونَ الَّذِينَ إِذَا ذُكِرَ اللَّهُ وَجِلَتْ قُلُوبُهُمْ",
+                translation: "The believers are only those who, when Allah is mentioned, their hearts feel a fearful reverence.",
+                reflection: "A sensitive, responsive heart to reminders is a clear sign of living faith."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6475)",
+                arabic: "سَبْعَةٌ يُظِلُّهُمُ اللَّهُ فِي ظِلِّهِ يَوْمَ لَا ظِلَّ إِلَّا ظِلُّهُ",
+                translation: "There are seven whom Allah will shade on a Day when there is no shade except His...",
+                reflection: "Striving for righteous character earns you divine shelter when everything else fades."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Kahf (18:46)",
+                arabic: "وَالْبَاقِيَاتُ الصَّالِحَاتُ خَيْرٌ عِندَ رَبِّكَ ثَوَابًا وَخَيْرٌ أَمَلًا",
+                translation: "And the enduring good deeds are better to your Lord for reward and better for [one's] hope.",
+                reflection: "Investing in consistent, lasting righteous actions secures eternal hope."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (1413)",
+                arabic: "اتَّقُوا النَّارَ وَلَوْ بِشِقِّ تَمْرَةٍ",
+                translation: "Protect yourselves from the Fire, even if it is with half a date [given in charity].",
+                reflection: "No act of charity is ever too small; sincerity multiplies its weight exponentially."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Qaf (50:16)",
+                arabic: "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ",
+                translation: "And We are closer to him than [his] jugular vein.",
+                reflection: "You are never alone; divine presence and awareness are closer to you than your own breath."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6412)",
+                arabic: "احْرِصْ عَلَى مَا يَنْفَعُكَ وَاسْتَعِينُ بِاللَّهِ وَلَا تَعْجَزْ",
+                translation: "Strive for what benefits you, seek help from Allah, and do not be helpless.",
+                reflection: "A balanced formula of personal initiative, divine reliance, and unwavering persistence."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ghafir (40:60)",
+                arabic: "ادْعُونِي أَسْتَجِبْ لَكُمْ",
+                translation: "Call upon Me; I will respond to you.",
+                reflection: "Prayer is never ignored; every heartfelt dua is either answered directly, delayed for your good, or stored as reward."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2551)",
+                arabic: "مَنْ تَوَاضَعَ لِلَّهِ رَفَعَهُ اللَّهُ",
+                translation: "Whoever humbles himself for the sake of Allah, Allah raises him in status.",
+                reflection: "True elevation in character and standing begins with genuine humility."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Hadid (57:4)",
+                arabic: "وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ",
+                translation: "And He is with you wherever you are.",
+                reflection: "Rest assured that divine surveillance is rooted in care, protection, and boundless mercy."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (914)",
+                arabic: "مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ",
+                translation: "Whoever fasts Ramadan out of faith and seeking reward, his previous sins will be forgiven.",
+                reflection: "Sincere devotion during sacred times washes away the slate clean."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Mujadila (58:7)",
+                arabic: "مَا يَكُونُ مِنْ نَجْوَى ثَلَاثَةٍ إِلَّا هُوَ رَابِعُهُمْ",
+                translation: "There is in no private conversation of three except that He is the fourth of them.",
+                reflection: "Mindfulness of God begins with knowing He hears every private thought and whisper."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6506)",
+                arabic: "بَادِرُوا بِالْأَعْمَالِ فِتَنًا كَقِطَعِ اللَّيْلِ الْمُظْلِمِ",
+                translation: "Hasten to do good deeds before trials appear like pieces of a dark night.",
+                reflection: "Act swiftly with righteous deeds during times of ease before chaos clouds the horizon."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:186)",
+                arabic: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ",
+                translation: "And when My servants ask you concerning Me - indeed I am near.",
+                reflection: "God is intimately close to every caller, waiting to answer and comfort."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (1)",
+                arabic: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
+                translation: "The reward of deeds depends upon the intentions, and every person will get the reward according to what he has intended.",
+                reflection: "A pure and sincere intention elevates even the smallest daily routine into a profound act of worship."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:191)",
+                arabic: "الَّذِينَ يَذْكُرُونَ اللَّهَ قِيَامًا وَقُعُودًا وَعَلَىٰ جُنُوبِهِمْ وَيَتَفَكَّرُونَ فِي خَلْقِ السَّمَاوَاتِ وَالْأَرْضِ",
+                translation: "Who remember Allah while standing or sitting or [lying] on their sides and give thought to the creation of the heavens and the earth.",
+                reflection: "Integrating mindfulness of God into every posture of daily life grounds the soul in peace."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6057)",
+                arabic: "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ",
+                translation: "Your smiling in the face of your brother is charity for you.",
+                reflection: "A warm smile and a pleasant expression require zero effort yet spread immense emotional light."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (24)",
+                arabic: "الإِيمَانُ بِضْعٌ وَسَبْعُونَ، أَوْ بِضْعٌ وَسِتُّونَ شُعْبَةً",
+                translation: "Faith has over seventy or sixty branches, the highest of which is the statement 'None has the right to be worshipped but Allah', and the lowest is removing something harmful from the road.",
+                reflection: "Spiritual wellness is reflected in everyday civic care, cleanliness, and consideration for others."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Anfal (8:29)",
+                arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا إِن تَتَّقُوا اللَّهَ يَجْعَل لَّكُمْ فُرْقَانًا وَيُكَفِّرْ عَنكُمْ سَيِّئَاتِكُمْ",
+                translation: "O you who have believed, if you fear Allah, He will grant you a criterion [to judge between right and wrong] and will remove from you your misdeeds.",
+                reflection: "God-consciousness sharpens your inner judgment, making complex choices clear."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2586)",
+                arabic: "وَمَنْ سَتَرَ مُسْلِمًا سَتَرَهُ اللَّهُ فِي الدُّنْيَا وَالْآخِرَةِ",
+                translation: "Whoever conceals [the faults of] a Muslim, Allah will conceal his faults in this world and the Hereafter.",
+                reflection: "Protecting the dignity of others secures divine protection and grace over your own flaws."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6470)",
+                arabic: "مَنْ أَصْبَحَ مِنْكُمْ آمِنًا فِي سِرْبِهِ، مُعَافًى فِي جَسَدِهِ، عِنْدَهُ قُوتُ يَوْمِهِ، فَكَأَنَّما حِيزَتْ لَهُ الدُّنْيَا",
+                translation: "Whoever among you wakes up secure in his property, healthy in his body, and has his food for the day, it is as if the whole world has been driven for him.",
+                reflection: "True wealth is measured by daily safety, health, and sustenance rather than luxury."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ash-Shura (42:19)",
+                arabic: "اللَّهُ لَطِيفٌ بِعِبَادِهِ يَرْزُقُ مَن يَشَاءُ ۖ وَهُوَ الْقَوِيُّ الْعَزِيزُ",
+                translation: "Allah is Subtle with His servants; He gives provisions to whom He wills. And He is the Powerful, the Exalted in Might.",
+                reflection: "Divine care unfolds in ways so gentle and hidden that you only recognize them looking back."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:155)",
+                arabic: "وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ ۗ وَبَشِّرِ الصَّابِرِينَ",
+                translation: "And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient.",
+                reflection: "Trials are standard milestones of human growth; meeting them with patience secures divine glad tidings."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (5641)",
+                arabic: "مَا يُصِيبُ الْمُسْلِمَ مِنْ نَصَبٍ وَلَا وَصَبٍ... إِلَّا كَفَّرَ اللَّهُ بِهَا مِنْ خَطَايَاهُ",
+                translation: "No hardship, illness, anxiety, or sorrow befalls a believer except that it becomes an expiation for their sins.",
+                reflection: "Every difficult moment carries a hidden blessing that cleanses your record."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:173)",
+                arabic: "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
+                translation: "Sufficient for us is Allah, and [He is] the best Disposer of affairs.",
+                reflection: "Uttering these words when overwhelmed transfers your heavy burdens to the ultimate Protector."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (7377)",
+                arabic: "أَنَا عِنْدَ ظَنِّ عَبْدِي بِي، وَأَنَا مَعَهُ إِذَا ذَكَرَنِي",
+                translation: "Allah says: 'I am as My servant expects Me to be, and I am with him when he remembers Me.'",
+                reflection: "Maintain a hopeful, positive outlook on God's mercy; you will find Him matching your expectations."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:139)",
+                arabic: "وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ",
+                translation: "So do not weaken and do not grieve, and you will be superior if you are [true] believers.",
+                reflection: "Faith equips you with an inner resilience that prevents permanent defeat."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6501)",
+                arabic: "لَيْسَ الْغِنَى عَنْ كَثْرَةِ الْعَرَضِ، وَلَكِنَّ الْغِنَى غِنَى النَّفْسِ",
+                translation: "Riches do not lie in abundance of worldly goods, but richness is the contentment of the soul.",
+                reflection: "True independence and peace come from wanting what you have rather than needing more."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:261)",
+                arabic: "مَّثَلُ الَّذِينَ يُنفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ كَمَثَلِ حَبَّةٍ أَنبَتَتْ سَبْعَ سَابِلِبِلَ كُلِّ سُنبُلَةٍ مِّائَةُ حَبَّةٍ",
+                translation: "The example of those who spend their wealth in the way of Allah is like a seed of grain which grows seven spikes; in each spike is a hundred grains.",
+                reflection: "Generosity multiplies exponentially, returning far more than you ever sacrifice."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2735)",
+                arabic: "وَمَا اجْتَمَعَ قَوْمٌ فِي بَيْتٍ مِنْ بُيُوتِ اللَّهِ يَتْلُونَ كِتَابَ اللَّهِ وَيَتَدَارَسُونَهُ بَيْنَهُمْ إِلَّا نَزَلَتْ عَلَيْهِمُ السَّكِينَةُ",
+                translation: "No people gather in a house of Allah, reciting the Book of Allah and studying it among themselves, except that tranquility descends upon them.",
+                reflection: "Sacred circles and Quranic reflection invite deep, calming serenity into the heart."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah An-Nisa (4:147)",
+                arabic: "مَّا يَفْعَلُ اللَّهُ بِعَذَابِكُمْ إِن شَكَرْتُمْ وَآمَنتُمْ ۚ وَكَانَ اللَّهُ شَاكِرًا عَلِيمًا",
+                translation: "What would Allah do with your punishment if you are grateful and believe? And ever is Allah Appreciative and Knowing.",
+                reflection: "Gratitude and faith naturally shield a person from hardship and invite divine appreciation."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (20)",
+                arabic: "أَطْعِمِ الطَّعَامَ، وَاقْرَأِ السَّلَامَ عَلَى مَنْ عَرَفْتَ وَمَنْ لَمْ تَعْرِفْ",
+                translation: "Feed food [to people], and spread the greeting of peace to those you know and those you do not know.",
+                reflection: "Building a warm, welcoming community starts with hospitality and universal kindness."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Muzzammil (73:8)",
+                arabic: "وَاذْكُرِ اسْمَ رَبِّكَ وَتَبَتَّلْ إِلَيْهِ تَبْتِيلًا",
+                translation: "And remember the name of your Lord and devote yourself to Him with [complete] devotion.",
+                reflection: "Cutting through worldly noise to focus entirely on God rejuvenates the spirit."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (603)",
+                arabic: "الطُّهُورُ شَطْرُ الإِيمَانِ، وَالْحَمْدُ لِلَّهِ تَمْلَأُ الْمِيزَانَ",
+                translation: "Purity is half of faith, and saying 'Alhamdulillah' fills the scale.",
+                reflection: "Simple expressions of gratitude carry immense weight in spiritual scales."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah At-Tawbah (9:40)",
+                arabic: "لَا تَحْزَنْ إِنَّ اللَّهَ مَعَنَا",
+                translation: "Do not grieve; indeed Allah is with us.",
+                reflection: "Absolute reassurance in moments of isolation or anxiety comes from knowing God is right beside you."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (3267)",
+                arabic: "وَالْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ",
+                translation: "And a good word is charity.",
+                reflection: "Kind and encouraging speech is an accessible, powerful form of charity available every second."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Asr (103:1-3)",
+                arabic: "وَالْعَصْرِ • إِنَّ الْإِنسَانَ لَفِي خُسْرٍ • إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ",
+                translation: "By time, Indeed, mankind is in loss, Except for those who have believed and done righteous deeds and advised each other to truth and advised each other to patience.",
+                reflection: "A concise framework for a meaningful life: faith, action, truth, and mutual patience."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6543)",
+                arabic: "وَيُضْرَبُ الصِّرَاطُ بَيْنَ ظَهْرَانَيْ جَهَنَّمَ",
+                translation: "The bridge [Sirat] will be set up across Hell...",
+                reflection: "A reminder to keep our actions upright and purposeful as we journey toward the hereafter."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Ma'idah (5:119)",
+                arabic: "هَٰذَا يَوْمُ يَنفَعُ الصَّادِقِينَ صِدْقُهُمْ",
+                translation: "This is a Day when the truthful will benefit from their truthfulness.",
+                reflection: "Integrity and honesty in this fleeting world pay off infinitely on the Day of Judgment."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6160)",
+                arabic: "رِضَى الرَّبِّ فِي رِضَى الْوَالِدَيْنِ، وَسَخَطُ الرَّبِّ فِي سَخَطِ الْوَالِدَيْنِ",
+                translation: "The pleasure of the Lord is in the pleasure of the parents, and the displeasure of the Lord is in the displeasure of the parents.",
+                reflection: "Honoring and caring for parents is a direct pathway to earning divine love."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Hashr (59:18)",
+                arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَلْتَنظُرْ نَفْسٌ مَّا قَدَّمَتْ لِغَدٍ",
+                translation: "O you who have believed, fear Allah. And let every soul look to what it has put forth for tomorrow.",
+                reflection: "Regular self-reflection ensures that your daily actions align with your long-term spiritual future."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2590)",
+                arabic: "رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ وَإِذَا اشْتَرَى",
+                translation: "May Allah have mercy on a person who is lenient when he sells, when he buys, and when he makes a claim.",
+                reflection: "Fairness, ease, and flexibility in business dealings invite heavenly mercy."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Anbiya (21:87)",
+                arabic: "لَّا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ",
+                translation: "There is no deity except You; exalted are You. Indeed, I have been of the wrongdoers.",
+                reflection: "The ultimate supplication of distress and repentance, yielding immediate relief from hardship."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6411)",
+                arabic: "ازْهَدْ فِي الدُّنْيَا يُحِبَّكَ اللَّهُ، وَازْهَدْ فِيمَا عِنْدَ النَّاسِ يُحِبَّكَ النَّاسُ",
+                translation: "Renounce the world and Allah will love you; renounce what people possess and people will love you.",
+                reflection: "Detachment from superficial luxury frees your heart from anxiety and jealousy."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah At-Tawbah (9:51)",
+                arabic: "قُل لَّن يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا هُوَ مَوْلَانَا ۚ وَعَلَى اللَّهِ فَلْيَتَوَكَّلِ الْمُؤْمِنُونَ",
+                translation: "Say, 'Never will we be struck except by what Allah has decreed for us; He is our protector.' And upon Allah let the believers rely.",
+                reflection: "Complete trust in divine decree lifts the weight of anxiety over future outcomes."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6425)",
+                arabic: "يَسِّرُوا وَلَا تُعَسِّرُوا، وَسَكِّنُوا وَلَا تُنَفِّرُوا",
+                translation: "Facilitate things to people and do not make things difficult for them; give them glad tidings and do not drive them away.",
+                reflection: "Making life easier for others reflects the prophetic spirit of mercy and compassion."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Furqan (25:63)",
+                arabic: "وَعِبَادُ الرَّحْمَٰنِ الَّذِينَ يَمْشُونَ عَلَى الْأَرْضِ هَوْنًا وَإِذَا خَاطَبَهُمُ الْجَاهِلُونَ قَالُوا سَلَامًا",
+                translation: "And the servants of the Most Merciful are those who walk upon the earth easily, and when the ignorant address them [harshly], they say [words of] peace.",
+                reflection: "Dignified restraint in the face of provocation is a mark of high spiritual maturity."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6011)",
+                arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ جَارَهُ، وَمَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ ضَيْفَهُ",
+                translation: "Whoever believes in Allah and the Last Day should honor his neighbor, and whoever believes in Allah and the Last Day should honor his guest.",
+                reflection: "Community care and active hospitality anchor the foundations of a peaceful society."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Qasas (28:77)",
+                arabic: "وَابْتَغِ فِيمَا آتَاكَ اللَّهُ الدَّارَ الْآخِرَةَ ۖ وَلَا تَنسَ نَصِيبَكَ مِنَ الدُّنْيَا",
+                translation: "And seek, through that which Allah has given you, the home of the Hereafter; and [yet], do not forget your share of the world.",
+                reflection: "Balance spiritual devotion with healthy engagement in worldly responsibilities."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2658)",
+                arabic: "مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ",
+                translation: "Whoever travels a path in search of knowledge, Allah makes easy for him a path to Paradise.",
+                reflection: "Lifelong learning and seeking truth are acts of worship that pave the way to eternal success."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Mu'minun (23:1-2)",
+                arabic: "قَدْ أَفْلَحَ الْمُؤْمِنُونَ • الَّذِينَ هُمْ فِي صَلَاتِهِمْ خَاشِعُونَ",
+                translation: "Certainly will the believers have succeeded: Those who are during their prayer humbly submissive.",
+                reflection: "Focus and presence of heart during private devotion transform spiritual practice."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6505)",
+                arabic: "مَنْ أحَبَّ لِقَاءَ اللَّهِ أحَبَّ اللَّهُ لِقَاءَهُ",
+                translation: "Whoever loves the meeting with Allah, Allah loves the meeting with him.",
+                reflection: "A heart prepared for the ultimate return looks forward to divine peace."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:159)",
+                arabic: "فَبِمَا رَحْمَةٍ مِّنَ اللَّهِ لِنتَ لَهُمْ ۖ وَلَوْ كُنتَ فَظًّا غَلِيظَ الْقَلْبِ لَانفَضُّوا مِنْ حَوْلِكَ",
+                translation: "So by mercy from Allah, you were lenient with them. And if you had been rude [in speech] and harsh in heart, they would have disbanded from about you.",
+                reflection: "Softness of speech and gentle leadership attract hearts far more effectively than harshness."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6474)",
+                arabic: "ادْعُوا اللَّهَ وَأَنْتُمْ مُوقِنُونَ بِالإِجَابَةِ",
+                translation: "Call upon Allah while being certain of being answered.",
+                reflection: "Approach every prayer with absolute confidence that the All-Hearing listens and responds."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:216)",
+                arabic: "وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ ۖ وَعَسَىٰ أَن تُحِبُّوا شَيْئًا وَهُوَ شَرٌّ لَّكُمْ",
+                translation: "But perhaps you hate a thing and it is good for you; and perhaps you love a thing and it is bad for you. And Allah knows, while you know not.",
+                reflection: "Trust divine wisdom when plans shift; what looks like a setback is often a hidden blessing."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (5997)",
+                arabic: "إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ، وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ",
+                translation: "Indeed, Allah looks not at your figures nor at your attire, but He looks at your hearts and your deeds.",
+                reflection: "Cultivate inner purity, for outer masks hold no weight before the Creator."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:197)",
+                arabic: "وَتَزَوَّدُوا فَإِنَّ خَيْرَ زَادِ التَّقْوَىٰ",
+                translation: "And take provisions, but indeed, the best provision is fear of Allah [taqwa].",
+                reflection: "God-consciousness is the ultimate shield and preparation for any journey."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6020)",
+                arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلَا يُؤْذِ جَارَهُ",
+                translation: "Whoever believes in Allah and the Last Day should not harm his neighbor.",
+                reflection: "Mindfulness of rights extends directly to those living closest to you."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Fath (48:4)",
+                arabic: "هُوَ الَّذِي أَنزَلَ السَّكِينَةَ فِي قُلُوبِ الْمُؤْمِنُونَ",
+                translation: "It is He who sent down tranquility into the hearts of the believers that they might increase in faith along with their faith.",
+                reflection: "True peace is a divine gift sent down to anchor the believer during turmoil."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih Muslim (2577)",
+                arabic: "مَنْ تَوَاضَعَ لِلَّهِ رَفَعَهُ اللَّهُ",
+                translation: "Whoever humbles himself for the sake of Allah, Allah raises him in status.",
+                reflection: "Humility opens the doors to true elevation in the sight of God and people."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Hadid (57:20)",
+                arabic: "وَمَا الْحَيَاةُ الدُّنْيَا إِلَّا مَتَاعُ الْغُرُورِ",
+                translation: "And what is the worldly life except the enjoyment of delusion.",
+                reflection: "Keep life in proper perspective; view worldly attractions as fleeting rather than permanent."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6415)",
+                arabic: "كُنْ فِي الدُّنْيَا كَأَنَّكَ غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ",
+                translation: "Be in this world as though you were a stranger or a traveler along a path.",
+                reflection: "Live lightly and purposefully, knowing this world is only a bridge to the eternal."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah At-Talaq (65:2)",
+                arabic: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا",
+                translation: "And whoever fears Allah - He will make for him a way out.",
+                reflection: "Maintaining integrity and mindfulness creates unexpected pathways out of any difficulty."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6503)",
+                arabic: "نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ: الصِّحَّةُ وَالْفَرَاغُ",
+                translation: "There are two blessings which many people lose: health and free time.",
+                reflection: "Value your health and hours of ease before they are claimed by busy routines."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah An-Nisa (4:86)",
+                arabic: "وَإِذَا حُيِّتُم بِتَحِيَّةٍ فَحَيَّاُوا بِأَحْسَنَ مِنْهَا أَوْ رُدُّوهَا",
+                translation: "And when you are greeted with a greeting, greet with one better than it or return it.",
+                reflection: "Courtesies and warmth should always be met with equal or greater kindness."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6024)",
+                arabic: "الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ",
+                translation: "A Muslim is the one from whose tongue and hands the Muslims are safe.",
+                reflection: "True safety in a community is marked by the complete absence of harm from speech and action."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:200)",
+                arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا اصْبِرُوا وَصَابِرُوا وَرَابِطُوا وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ",
+                translation: "O you who have believed, persevere and endure and remain stationed and fear Allah that you may be successful.",
+                reflection: "Stamina, patience, and vigilance are the enduring keys to ultimate success."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6071)",
+                arabic: "مَنْ لَا يَرْحَمُ النَّاسَ لَا يَرْحَمُهُ اللَّهُ",
+                translation: "He who does not show mercy to people, Allah will not show mercy to him.",
+                reflection: "Extending mercy to others is the direct channel to receiving divine grace."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Ali 'Imran (3:135)",
+                arabic: "وَالَّذِينَ إِذَا فَعَلُوا فَاحِشَةً أَوْ ظَلَمُوا أَنْفُسَهُمْ ذَكَرُوا اللَّهَ فَاسْتَغْفَرُوا لِذُنُوبِهِمْ",
+                translation: "And those who, when they commit an immorality or wrong themselves, remember Allah and seek forgiveness for their sins.",
+                reflection: "Quick repentance upon stumbling keeps the heart pure and connected."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6135)",
+                arabic: "إِنَّ اللَّهَ حَلِيمٌ يُحِبُّ الْحِلْمَ فِي الْأَمْرِ كُلِّهِ",
+                translation: "Indeed, Allah is forbearing and loves forbearance in all matters.",
+                reflection: "Cultivating patience and calm temperament brings immense beauty to daily interactions."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Baqarah (2:183)",
+                arabic: "يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ كَمَا كُتِبَ عَلَى الَّذِينَ مِنْ قَبْلِكُمْ لَعَلَّكُمْ تَتَّقُونَ",
+                translation: "O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous.",
+                reflection: "Discipline and self-restraint build spiritual fortitude and God-consciousness."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6410)",
+                arabic: "احْرِصْ عَلَى مَا يَنْفَعُكَ وَاسْتَعِنْ بِاللَّهِ وَلَا تَعْجَزْ",
+                translation: "Strive for that which benefits you, seek help from Allah, and do not be helpless.",
+                reflection: "A balanced approach of personal effort, spiritual reliance, and steadfast perseverance."
+            },
+            {
+                type: "Quranic Verse",
+                ref: "Surah Al-Ankabut (29:45)",
+                arabic: "وَأَقِمِ الصَّلَاةَ ۖ إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنكَرِ",
+                translation: "And establish prayer. Indeed, prayer prohibits immorality and wrongdoing.",
+                reflection: "Regular, sincere prayer acts as a natural moral compass and protector against unmindful actions."
+            },
+            {
+                type: "Sahih Hadith",
+                ref: "Sahih al-Bukhari (6456)",
+                arabic: "يَتْبَعُ الْمَيِّتَ ثَلَاثَةٌ، فَيَرْجِعُ اثْنَانِ وَيَبْقَى وَاحِدٌ",
+                translation: "Three things follow the deceased: two return and one remains with him. His family, his wealth, and his deeds return, but his deeds remain.",
+                reflection: "Invest your time and energy today in righteous deeds that will stand by you eternally."
+            }
+        ];
+
+        const chatContainer = document.getElementById('chatContainer');
+
+        function appendUserMessage(text) {
+            const msg = document.createElement('div');
+            msg.className = 'message user-message';
+            msg.textContent = text;
+            chatContainer.appendChild(msg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function appendBotMessage(item) {
+            const msg = document.createElement('div');
+            msg.className = 'message bot-message';
+            
+            const fullTextToSpeech = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
+
+            msg.innerHTML = `
+                <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
+                <div class="arabic-text">${item.arabic}</div>
+                <div class="translation-text">${item.translation}</div>
+                <div class="reflection-box">
+                    <div class="reflection-title">A Quick Reflection</div>
+                    <div class="reflection-text">${item.reflection}</div>
+                </div>
+                <div class="bot-actions">
+                    <button class="audio-btn" id="speakBtn">🔊 Read Aloud</button>
+                </div>
+            `;
+            
+            chatContainer.appendChild(msg);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            msg.querySelector('#speakBtn').addEventListener('click', () => {
+                speakText(fullTextToSpeech);
+            });
+        }
+
+        function askRandomWisdom() {
+            appendUserMessage("Give me a random reminder.");
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
+                appendBotMessage(wisdomDatabase[randomIndex]);
+            }, 300);
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Text-to-speech is not supported on your browser.");
+            }
+        }
+    </script>
+</body>
+</html>
