@@ -1,14 +1,14 @@
 {
-  "name": "Zikr Tracker",
-  "short_name": "Dhikr",
-  "start_url": "/Dhikr-Tracker/",
+  "name": "Dhikr Tracker",
+  "short_name": "DhikrTracker",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#00e5ff",
   "icons": [
     {
       "src": "icon.png",
-      "sizes": "192x192",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
