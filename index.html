@@ -534,11 +534,44 @@
     { id: 120, title: "The Ultimate Return", category: "Ethics", description: "Live every moment ready to meet your Creator with a sound, tranquil heart." }
   ];
 
-  function loadRemindersList() {
+    function loadRemindersList() {
     const container = document.getElementById('remindersListContainer');
     if (!container) return;
 
-    container.innerHTML = 
+    container.innerHTML = ''; // Clear existing content
+
+    allReminders.forEach((reminder) => {
+      const card = document.createElement('div');
+      card.style.cssText = `
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 12px;
+        transition: border-color 0.2s ease;
+      `;
+
+      card.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="color: #00e5ff; font-weight: bold; font-size: 14px;">#${reminder.id}. ${reminder.title}</span>
+          <span style="background: #0f172a; color: #94a3b8; font-size: 11px; padding: 2px 8px; border-radius: 4px; border: 1px solid #334155;">${reminder.category}</span>
+        </div>
+        <p style="color: #cbd5e1; font-size: 13px; margin: 0; line-height: 1.4;">${reminder.description}</p>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  // Automatically execute the loader when the script runs
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRemindersList();
+  });
+</script>
+
+</body>
+</html>
+
 </script>
 
 </body>
