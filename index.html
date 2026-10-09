@@ -96,12 +96,14 @@
     </div>
 
     <div class="top-nav">
-      <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
-      <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
-      <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
+  <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
+  <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
+  <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
+  <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
+  <!-- ADD YOUR NEW REMINDERS BUTTON HERE -->
+  <button class="nav-btn" onclick="switchTab('remindersTab', this)">🌟 Reminders</button>
     </div>
-
+    
     <!-- COUNTER TAB -->
     <div id="counterTab" class="tab-content active">
       <select id="dhikrSelect" onchange="resetCounter()">
@@ -206,7 +208,20 @@
       </div>
 
     </div>
-
+    <!-- REMINDERS TAB CONTENT -->
+    <div id="remindersTab" class="tab-content">
+      <h3 style="color:#00e5ff; margin-top:0;">120 High-Impact Reminders</h3>
+      <p style="color:#94a3b8; font-size:13px; margin-bottom:15px;">
+        A curated core of spiritual distillates focusing on intention, divine proximity, patience, and noble character.
+      </p>
+      
+      <!-- Your reminder card, randomizer button, or list container goes here -->
+      <div class="dua-card">
+        <div class="dua-title">Example Reminder</div>
+        <div class="dua-translation">"Actions are judged by intentions..."</div>
+      </div>
+    </div>
+    
   </div>
 
 </div>
