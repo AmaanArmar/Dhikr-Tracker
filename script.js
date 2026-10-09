@@ -176,7 +176,7 @@ window.switchTab = function(tabId, btn) {
   }
 };
 
-// --- MASSIVE WISDOM DATABASE & CHAT COMPANION LOGIC ---
+// --- AI COMPANION WISDOM STREAM ---
 const wisdomDatabase = [
     {
         type: "Quranic Verse",
@@ -205,48 +205,6 @@ const wisdomDatabase = [
         arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
         translation: "Those who have believed and whose hearts are assured by the remembrance of Allah. Unquestionably, by the remembrance of Allah hearts find peace.",
         reflection: "True calm in a busy world comes from taking a moment to connect with God."
-    },
-    {
-        type: "Sahih Hadith",
-        ref: "Sahih al-Bukhari (6407)",
-        arabic: "مَثَلُ الَّذِي يَذْكُرُ رَبَّهُ وَالَّذِي لاَ يَذْكُرُ رَبَّهُ مَثَلُ الْحَيِّ وَالْمَيِّتِ",
-        translation: "The example of the one who remembers his Lord and the one who does not is like that of the living and the dead.",
-        reflection: "Keeping your heart engaged in Dhikr breathes spiritual vitality into your routine."
-    },
-    {
-        type: "Quranic Verse",
-        ref: "Surah Az-Zumar (39:53)",
-        arabic: "قُلْ يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَىٰ أَنفُسِهِمْ لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ",
-        translation: "Say, 'O My servants who have transgressed against themselves, do not despair of the mercy of Allah.'",
-        reflection: "No matter how heavy past mistakes feel, God’s door of repentance is always open."
-    },
-    {
-        type: "Sahih Hadith",
-        ref: "Sahih al-Bukhari (7507)",
-        arabic: "لَلَّهُ أَفْرَحُ بِتَوْبَةِ عَبْدِهِ مِنْ أَحَدِكُمْ بِضَالَّتِهِ",
-        translation: "Allah is more pleased with the repentance of His servant than anyone of you is with finding his lost camel.",
-        reflection: "God eagerly accepts your return. Every sincere step toward forgiveness meets immense divine grace."
-    },
-    {
-        type: "Sahih Hadith",
-        ref: "Sahih al-Bukhari (13)",
-        arabic: "لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ",
-        translation: "None of you truly believes until he loves for his brother what he loves for himself.",
-        reflection: "True community and character are built on selflessness and wishing well for others."
-    },
-    {
-        type: "Sahih Hadith",
-        ref: "Sahih Muslim (2594)",
-        arabic: "إِنَّ الرُّفْقَ لَا يَكُونُ فِي شَيْءٍ إِلَّا زَانَهُ، وَلَا يُنْزَعُ مِنْ شَيْءٍ إِلَّا شَانَهُ",
-        translation: "Whenever gentleness is added to something, it beautifies it, and whenever it is withdrawn from something, it leaves it tarnished.",
-        reflection: "Leading with soft speech and gentleness transforms difficult encounters into grace."
-    },
-    {
-        type: "Quranic Verse",
-        ref: "Surah Al-Baqarah (2:152)",
-        arabic: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ",
-        translation: "So remember Me; I will remember you. And be grateful to Me and do not deny Me.",
-        reflection: "Whenever you take a quiet moment to remember God, you are remembered in return."
     }
 ];
 
