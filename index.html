@@ -3,14 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
   <title>Cloud Islamic Counter & AI Deed Tracker</title>
-  
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00e5ff">
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -20,17 +15,14 @@
   <div id="authScreen" class="auth-container">
     <div class="auth-card">
       <h2 id="authTitle">Sign In</h2>
-      
       <div class="form-group">
         <label>Email Address</label>
         <input type="email" id="authEmail" placeholder="user@example.com">
       </div>
-      
       <div class="form-group">
         <label>Password</label>
         <input type="password" id="authPassword" placeholder="••••••••">
       </div>
-
       <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
       <div class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</div>
     </div>
@@ -44,6 +36,7 @@
       <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
 
+    <!-- TOP NAVIGATION TABS -->
     <div class="top-nav">
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
       <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
@@ -52,7 +45,7 @@
       <button class="nav-btn" onclick="switchTab('remindersTab', this)">🌟 Reminders</button>
     </div>
     
-    <!-- COUNTER TAB -->
+    <!-- 1. COUNTER TAB -->
     <div id="counterTab" class="tab-content active">
       <select id="dhikrSelect" onchange="resetCounter()">
         <option value="SubhanAllahi wa bihamdihi ('adada khalqihi...)">SubhanAllahi wa bihamdihi ('adada khalqihi...) - Juwayriyah's High Reward Zikr</option>
@@ -91,11 +84,11 @@
       <div class="tool-bar">
         <button class="tool-btn" onclick="resetCounter()" title="Reset">↻</button>
         <button class="tool-btn" onclick="decrement()" title="Undo">-</button>
-        <button class="tool-btn" onclick="saveSessionToCloud()" title="Sync to Cloud">☁️ Save</button>
+        <button class="tool-btn" onclick="saveSessionToCloud()" title="Sync to Cloud">☁️</button>
       </div>
     </div>
 
-    <!-- USAGE TAB -->
+    <!-- 2. USAGE TAB -->
     <div id="usageTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
       <div class="chart-box">
@@ -103,65 +96,41 @@
       </div>
     </div>
 
-    <!-- LOG TAB -->
+    <!-- 3. LOG TAB -->
     <div id="historyTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Cloud Recitation Log</h3>
       <div id="logContainer"></div>
     </div>
 
-    <!-- DUAS & ZIKR REFERENCE TAB -->
+    <!-- 4. DUAS & ZIKR REFERENCE TAB -->
     <div id="duasTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Essential Duas & Zikr Reference</h3>
       
       <div class="dua-card">
         <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
-        <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation, by His pleasure, by the weight of His Throne, and by the ink of His words."<br><em>(Sahih Muslim) — Outweighs hours of continuous morning remembrance when recited 3 times.</em></div>
+        <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation..."</div>
       </div>
 
       <div class="dua-card">
         <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
-        <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."<br><em>(Sahih Bukhari & Muslim) — Light on the tongue, heavy on the scales, beloved to the Most Merciful.</em></div>
+        <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."</div>
       </div>
 
       <div class="dua-card">
-        <div class="dua-title">Dua For Daily Protection (Morning & Evening — 3 Times)</div>
-        <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
-        <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven, and He is the All-Hearing, All-Knowing."<br><em>(Sunan Abi Dawud 5088 | Sahih)</em></div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dua For Best in Both Worlds (Most Often Recited by the Prophet ﷺ)</div>
-        <div class="arabic-text">رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</div>
-        <div class="dua-translation">"Our Lord, give us good in this world and in the Hereafter, and protect us from the torment of the Fire."<br><em>[Surah Al-Baqarah: 201]</em></div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dua For The Evil Eye Protection</div>
-        <div class="arabic-text">أَعُوذُ بِكلِمَاتِ اللهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ</div>
-        <div class="dua-translation">"I seek refuge for you both in the Perfect Words of Allah, from every devil and every poisonous reptile, and from every evil eye."<br><em>(Sunan Ibn Majah Vol. 4, Book 31, Hadith 3525)</em></div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dua When Entering The Market</div>
-        <div class="arabic-text">لاَ إِلَهَ إِلاَّ اللَّهُ وَحْدَهُ لاَ شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، يُحْيِي وَيُمِيتُ وَهُوَ حَيٌّ لاَ يَمُوتُ، بِيَدِهِ الْخَيْرُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</div>
-        <div class="dua-translation">"There is no true god except Allah, Alone, without partner. To Him belongs sovereignty and praise... <br><em>Reward: 1 Million deeds recorded/erased.</em></div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dua for Taqwa</div>
-        <div class="arabic-text">اللَّهُمَّ آتِ نَفْسِي تَقْوَاهَا، وَزَكِّهَا أَنْتَ خَيْرُ مَنْ زَكَّاهَا، أَنْتَ وَلِيُّهَا وَمَوْلَاهَا</div>
-        <div class="dua-translation">"O Allah! Grant me the sense of piety and purify my soul as You are the Best to purify it. You are its Guardian and its Protecting Friend."</div>
+        <div class="dua-title">Dua For Daily Protection (Morning & Evening)</div>
+        <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ</div>
+        <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven..."</div>
       </div>
     </div>
 
-    <!-- REMINDERS TAB CONTENT (AI COMPANION CHAT STREAM) -->
+    <!-- 5. REMINDERS TAB (AI COMPANION CHAT STREAM) -->
     <div id="remindersTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0; margin-bottom: 10px;">AI Wisdom & Reminder Stream</h3>
       
       <div class="chat-container" id="chatContainer">
-        <div class="watermark">DHIKR TRACKER &bull; AI COMPANION &bull; DHIKR TRACKER &bull; AI COMPANION &bull; DHIKR TRACKER &bull; AI COMPANION &bull; DHIKR TRACKER &bull; AI COMPANION &bull;</div>
+        <div class="watermark">DHIKR TRACKER &bull; AI COMPANION &bull; DHIKR TRACKER &bull; AI COMPANION &bull;</div>
         
         <div class="message bot-message">
           <div class="bot-header"><span>Dhikr AI Companion</span><span>Active Stream</span></div>
@@ -173,7 +142,7 @@
         <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
       </div>
     </div>
-    
+
   </div>
 
 </div>
