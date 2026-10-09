@@ -1,0 +1,251 @@
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* --- Landing Screen Styles --- */
+#landingScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    text-align: center;
+    padding: 20px;
+}
+
+.launch-btn {
+    background: #262626;
+    color: #d4af37;
+    border: 2px solid #d4af37;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.launch-btn:hover {
+    background: #d4af37;
+    color: #121212;
+}
+
+.landing-subtitle {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* --- Full Chat App Interface --- */
+#chatApp {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+header {
+    width: 100%;
+    padding: 12px 20px;
+    text-align: center;
+    background: #1a1a1a;
+    border-bottom: 1.5px solid #d4af37;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #d4af37;
+    letter-spacing: 1px;
+}
+
+.back-btn {
+    background: transparent;
+    color: #888;
+    border: 1px solid #444;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    color: #fff;
+    border-color: #d4af37;
+}
+
+.chat-container {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto;
+    gap: 15px;
+    box-sizing: border-box;
+}
+
+.watermark {
+    position: absolute;
+    top: -60%;
+    left: -60%;
+    width: 220%;
+    height: 220%;
+    transform: rotate(-25deg);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: rgba(180, 140, 40, 0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+    align-content: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.message {
+    position: relative;
+    z-index: 1;
+    max-width: 92%;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-sizing: border-box;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    background: #2a2a2a;
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+    border: 1px solid #333;
+    font-size: 0.85rem;
+}
+
+.bot-message {
+    background: #fffdf9;
+    color: #2c2c2c;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    border-left: 4px solid #d4af37;
+    width: 100%;
+}
+
+.bot-header {
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #b38f27;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.arabic-text {
+    font-family: 'Traditional Arabic', 'Amiri', serif;
+    font-size: 1.15rem;
+    text-align: right;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.translation-text {
+    font-size: 0.8rem;
+    color: #333;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.reflection-box {
+    background: rgba(212, 175, 55, 0.08);
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 2px solid #d4af37;
+    margin-bottom: 12px;
+}
+
+.reflection-title {
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #8c7120;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.reflection-text {
+    font-size: 0.75rem;
+    color: #444;
+    line-height: 1.35;
+}
+
+.audio-btn {
+    background: #d4af37;
+    color: #121212;
+    border: none;
+    padding: 6px 12px;
+    font-weight: bold;
+    font-size: 0.72rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.audio-btn:hover {
+    background: #e6c55c;
+}
+
+.button-panel {
+    width: 100%;
+    max-width: 700px;
+    padding: 15px;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
+    border-top: 1.5px solid #333;
+}
+
+.main-action-btn {
+    background: #d4af37;
+    color: #121212;
+    border: none;
+    padding: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    text-align: center;
+}
+
+.main-action-btn:hover {
+    background: #e6c55c;
+}
