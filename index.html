@@ -215,11 +215,9 @@
         A curated core of spiritual distillates focusing on intention, divine proximity, patience, and noble character.
       </p>
       
-      <!-- Your reminder card, randomizer button, or list container goes here -->
-      <div class="dua-card">
-        <div class="dua-title">Example Reminder</div>
-        <div class="dua-translation">"Actions are judged by intentions..."</div>
-      </div>
+                <!-- Container where all 120 reminders will automatically load -->
+          <div id="remindersListContainer"></div>
+      
     </div>
     
   </div>
@@ -319,7 +317,6 @@
 
   window.deleteLogItem = async function(index) {
     if (!currentUser) return;
-
     const confirmed = confirm("Are you sure you want to delete this log entry?");
     if (!confirmed) return;
 
@@ -406,6 +403,142 @@
       });
     }
   };
+      // --- COMPLETE 120 HIGH-IMPACT SPIRITUAL REMINDERS & RENDERING ---
+  const allReminders = [
+    // --- PILLAR 1: FOUNDATIONS OF FAITH & HEART STATE (1 - 30) ---
+    { id: 1, title: "Purification of Intention", category: "Foundations", description: "Always align your inner motivation with sincerity and higher purpose." },
+    { id: 2, title: "Mindful Presence", category: "Foundations", description: "Anchor your awareness in the present moment, free from distraction." },
+    { id: 3, title: "Constant Gratitude", category: "Foundations", description: "Acknowledge blessings in every state to cultivate inner peace." },
+    { id: 4, title: "Renewing Faith (Tajdeed al-Iman)", category: "Foundations", description: "Actively refresh your belief and connection through reflection daily." },
+    { id: 5, title: "Sincerity in Solitude", category: "Foundations", description: "Maintain righteous actions even when no human eyes are watching." },
+    { id: 6, title: "Awareness of the Divine (Taqwa)", category: "Foundations", description: "Cultivate an inner consciousness that guides your choices in every moment." },
+    { id: 7, title: "Guarding the Heart", category: "Foundations", description: "Protect your heart from cynicism, envy, and spiritual corrosion." },
+    { id: 8, title: "True Humility", category: "Foundations", description: "Recognize that every capability and blessing is a gift, not a personal claim." },
+    { id: 9, title: "Reliance on Higher Power (Tawakkul)", category: "Foundations", description: "Do your utmost in preparation, then entrust the ultimate outcome with peace." },
+    { id: 10, title: "Remembrance in Motion", category: "Foundations", description: "Keep your tongue and heart engaged in remembrance amidst daily tasks." },
+    { id: 11, title: "Clarity of Purpose", category: "Foundations", description: "Know why you exist and direct your daily energy toward what truly matters." },
+    { id: 12, title: "Seeking Deep Knowledge", category: "Foundations", description: "Pursue understanding that elevates your character and benefits society." },
+    { id: 13, title: "Repentance and Return", category: "Foundations", description: "Never let mistakes weigh you down; turn back immediately with a renewed resolve." },
+    { id: 14, title: "Honoring the Covenant", category: "Foundations", description: "Stay true to your inner commitments and sacred values under all conditions." },
+    { id: 15, title: "Eliminating Arrogance", category: "Foundations", description: "Check your ego when dealing with others, remembering our shared origins." },
+    { id: 16, title: "Purity of Thought", category: "Foundations", description: "Filter out destructive mental chatter and replace it with constructive focus." },
+    { id: 17, title: "Valuing Time", category: "Foundations", description: "Treat each hour as a non-refundable capital investment in your hereafter." },
+    { id: 18, title: "Inner Contentment (Qana'ah)", category: "Foundations", description: "Find richness not in an abundance of wealth, but in a tranquil, satisfied heart." },
+    { id: 19, title: "Truthfulness (Sidq)", category: "Foundations", description: "Align your speech, actions, and inner reality into a single harmonious truth." },
+    { id: 20, title: "Awe and Reverence", category: "Foundations", description: "Cultivate a deep, loving awe for the majesty and wisdom of creation." },
+    { id: 21, title: "Overcoming Indifference", category: "Foundations", description: "Wake your heart from autopilot living with conscious daily check-ins." },
+    { id: 22, title: "Guardianship Over Speech", category: "Foundations", description: "Speak only when your words add more value or beauty than silence." },
+    { id: 23, title: "Self-Examination (Muhasabah)", category: "Foundations", description: "Audit your actions every evening before you rest to ensure continuous growth." },
+    { id: 24, title: "Hope Balanced with Fear", category: "Foundations", description: "Walk the path of life with eager hope in mercy and healthy caution of missteps." },
+    { id: 25, title: "Sanctity of the Inner Self", category: "Foundations", description: "Keep your spiritual sanctuary clean from toxic influences and distractions." },
+    { id: 26, title: "Embracing Simplicity", category: "Foundations", description: "Strip away superficial desires to make room for profound spiritual clarity." },
+    { id: 27, title: "Steadfast Devotion", category: "Foundations", description: "Consistency in small, sincere deeds outweighs intermittent grand gestures." },
+    { id: 28, title: "Trusting Divine Wisdom", category: "Foundations", description: "Accept closed doors and delays as protection or redirection toward better paths." },
+    { id: 29, title: "Deepening Conviction (Yaqin)", category: "Foundations", description: "Nurture a certainty in higher truths that anchors you during stormy times." },
+    { id: 30, title: "The Eternal Perspective", category: "Foundations", description: "Weigh temporary worldly trials against infinite lasting success." },
+
+    // --- PILLAR 2: NOBLE CHARACTER & PERSONAL VIRTUES (31 - 60) ---
+    { id: 31, title: "Excellence in Manners (Akhlaq)", category: "Character", description: "Treat everyone with refined grace, respect, and dignity regardless of status." },
+    { id: 32, title: "Patience in Adversity", category: "Character", description: "View unexpected challenges as training grounds for emotional mastery." },
+    { id: 33, title: "Gentleness in Authority", category: "Character", description: "Lead and guide others through kindness, empathy, and constructive support." },
+    { id: 34, title: "Fulfilling Commitments", category: "Character", description: "Honor your word and promises as a sacred benchmark of personal integrity." },
+    { id: 35, title: "Forgiveness Over Retaliation", category: "Character", description: "Release grudges to free your own spirit from the weight of resentment." },
+    { id: 36, title: "Modesty in Victory", category: "Character", description: "Stay grounded and thankful when success comes your way." },
+    { id: 37, title: "Courage in Truth", category: "Character", description: "Stand up for justice and honesty even when it requires difficult conversations." },
+    { id: 38, title: "Generosity of Spirit", category: "Character", description: "Share your time, knowledge, and energy freely to uplift those around you." },
+    { id: 39, title: "Controlling Anger", category: "Character", description: "Pause and breathe when provoked, choosing deliberate wisdom over hasty reactions." },
+    { id: 40, title: "Loyalty and Trustworthiness", category: "Character", description: "Be a safe harbor for secrets, confidences, and dependable teamwork." },
+    { id: 41, title: "Cheerful Countenance", category: "Character", description: "A warm smile and pleasant demeanor can brighten an entire community." },
+    { id: 42, title: "Empathy and Active Listening", category: "Character", description: "Listen to understand others deeply before seeking to be understood." },
+    { id: 43, title: "Self-Restraint (Haya)", category: "Character", description: "Maintain a healthy modesty and self-respect in public and private conduct." },
+    { id: 44, title: "Reliability in Details", category: "Character", description: "Take care of small promises and minor responsibilities with absolute diligence." },
+    { id: 45, title: "Kindness to the Vulnerable", category: "Character", description: "Extend special care, protection, and respect to those who are weak or marginalized." },
+    { id: 46, title: "Eliminating Envy (Hasad)", category: "Character", description: "Celebrate others' blessings as proof that abundance is vast and available." },
+    { id: 47, title: "Fairness in Judgment", category: "Character", description: "Never let personal bias or anger cloud your sense of objective justice." },
+    { id: 48, title: "Hospitality and Warmth", category: "Character", description: "Make guests and visitors feel honored, safe, and truly welcome." },
+    { id: 49, title: "Purity of Action", category: "Character", description: "Ensure your daily work and earnings are honest, clean, and ethical." },
+    { id: 50, title: "Grace Under Pressure", category: "Character", description: "Maintain composure and clear thinking when everything around you accelerates." },
+    { id: 51, title: "Self-Correction", category: "Character", description: "Acknowledge your own mistakes openly and take active steps to fix them." },
+    { id: 52, title: "Avoiding Gossip and Backbiting", category: "Character", description: "Protect people's reputations in their absence as you would in their presence." },
+    { id: 53, title: "Reliable Work Ethic", category: "Character", description: "Put your absolute best effort into every task, treating it as an act of excellence." },
+    { id: 54, title: "Compassion Toward Animals", category: "Character", description: "Show mercy, care, and kindness to all living creatures in your environment." },
+    { id: 55, title: "Optimism and Hope", category: "Character", description: "Radiate positive expectations and encourage others during difficult phases." },
+    { id: 56, title: "Respect for Elders and Scholars", category: "Character", description: "Value wisdom, experience, and guidance passed down through generations." },
+    { id: 57, title: "Nurturing Young Minds", category: "Character", description: "Treat children and youth with patience, mentorship, and inspiring care." },
+    { id: 58, title: "Contentment with One's Lot", category: "Character", description: "Avoid constant comparison with others; appreciate your unique journey." },
+    { id: 59, title: "Constructive Criticism", category: "Character", description: "Offer advice with gentleness, privacy, and genuine love for improvement." },
+    { id: 60, title: "Politeness in Disagreement", category: "Character", description: "Disagree with ideas respectfully without attacking the character of the person." },
+
+    // --- PILLAR 3: SPIRITUAL RESILIENCE & PATIENCE (61 - 90) ---
+    { id: 61, title: "Perseverance (Sabr)", category: "Resilience", description: "Hold fast to your values and discipline when storms test your resolve." },
+    { id: 62, title: "Overcoming Despair", category: "Resilience", description: "Never lose hope in relief, for hardship is always accompanied by ease." },
+    { id: 63, title: "Mental Fortitude", category: "Resilience", description: "Train your mind to remain steady against anxiety and intrusive worries." },
+    { id: 64, title: "Reframing Hardship", category: "Resilience", description: "See trials not as punishments, but as catalysts for inner strength." },
+    { id: 65, title: "Releasing Control", category: "Resilience", description: "Accept what you cannot change and focus intensely on what you can influence." },
+    { id: 66, title: "Finding Solace in Prayer", category: "Resilience", description: "Turn to structured devotion and deep reflection as your ultimate sanctuary." },
+    { id: 67, title: "Combating Burnout", category: "Resilience", description: "Pace your efforts sustainably, honoring your body and mind's need for recovery." },
+    { id: 68, title: "Standing Firm in Principles", category: "Resilience", description: "Do not compromise your core ethics for temporary peer pressure or comfort." },
+    { id: 69, title: "Patience in Worship", category: "Resilience", description: "Maintain your daily spiritual routines even when motivation runs low." },
+    { id: 70, title: "Surviving Isolation", category: "Resilience", description: "Use periods of solitude to strengthen your inner bond rather than feel lonely." },
+    { id: 71, title: "Conquering Fear of Failure", category: "Resilience", description: "Take bold, righteous steps forward, trusting that effort itself is success." },
+    { id: 72, title: "Resisting Temptation", category: "Resilience", description: "Pause for three seconds when tempted; let higher awareness guide your choice." },
+    { id: 73, title: "Finding Peace in Uncertainty", category: "Resilience", description: "Trust the unseen plan when the future path isn't fully visible yet." },
+    { id: 74, title: "Rebuilding After Loss", category: "Resilience", description: "Honor grief while nurturing the courage to plant new seeds of purpose." },
+    { id: 75, title: "Guarding Against Laziness", category: "Resilience", description: "Seek refuge from lethargy and inertia through purposeful morning routines." },
+    { id: 76, title: "Patience with Family", category: "Resilience", description: "Exercise ultimate grace and forbearance with those closest to your home." },
+    { id: 77, title: "Emotional Regulation", category: "Resilience", description: "Observe your emotional spikes without letting them drive your actions." },
+    { id: 78, title: "Shielding Against Negativity", category: "Resilience", description: "Protect your mindset from toxic environments and cynical commentary." },
+    { id: 79, title: "Persevering in Studies", category: "Resilience", description: "Tackle difficult technical problems and learning curves with stubborn grit." },
+    { id: 80, title: "Bouncing Back Quickly", category: "Resilience", description: "When you stumble, get back up immediately without lingering in self-pity." },
+    { id: 81, title: "Patience with Results", category: "Resilience", description: "Trust compound growth; plant seeds today and let time do its quiet work." },
+    { id: 82, title: "Staying Calm in Crises", category: "Resilience", description: "Be the stabilizing anchor when chaos erupts around your team or family." },
+    { id: 83, title: "Overcoming Impatience", category: "Resilience", description: "Understand that rushed timelines often miss vital lessons along the way." },
+    { id: 84, title: "Enduring Monotony", category: "Resilience", description: "Find excellence and mindfulness even in repetitive daily maintenance tasks." },
+    { id: 85, title: "Faith Over Fear", category: "Resilience", description: "Replace anxious what-ifs with firm faith in your capacity to handle challenges." },
+    { id: 86, title: "Resilience in Health", category: "Resilience", description: "Maintain a grateful spirit and patient outlook during physical recovery." },
+    { id: 87, title: "Weathering Public Criticism", category: "Resilience", description: "Stay focused on your true mission regardless of external applause or critique." },
+    { id: 88, title: "Unyielding Hope", category: "Resilience", description: "Keep your lantern lit with optimism even in the darkest seasonal shifts." },
+    { id: 89, title: "Patience with People's Flaws", category: "Resilience", description: "Accept human imperfection with grace, guiding gently where possible." },
+    { id: 90, title: "The Ultimate Anchor", category: "Resilience", description: "Remember that every storm is temporary, but inner peace is eternal." },
+
+    // --- PILLAR 4: SOCIAL ETHICS & ETERNAL PERSPECTIVE (91 - 120) ---
+    { id: 91, title: "Community Welfare", category: "Ethics", description: "Actively contribute to the safety, cleanliness, and growth of your neighborhood." },
+    { id: 92, title: "Charity and Giving", category: "Ethics", description: "Share your blessings regularly, whether through wealth, time, or a warm smile." },
+    { id: 93, title: "Honoring Neighbors", category: "Ethics", description: "Ensure your neighbors feel secure, respected, and cared for by your presence." },
+    { id: 94, title: "Truthful Commerce", category: "Ethics", description: "Conduct all transactions, projects, and business dealings with absolute fairness." },
+    { id: 95, title: "Environmental Stewardship", category: "Ethics", description: "Protect nature, conserve resources, and treat the earth as a sacred trust." },
+    { id: 96, title: "Upholding Justice", category: "Ethics", description: "Defend the rights of the oppressed and speak up against unfairness wherever you see it." },
+    { id: 97, title: "Hospitality to Strangers", category: "Ethics", description: "Treat newcomers and guests with exceptional warmth and accommodation." },
+    { id: 98, title: "Fulfilling Dues Promptly", category: "Ethics", description: "Pay wages, debts, and obligations without delay or unnecessary friction." },
+    { id: 99, title: "Promoting Peace (Islah)", category: "Ethics", description: "Actively reconcile differences and bring harmony between conflicting parties." },
+    { id: 100, title: "Respecting Privacy", category: "Ethics", description: "Never pry into private matters or expose personal secrets entrusted to you." },
+    { id: 101, title: "Charity of the Tongue", category: "Ethics", description: "Spread encouraging words, comforting advice, and uplifting thoughts daily." },
+    { id: 102, title: "Assisting the Stranded", category: "Ethics", description: "Offer help immediately to travelers, commuters, or those lost in navigation." },
+    { id: 103, title: "Caring for the Sick", category: "Ethics", description: "Visit the unwell, check on their well-being, and offer sincere comfort." },
+    { id: 104, title: "Honoring Family Ties", category: "Ethics", description: "Maintain strong, loving bonds of kinship through regular contact and care." },
+    { id: 105, title: "Generosity in Credit", category: "Ethics", description: "Give credit generously to your teammates and peers for collaborative success." },
+    { id: 106, title: "Protecting Public Spaces", category: "Ethics", description: "Keep parks, streets, and shared facilities clean and safe for everyone." },
+    { id: 107, title: "Mentoring the Next Generation", category: "Ethics", description: "Share your skills, programming knowledge, and insights with eager learners." },
+    { id: 108, title: "Gratitude to Benefactors", category: "Ethics", description: "Always thank those who helped you along your educational and personal journey." },
+    { id: 109, title: "Avoiding Harm to Others", category: "Ethics", description: "Ensure your actions, vehicle, or digital code never inconvenience or harm peers." },
+    { id: 110, title: "Spreading Knowledge", category: "Ethics", description: "Pass on useful tutorials, tips, and insights that empower your community." },
+    { id: 111, title: "Mindfulness of the Hereafter", category: "Ethics", description: "Let the awareness of your ultimate destination shape your daily priorities." },
+    { id: 112, title: "Legacy of Good Deeds", category: "Ethics", description: "Build projects, habits, and knowledge that continue to benefit people after you." },
+    { id: 113, title: "Detachment from Materialism", category: "Ethics", description: "Use wealth and technology as tools in your hands rather than chains on your heart." },
+    { id: 114, title: "Remembrance of Mortality", category: "Ethics", description: "Keep life's brevity in mind to stay focused on what truly counts." },
+    { id: 115, title: "Sincerity in Public Service", category: "Ethics", description: "Serve your community purely for higher fulfillment rather than applause." },
+    { id: 116, title: "Cultivating Beneficial Works", category: "Ethics", description: "Create apps, tools, and art that solve real problems and uplift humanity." },
+    { id: 117, title: "Valuing Quiet Moments", category: "Ethics", description: "Cherish moments of silent reflection as bridges to deeper self-awareness." },
+    { id: 118, title: "Purity of Legacy", category: "Ethics", description: "Leave behind a reputation built on honesty, kindness, and steadfast integrity." },
+    { id: 119, title: "Embracing the Journey", category: "Ethics", description: "Enjoy the process of spiritual growth and learning every single day." },
+    { id: 120, title: "The Ultimate Return", category: "Ethics", description: "Live every moment ready to meet your Creator with a sound, tranquil heart." }
+  ];
+
+  function loadRemindersList() {
+    const container = document.getElementById('remindersListContainer');
+    if (!container) return;
+
+    container.innerHTML = 
 </script>
 
 </body>
