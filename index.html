@@ -3,37 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dhikr Tracker - Massive Sahih & Quranic Wisdom Stream</title>
+    <title>Dhikr Tracker & AI Wisdom Companion</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. INITIAL LANDING SCREEN -->
-    <div id="landingScreen">
-        <button class="launch-btn" onclick="openChatApp()">Open Dhikr AI Companion</button>
-        <div class="landing-subtitle">Massive Compendium — Part 1 Loaded (Entries 1–30)</div>
-    </div>
-
-    <!-- 2. FULL CHAT APPLICATION INTERFACE -->
-    <div id="chatApp">
+    <div class="app-container">
+        <!-- Header -->
         <header>
-            <button class="back-btn" onclick="closeChatApp()">&larr; Back</button>
             <h1>Dhikr Tracker AI</h1>
-            <div style="width: 45px;"></div>
         </header>
 
-        <div class="chat-container" id="chatContainer">
-            <div class="watermark">DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull; DHIKR TRACKER &bull;</div>
-            
-            <div class="message bot-message">
-                <div class="bot-header"><span>Dhikr AI Companion</span><span>Massive Stream Active</span></div>
-                <div class="translation-text">As-salamu alaykum! Part 1 of the massive wisdom database is loaded. Tap below for random reminders.</div>
-            </div>
-        </div>
+        <!-- Main Content Area (Tabs) -->
+        <main class="content-area">
+            <!-- Tab 1: Counter -->
+            <section id="counterTab" class="tab-content active">
+                <div class="counter-display">
+                    <span id="countValue">0</span>
+                    <span class="target-label">Target: <span id="targetValue">33</span></span>
+                </div>
+                <button class="primary-btn" id="incrementBtn">Tap to Count (Dhikr)</button>
+                <button class="secondary-btn" id="resetBtn">Reset</button>
+            </section>
 
-        <div class="button-panel">
-            <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
-        </div>
+            <!-- Tab 2: Log / History -->
+            <section id="logTab" class="tab-content">
+                <h2>Activity Log</h2>
+                <div id="logContainer" class="log-container">
+                    <p class="empty-log">No Dhikr logged yet today.</p>
+                </div>
+            </section>
+
+            <!-- Tab 3: Duas & Reference -->
+            <section id="duasTab" class="tab-content">
+                <h2>Essential Duas</h2>
+                <div class="dua-card">
+                    <h3>Subhanallah wal hamdulillah</h3>
+                    <p class="arabic-text">سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ</p>
+                    <p class="translation-text">Glory be to Allah and praise be to Allah.</p>
+                </div>
+            </section>
+
+            <!-- Tab 4: Reminders & Random Wisdom Stream -->
+            <section id="remindersTab" class="tab-content">
+                <h2>AI Wisdom Stream</h2>
+                <div class="chat-container" id="chatContainer">
+                    <div class="message bot-message">
+                        <div class="bot-header"><span>Dhikr AI Companion</span><span>Active</span></div>
+                        <div class="translation-text">As-salamu alaykum! Tap below for random authenticated reminders and reflections.</div>
+                    </div>
+                </div>
+                <div class="button-panel">
+                    <button class="main-action-btn" id="randomWisdomBtn">✨ Tap for Random Wisdom & Reminder</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-target="counterTab">Counter</button>
+            <button class="nav-btn" data-target="logTab">Log</button>
+            <button class="nav-btn" data-target="duasTab">Duas</button>
+            <button class="nav-btn" data-target="remindersTab">Reminders</button>
+        </nav>
     </div>
 
     <script src="script.js"></script>
