@@ -1,4 +1,4 @@
-// kibla.js - Qibla Direction & Rotating Compass Logic
+// kibla.js - Real-time Rotating Qibla Compass Logic
 
 const KAABA_LAT = 21.4225;
 const KAABA_LNG = 39.8262;
@@ -16,7 +16,7 @@ function initQiblaCompass() {
   const statusEl = document.getElementById('qibla-status');
   
   if (!navigator.geolocation) {
-    if (statusEl) statusEl.textContent = "Geolocation is not supported by your browser.";
+    if (statusEl) statusEl.textContent = "Geolocation is not supported.";
     return;
   }
 
@@ -28,9 +28,9 @@ function initQiblaCompass() {
       const userLng = position.coords.longitude;
       
       qiblaBearing = calculateQiblaBearing(userLat, userLng);
-      if (statusEl) statusEl.textContent = `Qibla Direction: ${qiblaBearing.toFixed(1)}° from North`;
+      if (statusEl) statusEl.textContent = `Qibla: ${qiblaBearing.toFixed(1)}° from North`;
       
-      // Handle iOS 13+ sensor permissions explicitly on user click
+      // Handle iOS 13+ permissions
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
           .then(response => {
@@ -38,7 +38,7 @@ function initQiblaCompass() {
               window.addEventListener('deviceorientation', handleOrientation, true);
               hideCompassButton();
             } else {
-              if (statusEl) statusEl.textContent = "Compass permission denied.";
+              if (statusEl) statusEl.textContent = "Permission denied for sensors.";
             }
           })
           .catch(err => console.error(err));
@@ -48,7 +48,7 @@ function initQiblaCompass() {
       }
     },
     error => {
-      if (statusEl) statusEl.textContent = "Location access needed to calculate Qibla.";
+      if (statusEl) statusEl.textContent = "Location access needed for Qibla.";
     }
   );
 }
@@ -67,9 +67,11 @@ function calculateQiblaBearing(lat1, lng1) {
 }
 
 function handleOrientation(event) {
+  // Support both iOS (webkitCompassHeading) and Android (alpha)
   let heading = event.webkitCompassHeading || (event.alpha ? 360 - event.alpha : 0);
   
   if (heading !== null && heading !== undefined) {
+    // Calculate relative rotation angle for the needle
     let needleAngle = qiblaBearing - heading;
     const needle = document.getElementById('qibla-needle');
     if (needle) {
