@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, enableIndexedDbPersistence, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDNjTCd-LE0buyE2aDktb-ORN0Ncwvzcgo",
@@ -15,6 +15,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code == 'failed-precondition') {
+        console.warn("Persistence failed: Multiple tabs open.");
+    } else if (err.code == 'unimplemented') {
+        console.warn("Persistence not supported by this browser.");
+    }
+});
 
 let isSignUpMode = false;
 let currentUser = null;
@@ -129,6 +136,7 @@ let totalSessionCount = 0;
 window.increment = function() {
   currentCount++;
   totalSessionCount++;
+  localStorage.setItem('activeDhikrCount', currentCount);
   document.getElementById('counterBtn').innerText = currentCount;
   document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
   document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
@@ -138,6 +146,7 @@ window.decrement = function() {
   if (currentCount > 0) {
     currentCount--;
     totalSessionCount--;
+    localStorage.setItem('activeDhikrCount', currentCount);
     document.getElementById('counterBtn').innerText = currentCount;
     document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
     document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
@@ -147,6 +156,7 @@ window.decrement = function() {
 window.resetCounter = function() {
   currentCount = 0;
   totalSessionCount = 0;
+  localStorage.setItem('activeDhikrCount', currentCount);
   document.getElementById('counterBtn').innerText = 0;
   document.getElementById('roundsCount').innerText = 0;
   document.getElementById('lapCount').innerText = '0/33';
@@ -261,6 +271,13 @@ function speakBilingualWisdom(item) {
 
     window.speechSynthesis.speak(arabicUtterance);
 }
+document.addEventListener('DOMContentLoaded', () => {
+    const savedCount = localStorage.getItem('activeDhikrCount');
+    if (savedCount !== null) {
+        currentCount = parseInt(savedCount, 10);
+        document.getElementById('counterBtn').innerText = currentCount;
+    }
+});
 
 // Initial load
 loadWisdomDatabase();
