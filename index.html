@@ -94,18 +94,30 @@
       <div class="chart-box">
         <canvas id="usageChart"></canvas>
       </div>
-       <!-- Qibla Compass Card Widget (Fills the lower gap) -->
+       <!-- 2. USAGE & QIBLA TAB -->
+<div id="usageTab" class="tab-content">
+  <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
+  <div class="chart-box">
+    <canvas id="usageChart"></canvas>
+  </div>
+
+  <!-- Visual Rotating Qibla Compass Card -->
   <div class="qibla-card">
     <h3 class="qibla-title">Qibla Compass</h3>
+    
+    <!-- Visual Compass Circle & Rotating Needle -->
     <div class="compass-container">
-      <div class="compass-needle" id="qibla-needle"></div>
-      <div class="compass-center-dot"></div>
+      <div class="compass-dial">
+        <div class="compass-needle" id="qibla-needle"></div>
+        <div class="compass-center-dot"></div>
+      </div>
       <div class="kaaba-marker">🕋</div>
     </div>
-     <p id="qibla-status" class="qibla-status">Tap to calibrate and find direction</p>
+
+    <p id="qibla-status" class="qibla-status">Tap below to calibrate & find direction</p>
     <button id="qibla-btn" class="qibla-btn">Enable Compass</button>
   </div>
-    </div>
+</div>
 
     <!-- 3. LOG TAB -->
     <div id="historyTab" class="tab-content">
