@@ -2,15 +2,20 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {
     for (let registration of registrations) {
-      if (!localStorage.getItem('sw_version_v15')) {
-        registration.unregister().then(() => console.log('Old SW Unregistered'));
-        localStorage.setItem('sw_version_v15', 'true');
+      if (!localStorage.getItem('sw_version_v17')) {
+        registration.unregister().then(() => console.log('Upgraded to SW v17'));
+        localStorage.setItem('sw_version_v17', 'true');
         window.location.reload();
       }
     }
   });
-}
 
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW Registered:', reg.scope))
+      .catch(err => console.error('SW Registration Failed:', err));
+  });
+}
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
