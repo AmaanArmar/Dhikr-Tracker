@@ -278,6 +278,26 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('counterBtn').innerText = currentCount;
     }
 });
+// 1. Recover last saved count when the page opens
+document.addEventListener('DOMContentLoaded', () => {
+    const savedCount = localStorage.getItem('activeDhikrCount');
+    if (savedCount !== null) {
+        currentCount = parseInt(savedCount, 10);
+        document.getElementById('counterBtn').innerText = currentCount;
+    }
+});
+
+// 2. Register Service Worker for offline execution
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log("Offline Service Worker Active!"))
+            .catch((err) => console.log("Service Worker registration failed:", err));
+    });
+}
+
+// 3. Initial load call
+loadWisdomDatabase();
 
 // Initial load
 loadWisdomDatabase();
