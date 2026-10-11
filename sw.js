@@ -1,18 +1,21 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v3';
+const CACHE_NAME = 'dhikr-tracker-cache-v7';
 const assetsToCache = [
   './',
   './index.html',
   './script.js',
+  './kibla.js',
+  './style.css',
   './verses.json',
+  './manifest.json',
   'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
-// Install and cache files safely (one failure won't crash the rest)
+// Install and cache core runtime assets safely
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Force browser to activate this worker immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.all(
@@ -28,7 +31,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Take control of the page immediately
+// Take control immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
