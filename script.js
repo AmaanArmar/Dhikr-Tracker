@@ -1,3 +1,17 @@
+// Force unregister stuck service workers on version change
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (let registration of registrations) {
+      // If the worker is running an old version, unregister it
+      if (!localStorage.getItem('sw_version_v13')) {
+        registration.unregister().then(() => console.log('Old SW Unregistered'));
+        localStorage.setItem('sw_version_v13', 'true');
+        window.location.reload();
+      }
+    }
+  });
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, enableIndexedDbPersistence, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
