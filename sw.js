@@ -1,51 +1,34 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v8';
+const CACHE_NAME = 'dhikr-tracker-cache-v10';
 
-// Converts relative paths to absolute URLs so cache keys match browser requests 100%
-const getAbsoluteUrl = (path) => new URL(path, self.location).href;
-
-const assetsToCache = [
-  getAbsoluteUrl('./'),
-  getAbsoluteUrl('./index.html'),
-  getAbsoluteUrl('./script.js'),
-  getAbsoluteUrl('./kibla.js'),
-  getAbsoluteUrl('./style.css'),
-  getAbsoluteUrl('./verses.json'),
-  getAbsoluteUrl('./manifest.json'),
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
-  'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+// Core files to ensure are ready immediately
+const CORE_ASSETS = [
+  './',
+  './index.html',
+  './script.js',
+  './kibla.js',
+  './style.css',
+  './verses.json',
+  './manifest.json'
 ];
 
-// Install phase: cache all assets cleanly
+// Install event: cache core assets
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Force new service worker to take control immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return Promise.all(
-        assetsToCache.map((url) => {
-          return fetch(url)
-            .then((response) => {
-              if (response.ok) {
-                return cache.put(url, response);
-              }
-            })
-            .catch((err) => console.warn('Failed to cache:', url, err));
-        })
-      );
-    })
+      return cache.addAll(CORE_ASSETS.map(url => new URL(url, self.location).href));
+    }).catch(err => console.log('Install cache error:', err))
   );
 });
 
-// Activate phase: clean up old stale caches automatically
+// Activate event: clean up any old caches automatically
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('Deleting old cache:', cache);
-            return caches.delete(cache);
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
           }
         })
       );
@@ -53,19 +36,34 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch phase: serve from cache if offline
+// Fetch event: Network-First with automatic dynamic runtime caching & offline fallback
 self.addEventListener('fetch', (event) => {
+  // Only handle GET requests (skip Firebase POST/PUT sync calls)
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        // If navigation request fails while offline, fall back to cached index.html
-        if (event.request.mode === 'navigate') {
-          return caches.match(getAbsoluteUrl('./index.html'));
+    fetch(event.request)
+      .then((networkResponse) => {
+        // If the network fetch succeeds, clone it and save it to our cache dynamically!
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        // If network fails (Wi-Fi/data turned off), grab it from the cache!
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          // Fallback for page navigation when offline
+          if (event.request.mode === 'navigate') {
+            return caches.match(new URL('./index.html', self.location).href);
+          }
+        });
+      })
   );
 });
