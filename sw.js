@@ -1,8 +1,8 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v14';
+const CACHE_NAME = 'dhikr-tracker-cache-v15';
 const SITE_ORIGIN = 'https://dhikertracker.netlify.app';
 
-// Explicit absolute URLs matching your exact Netlify domain
-const ESSENTIAL_ASSETS = [
+// All assets mapped explicitly to absolute origin
+const ASSETS_TO_CACHE = [
   `${SITE_ORIGIN}/`,
   `${SITE_ORIGIN}/index.html`,
   `${SITE_ORIGIN}/script.js`,
@@ -12,31 +12,34 @@ const ESSENTIAL_ASSETS = [
   `${SITE_ORIGIN}/manifest.json`
 ];
 
-// Install: Cache each asset explicitly by its full URL
+// Install: Store every asset under clean absolute keys
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return Promise.all(
-        ESSENTIAL_ASSETS.map(url => {
-          return fetch(url).then(response => {
-            if (response.ok) {
-              return cache.put(url, response);
-            }
-          }).catch(err => console.warn('Failed to pre-cache:', url, err));
+        ASSETS_TO_CACHE.map((url) => {
+          return fetch(url)
+            .then((response) => {
+              if (response.ok) {
+                return cache.put(url, response);
+              }
+            })
+            .catch((err) => console.warn('Failed to cache:', url, err));
         })
       );
     })
   );
 });
 
-// Activate: Clean old caches and take control instantly
+// Activate: Delete all older caches (v1 through v14) and take control immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('Cleaning old cache:', key);
             return caches.delete(key);
           }
         })
@@ -45,44 +48,57 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: Match requests using exact full URLs
+// Fetch Listener: CACHE-FIRST for immediate offline rendering
 self.addEventListener('fetch', (event) => {
+  // Ignore non-GET requests (Firebase/Sync)
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request.url).then((cachedResponse) => {
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const reqUrl = new URL(event.request.url);
+
+      // 1. Try matching the exact URL or the relative pathname (e.g., /style.css)
+      let cachedResponse = await cache.match(event.request.url);
+      
+      if (!cachedResponse) {
+        // Fallback search: Match by pathname ending
+        const allKeys = await cache.keys();
+        const matchedKey = allKeys.find((k) => new URL(k.url).pathname === reqUrl.pathname);
+        if (matchedKey) {
+          cachedResponse = await cache.match(matchedKey);
+        }
+      }
+
+      // 2. CACHE-FIRST: If found in local memory, return immediately!
       if (cachedResponse) {
-        // Background update when online
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request.url, networkResponse));
-          }
-        }).catch(() => {});
+        // Optionally update in background if online
+        fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request.url, networkResponse);
+            }
+          })
+          .catch(() => {}); // Suppress network failures offline
         return cachedResponse;
       }
 
-      // Fallback to network if not in cache
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request.url, responseClone));
-          }
-          return networkResponse;
-        })
-        .catch(async () => {
-          // Offline fallback
-          const cache = await caches.open(CACHE_NAME);
-          const reqUrl = new URL(event.request.url);
-          const allKeys = await cache.keys();
-          
-          const match = allKeys.find(req => new URL(req.url).pathname.endsWith(reqUrl.pathname));
-          if (match) return cache.match(match);
-
-          if (event.request.mode === 'navigate') {
-            return cache.match(`${SITE_ORIGIN}/index.html`);
-          }
-        });
-    })
+      // 3. NETWORK FALLBACK: If not in cache, try fetching from network
+      try {
+        const networkResponse = await fetch(event.request);
+        if (networkResponse && networkResponse.status === 200) {
+          cache.put(event.request.url, networkResponse.clone());
+        }
+        return networkResponse;
+      } catch (error) {
+        // 4. NAVIGATION FALLBACK: If page reload fails offline, deliver cached index.html
+        if (event.request.mode === 'navigate') {
+          return (
+            (await cache.match(`${SITE_ORIGIN}/index.html`)) ||
+            (await cache.match(`${SITE_ORIGIN}/`))
+          );
+        }
+      }
+    })()
   );
 });
