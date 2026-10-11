@@ -1,16 +1,18 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v13';
+const CACHE_NAME = 'dhikr-tracker-cache-v14';
+const SITE_ORIGIN = 'https://dhikertracker.netlify.app';
 
+// Explicit absolute URLs matching your exact Netlify domain
 const ESSENTIAL_ASSETS = [
-  './',
-  './index.html',
-  './script.js',
-  './kibla.js',
-  './style.css',
-  './verses.json',
-  './manifest.json'
+  `${SITE_ORIGIN}/`,
+  `${SITE_ORIGIN}/index.html`,
+  `${SITE_ORIGIN}/script.js`,
+  `${SITE_ORIGIN}/kibla.js`,
+  `${SITE_ORIGIN}/style.css`,
+  `${SITE_ORIGIN}/verses.json`,
+  `${SITE_ORIGIN}/manifest.json`
 ];
 
-// Install: Cache each asset individually (safe from atomic failures)
+// Install: Cache each asset explicitly by its full URL
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -28,7 +30,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate: Clear old caches and take control
+// Activate: Clean old caches and take control instantly
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -43,14 +45,14 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: URL-string matching to prevent header mismatch bugs
+// Fetch: Match requests using exact full URLs
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request.url).then((cachedResponse) => {
-      // 1. If found in cache, return it immediately (and update in background if online)
       if (cachedResponse) {
+        // Background update when online
         fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request.url, networkResponse));
@@ -59,7 +61,7 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
 
-      // 2. Otherwise, fetch from network and cache it dynamically
+      // Fallback to network if not in cache
       return fetch(event.request)
         .then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
@@ -69,18 +71,16 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(async () => {
-          // 3. Offline fallbacks
+          // Offline fallback
           const cache = await caches.open(CACHE_NAME);
-          
-          // Fallback matching by pathname ending (e.g. style.css)
           const reqUrl = new URL(event.request.url);
           const allKeys = await cache.keys();
+          
           const match = allKeys.find(req => new URL(req.url).pathname.endsWith(reqUrl.pathname));
           if (match) return cache.match(match);
 
-          // Page navigation fallback
           if (event.request.mode === 'navigate') {
-            return cache.match('./index.html');
+            return cache.match(`${SITE_ORIGIN}/index.html`);
           }
         });
     })
