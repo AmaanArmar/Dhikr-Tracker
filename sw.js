@@ -1,8 +1,9 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v1';
+const CACHE_NAME = 'dhikr-tracker-cache-v2';
 const assetsToCache = [
   './',
   './index.html',
   './script.js',
+  './style.css',
   './verses.json',
   'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js',
@@ -19,11 +20,4 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Serve cached files when offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
-});
+// Serve cached
