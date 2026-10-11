@@ -21,6 +21,7 @@ let currentUser = null;
 let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } };
 let myChartInstance = null;
 
+// --- AUTHENTICATION SYSTEM ---
 window.toggleAuthMode = function() {
   isSignUpMode = !isSignUpMode;
   document.getElementById('authTitle').innerText = isSignUpMode ? "Create Account" : "Sign In";
@@ -69,6 +70,7 @@ window.logOut = function() {
   signOut(auth);
 };
 
+// --- DATA & CLOUD LOGGING ---
 window.saveSessionToCloud = async function() {
   if (currentCount === 0 || !currentUser) return;
 
@@ -120,6 +122,7 @@ function renderLogList() {
   });
 }
 
+// --- COUNTER LOGIC ---
 let currentCount = 0;
 let totalSessionCount = 0;
 
@@ -177,36 +180,18 @@ window.switchTab = function(tabId, btn) {
 };
 
 // --- AI COMPANION WISDOM STREAM ---
-const wisdomDatabase = [
-    {
-        type: "Quranic Verse",
-        ref: "Surah Ash-Sharh (94:5–6)",
-        arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا • إِنَّ مَعَ الْعُسْرِ يُسْرًا",
-        translation: "For indeed, with hardship comes ease. Indeed, with hardship comes ease.",
-        reflection: "Relief and hope are present alongside the struggle, not just waiting at the end."
-    },
-    {
-        type: "Sahih Hadith",
-        ref: "Sahih Muslim (2999)",
-        arabic: "عَجَبًا لِأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ",
-        translation: "How wonderful is the affair of the believer, for his entire affair is good. If an adversity befalls him, he is patient, and that is good for him.",
-        reflection: "Every trial faced with patient perseverance transforms into a spiritual victory."
-    },
-    {
-        type: "Sahih Hadith",
-        ref: "Sahih al-Bukhari (6114)",
-        arabic: "لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ، إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ",
-        translation: "The strong person is not the one who overcomes people by his strength, but the strong person is the one who controls himself when angry.",
-        reflection: "True power is measured by emotional self-restraint under pressure."
-    },
-    {
-        type: "Quranic Verse",
-        ref: "Surah Ar-Ra'd (13:28)",
-        arabic: "الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
-        translation: "Those who have believed and whose hearts are assured by the remembrance of Allah. Unquestionably, by the remembrance of Allah hearts find peace.",
-        reflection: "True calm in a busy world comes from taking a moment to connect with God."
+let wisdomDatabase = [];
+
+// Fetch the single verses.json file
+async function loadWisdomDatabase() {
+    try {
+        const response = await fetch('verses.json');
+        wisdomDatabase = await response.json();
+        console.log(`Successfully loaded ${wisdomDatabase.length} entries.`);
+    } catch (error) {
+        console.error('Error loading verses.json:', error);
     }
-];
+}
 
 const chatContainer = document.getElementById('chatContainer');
 
@@ -231,19 +216,23 @@ function appendBotMessage(item) {
             <div class="reflection-text">${item.reflection}</div>
         </div>
         <div class="bot-actions">
-            <button class="audio-btn" id="speakBtn">🔊 Read Aloud</button>
+            <button class="audio-btn">🔊 Read Aloud</button>
         </div>
     `;
     
     chatContainer.appendChild(msg);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    msg.querySelector('#speakBtn').addEventListener('click', () => {
+    msg.querySelector('.audio-btn').addEventListener('click', () => {
         speakBilingualWisdom(item);
     });
 }
 
 window.askRandomWisdom = function() {
+    if (wisdomDatabase.length === 0) {
+        alert("Verses are still loading, please wait a moment.");
+        return;
+    }
     appendUserMessage("Give me a random reminder.");
     setTimeout(() => {
         const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
@@ -254,25 +243,24 @@ window.askRandomWisdom = function() {
 function speakBilingualWisdom(item) {
     if (!('speechSynthesis' in window)) {
         alert("Text-to-speech is not supported on your browser.");
-        return;
     }
     window.speechSynthesis.cancel();
 
-    // 1. Read Arabic text using Arabic voice locale ('ar-SA')
     const arabicUtterance = new SpeechSynthesisUtterance(item.arabic);
     arabicUtterance.lang = 'ar-SA';
     arabicUtterance.rate = 0.9;
 
-    // 2. Read English translation & reflection using English voice locale ('en-US')
     const englishText = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
     const englishUtterance = new SpeechSynthesisUtterance(englishText);
     englishUtterance.lang = 'en-US';
     englishUtterance.rate = 0.95;
 
-    // Chain them sequentially so Arabic reads first, then English follows naturally
     arabicUtterance.onend = () => {
         window.speechSynthesis.speak(englishUtterance);
     };
 
     window.speechSynthesis.speak(arabicUtterance);
-      }
+}
+
+// Initial load
+loadWisdomDatabase();
