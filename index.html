@@ -39,7 +39,7 @@
     <!-- TOP NAVIGATION TABS -->
     <div class="top-nav">
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage</button>
+      <button class="nav-btn" data-tab="usage">📊 Usage & Qibla </button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
       <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
       <button class="nav-btn" onclick="switchTab('remindersTab', this)">🌟 Reminders</button>
@@ -94,6 +94,17 @@
       <div class="chart-box">
         <canvas id="usageChart"></canvas>
       </div>
+       <!-- Qibla Compass Card Widget (Fills the lower gap) -->
+  <div class="qibla-card">
+    <h3 class="qibla-title">Qibla Compass</h3>
+    <div class="compass-container">
+      <div class="compass-needle" id="qibla-needle"></div>
+      <div class="compass-center-dot"></div>
+      <div class="kaaba-marker">🕋</div>
+    </div>
+    <p id="qibla-status" class="qibla-status">Tap to calibrate and find direction</p>
+    <button id="qibla-btn" class="qibla-btn">Enable Compass</button>
+  </div>
     </div>
 
     <!-- 3. LOG TAB -->
