@@ -1,5 +1,6 @@
 * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; }
+body { background-color: #0b131e; color: #ffffff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
 .app-container { max-width: 450px; width: 100%; min-height: 100vh; background-color: #0f172a; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 .hidden { display: none !important; }
 
