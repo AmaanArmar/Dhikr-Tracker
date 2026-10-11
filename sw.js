@@ -1,27 +1,27 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v10';
+const CACHE_NAME = 'dhikr-tracker-cache-v12';
 
-// Core files to ensure are ready immediately
-const CORE_ASSETS = [
-  './',
-  './index.html',
-  './script.js',
-  './kibla.js',
-  './style.css',
-  './verses.json',
-  './manifest.json'
+// List of all essential local app assets
+const ESSENTIAL_ASSETS = [
+  '/',
+  '/index.html',
+  '/script.js',
+  '/kibla.js',
+  '/style.css',
+  '/verses.json',
+  '/manifest.json'
 ];
 
-// Install event: cache core assets
+// Install: Cache essential local assets
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(CORE_ASSETS.map(url => new URL(url, self.location).href));
-    }).catch(err => console.log('Install cache error:', err))
+      return cache.addAll(ESSENTIAL_ASSETS.map(path => new URL(path, self.location).href));
+    }).catch((err) => console.log('Pre-cache error:', err))
   );
 });
 
-// Activate event: clean up any old caches automatically
+// Activate: Delete old caches and take control
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -36,34 +36,49 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event: Network-First with automatic dynamic runtime caching & offline fallback
+// Fetch: Stale-While-Revalidate with full offline fallback
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests (skip Firebase POST/PUT sync calls)
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        // If the network fetch succeeds, clone it and save it to our cache dynamically!
-        if (networkResponse && networkResponse.status === 200) {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        // If network fails (Wi-Fi/data turned off), grab it from the cache!
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
+    caches.match(event.request).then((cachedResponse) => {
+      // 1. Return cached version immediately if available
+      if (cachedResponse) {
+        // Fetch update in background if online
+        fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
           }
-          // Fallback for page navigation when offline
+        }).catch(() => {/* Ignore network errors offline */});
+
+        return cachedResponse;
+      }
+
+      // 2. If not in cache, try network
+      return fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          // 3. Offline fallbacks for requests not in cache
+          const cache = await caches.open(CACHE_NAME);
+          const allKeys = await cache.keys();
+
+          // Match by filename fallback (e.g. style.css)
+          const reqUrl = new URL(event.request.url);
+          const match = allKeys.find(k => new URL(k.url).pathname.endsWith(reqUrl.pathname));
+          if (match) return cache.match(match);
+
+          // Page navigation fallback
           if (event.request.mode === 'navigate') {
-            return caches.match(new URL('./index.html', self.location).href);
+            return cache.match(new URL('/index.html', self.location).href) ||
+                   cache.match(allKeys.find(k => k.url.endsWith('index.html')));
           }
         });
-      })
+    })
   );
 });
