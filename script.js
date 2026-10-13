@@ -2,13 +2,14 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {
     for (let registration of registrations) {
-      if (!localStorage.getItem('sw_version_v17')) {
-        registration.unregister().then(() => console.log('Upgraded to SW v17'));
-        localStorage.setItem('sw_version_v17', 'true');
+      if (!localStorage.getItem('sw_version_v18')) {
+        registration.unregister().then(() => console.log('Upgraded to SW v18 - Slim Cache'));
+        localStorage.setItem('sw_version_v18', 'true');
         window.location.reload();
       }
     }
   });
+}
 
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
