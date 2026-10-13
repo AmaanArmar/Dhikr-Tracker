@@ -1,5 +1,4 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v17';
-const SITE_ORIGIN = 'https://dhikertracker.netlify.app';
+const CACHE_NAME = 'dhikr-tracker-cache-v18';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -11,7 +10,7 @@ const ASSETS_TO_CACHE = [
   '/manifest.json'
 ];
 
-// Install Event
+// Install Event: Cache only core static assets
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -21,7 +20,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event
+// Activate Event: Clean up all older cache versions
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -36,11 +35,11 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Handles Cold-Start Offline Launch
+// Fetch Event: Cache-First for core files, network fallback for dynamic requests without storing bloat
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Fix for Cold Starts: If navigating to the app page, serve index.html directly
+  // Handle Navigation / Cold Starts
   if (event.request.mode === 'navigate') {
     event.respondWith(
       caches.match('/index.html').then((cachedIndex) => {
@@ -50,20 +49,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-First strategy for CSS, JS, Images, and JSON
+  // Standard Cache-First for local assets, network-only for external SDKs/Firebase to save storage
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return networkResponse;
+      return fetch(event.request).catch(() => {
+        // Fallback if offline and asset isn't pre-cached
+        return caches.match('/index.html');
       });
     })
   );
