@@ -31,7 +31,7 @@
 
   <!-- MAIN DASHBOARD -->
   <div id="mainDashboard" class="app-container hidden">
-    
+
     <!-- USER BAR -->
     <div class="user-bar">
       <span>User: <strong id="userDisplay">...</strong></span>
@@ -41,15 +41,15 @@
     <!-- TOP NAVIGATION TABS -->
     <nav class="top-nav">
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">Counter</button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">Usage</button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">Usage & Qibla</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">Log</button>
       <button class="nav-btn" onclick="switchTab('duasTab', this)">Duas & Zikr</button>
       <button class="nav-btn" onclick="switchTab('wisdomTab', this)">Reminder</button>
     </nav>
 
-    <!-- TAB 1: COUNTER (WITH FULL ZIKR OPTIONS) -->
+    <!-- TAB 1: COUNTER -->
     <section id="counterTab" class="tab-content active">
-      <div class="dhikr-select-wrapper" style="margin-bottom: 20px;">
+      <div class="dhikr-select-wrapper">
         <select id="dhikrSelect">
           <option value="SubhanAllahi wa bihamdihi ('adada khalqi...)">SubhanAllahi wa bihamdihi ('adada khalqi...) – Juwayriyah's High Reward Zikr</option>
           <option value="SubhanAllahi wa bihamdihi & SubhanAllahil Adheem">SubhanAllahi wa bihamdihi & SubhanAllahil Adheem (Beloved & Heavy on Scales)</option>
@@ -67,7 +67,7 @@
 
       <div class="counter-wrapper">
         <button id="counterBtn" class="main-circle-btn" onclick="increment()">0</button>
-        
+
         <div class="counter-info">
           <div>Rounds: <span id="roundsCount">0</span></div>
           <div>Count: <span id="lapCount">0/33</span></div>
@@ -81,25 +81,27 @@
       </div>
     </section>
 
-    <!-- Inside TAB 2: USAGE in index.html -->
-<section id="usageTab" class="tab-content">
-  <div class="chart-box">
-    <h3 style="color: var(--cyan); margin-top: 0; font-size: 15px;">Weekly Cloud Usage</h3>
-    <canvas id="usageChart" width="400" height="200"></canvas>
-  </div>
+    <!-- TAB 2: USAGE & QIBLA -->
+    <section id="usageTab" class="tab-content">
+      <div class="chart-box">
+        <h3>Weekly Cloud Usage</h3>
+        <canvas id="usageChart" width="400" height="200"></canvas>
+      </div>
 
-  <div class="qibla-card" style="margin-top: 20px; background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--line); text-align: center;">
-    <h3 style="color: var(--cyan); margin-top: 0; font-size: 16px;">Qibla Compass</h3>
-    <div class="compass-container" style="position: relative; width: 160px; height: 160px; margin: 15px auto; border: 3px solid var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-      <div style="position: absolute; top: 6px; font-size: 1.2rem;">🕋</div>
-      <div id="compassNeedle" style="width: 4px; height: 100px; background: var(--cyan); transition: transform 0.1s linear; transform-origin: center center;"></div>
-    </div>
-    <div id="qiblaStatus" style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">Tap below to find direction</div>
-    <button class="auth-btn" style="width: auto; padding: 8px 16px;" onclick="initQiblaCompass()">Enable Compass</button>
-  </div>
-</section>
-    
-      
+      <div class="qibla-card">
+        <div class="qibla-title">Qibla Compass</div>
+        <div class="compass-container" id="qiblaContainer">
+          <div class="kaaba-marker">🕋</div>
+          <div class="compass-dial" id="compassRing">
+            <div class="compass-needle" id="compassNeedle"></div>
+            <div class="compass-center-dot"></div>
+          </div>
+        </div>
+        <div class="qibla-status" id="qiblaStatus">Tap below to calibrate & find direction</div>
+        <button class="qibla-btn" onclick="initQiblaCompass()">Enable Compass</button>
+      </div>
+    </section>
+
     <!-- TAB 3: LOG (HISTORY) -->
     <section id="historyTab" class="tab-content">
       <h3 style="color: var(--cyan); margin-top: 0; font-size: 16px;">Cloud Recitation Log</h3>
@@ -111,29 +113,17 @@
     <!-- TAB 4: DUAS & ZIKR -->
     <section id="duasTab" class="tab-content">
       <div class="dua-card">
-        <div class="dua-title">The Four Most Beloved Words</div>
-        <div class="arabic-text">سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلاَ إِلَهَ إِلاَّ اللَّهُ، وَاللَّهُ أَكْبَرُ</div>
-        <div class="dua-translation">"Glory be to Allah, Praise be to Allah, There is no god but Allah, and Allah is the Greatest." (Sahih Muslim)</div>
-      </div>
-
-      <div class="dua-card">
         <div class="dua-title">Juwayriyah's High Reward Zikr</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ</div>
         <div class="dua-translation">"Glory be to Allah and Praise be to Him, equal to the number of His creation..."</div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Sayyid al-Istighfaar (Master of Forgiveness)</div>
-        <div class="arabic-text">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ...</div>
-        <div class="dua-translation">"O Allah, You are my Lord, none has the right to be worshipped except You..."</div>
       </div>
     </section>
 
     <!-- TAB 5: REMINDER / AI WISDOM -->
     <section id="wisdomTab" class="tab-content">
       <div class="dua-card" style="border-left: 4px solid var(--cyan);">
-        <div class="bot-header"><span>Dhikr Companion</span><span>Active Stream</span></div>
-        <div style="font-size: 13px; color: var(--text); margin-bottom: 12px;">Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.</div>
+        <div class="bot-header"><span>Dhikr AI Companion</span><span>Active Stream</span></div>
+        <div style="font-size: 13px; color: var(--text); margin-bottom: 12px;">As-salamu alaykum! Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.</div>
         <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
       </div>
       
@@ -141,11 +131,12 @@
     </section>
 
     <!-- FOOTER -->
-    <div style="text-align: center; padding: 10px; font-size: 11px; color: var(--muted); background: var(--panel); border-top: 1px solid var(--line); margin-top: auto;">
+    <div class="footer-bar">
       Powered by Netlify
     </div>
   </div>
 
+  <script src="kibla.js"></script>
   <script type="module" src="script.js"></script>
 </body>
 </html>
