@@ -241,32 +241,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
     
 
+// --- QIBLA COMPASS INITIALIZER ---
+document.addEventListener('DOMContentLoaded', () => {
+  const compassBtn = document.getElementById('enableCompassBtn');
+  if (compassBtn) {
+    compassBtn.addEventListener('click', triggerQiblaCompass);
+  }
+});
 
-
-// --- QIBLA COMPASS LOGIC (SYNCHRONOUS PERMISSION FIX) ---
-window.initQiblaCompass = function() {
+function triggerQiblaCompass() {
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
   
-  if (statusEl) statusEl.innerText = "Requesting permissions & GPS...";
+  if (statusEl) statusEl.innerText = "Acquiring location...";
 
-  // 1. Handle iOS 13+ motion permission synchronously inside the click gesture
   if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    DeviceOrientationEvent.requestPermission()
-      .then(response => {
-        if (response === 'granted') {
-          console.log("Orientation permission granted.");
-        } else {
-          console.log("Orientation permission denied.");
-        }
-      })
-      .catch(console.error);
+    DeviceOrientationEvent.requestPermission().catch(() => {});
   }
 
-  // 2. Fetch Geolocation coordinates
   if (!navigator.geolocation) {
     if (statusEl) statusEl.innerText = "Geolocation not supported.";
-    alert("Geolocation is not supported by your browser.");
     return;
   }
 
@@ -297,25 +291,19 @@ window.initQiblaCompass = function() {
       startCompassTracking(qibla, needleEl, statusEl);
     },
     (error) => {
-      let errorMsg = "Unable to retrieve GPS location.";
-      if (error.code === error.PERMISSION_DENIED) {
-        errorMsg = "Location permission denied in browser settings.";
-      }
-      if (statusEl) statusEl.innerText = errorMsg;
-      alert(errorMsg);
+      if (statusEl) statusEl.innerText = "Location permission denied or unavailable.";
     },
-    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
   );
-};
+}
 
 function startCompassTracking(qiblaAngle, needleEl, statusEl) {
   const handleOrientation = (event) => {
     let heading = null;
-
     if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-      heading = event.webkitCompassHeading; // iOS Safari
+      heading = event.webkitCompassHeading;
     } else if (event.alpha !== null) {
-      heading = (360 - event.alpha) % 360; // Android Chrome
+      heading = (360 - event.alpha) % 360;
     }
 
     if (heading !== null && needleEl) {
