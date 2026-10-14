@@ -1,4 +1,3 @@
-// --- SERVICE WORKER & UPGRADE LOGIC ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed:', err));
@@ -167,16 +166,18 @@ window.switchTab = function(tabId, btn) {
 let wisdomDatabase = [];
 fetch('verses.json').then(r => r.json()).then(d => wisdomDatabase = d).catch(() => {});
 
-// Working Text-to-Speech Audio Playback
+// Global reference prevents mobile browsers from garbage-collecting the audio speech utterance
+let activeUtterance = null;
+
 window.readAloudText = function(text) {
   if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel(); // Stop any previous speech
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ar-SA'; // Arabic voice engine
-    utterance.rate = 0.9; // Slightly slower for clarity
-    window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.cancel();
+    activeUtterance = new SpeechSynthesisUtterance(text);
+    activeUtterance.lang = 'ar-SA';
+    activeUtterance.rate = 0.85;
+    window.speechSynthesis.speak(activeUtterance);
   } else {
-    alert("Speech synthesis is not supported on this device/browser.");
+    alert("Speech synthesis not supported on this browser.");
   }
 };
 
