@@ -163,6 +163,7 @@ window.switchTab = function(tabId, btn) {
   }
 };
 
+// --- AI WISDOM & AUDIO STREAM ---
 let wisdomDatabase = [];
 fetch('verses.json').then(r => r.json()).then(d => wisdomDatabase = d).catch(() => {});
 
@@ -170,15 +171,23 @@ fetch('verses.json').then(r => r.json()).then(d => wisdomDatabase = d).catch(() 
 let activeUtterance = null;
 
 window.readAloudText = function(text) {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    activeUtterance = new SpeechSynthesisUtterance(text);
-    activeUtterance.lang = 'ar-SA';
-    activeUtterance.rate = 0.85;
-    window.speechSynthesis.speak(activeUtterance);
-  } else {
-    alert("Speech synthesis not supported on this browser.");
+  if (!('speechSynthesis' in window)) {
+    alert("Speech synthesis is not supported on this device/browser.");
+    return;
   }
+
+  window.speechSynthesis.cancel();
+  
+  activeUtterance = new SpeechSynthesisUtterance(text);
+  activeUtterance.lang = 'ar'; // General Arabic tag for maximum mobile compatibility
+  activeUtterance.rate = 0.85;
+
+  activeUtterance.onerror = (event) => {
+    console.error("Speech error:", event);
+    alert("Audio playback failed. Please check if your mobile device has an Arabic voice engine installed.");
+  };
+
+  window.speechSynthesis.speak(activeUtterance);
 };
 
 window.askRandomWisdom = function() {
