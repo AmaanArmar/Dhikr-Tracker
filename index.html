@@ -98,25 +98,27 @@
       </div>
     </div>
 
-    <!-- TAB 2: USAGE & QIBLA -->
+        <!-- TAB 2: USAGE & QIBLA -->
     <div id="usageTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
       <div class="chart-box">
         <canvas id="usageChart"></canvas>
       </div>
 
-      <!-- Qibla Compass Card with Visual Dial & Needle -->
+      <!-- Qibla Card with Miniature Visual Compass + Precision Text -->
       <div class="qibla-card">
-        <h3 class="qibla-title">Qibla Compass</h3>
+        <h3 class="qibla-title">Qibla Direction & Compass</h3>
 
-        <div class="compass-container" id="qiblaContainer">
-          <div class="compass-dial" id="compassRing">
+        <!-- Miniature Visual Compass Dial -->
+        <div class="mini-compass-container">
+          <div class="compass-dial">
             <div class="compass-needle" id="qibla-needle"></div>
             <div class="compass-center-dot"></div>
           </div>
           <div class="kaaba-marker">🕋</div>
         </div>
 
+        <!-- Precision Text Readouts -->
         <p id="qibla-status" class="qibla-status">Tap below to calibrate & find direction</p>
         <button id="qibla-btn" class="qibla-btn" onclick="initQiblaCompass()">Enable Compass</button>
       </div>
