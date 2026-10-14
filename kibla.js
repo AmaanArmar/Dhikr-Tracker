@@ -1,6 +1,6 @@
+// Global test function for the Qibla compass button
 window.initQiblaCompass = function() {
-  // TEST ALERT: This will pop up immediately if the click reaches the function
-  alert("Button clicked successfully!");
+  alert("Compass button successfully triggered!");
 
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
