@@ -4,7 +4,6 @@
   font-family: 'DM Sans', sans-serif;
   color: #e8f0f1;
   background: #081114;
-
   --bg: #081114;
   --panel: #101c20;
   --panel2: #132328;
@@ -44,6 +43,7 @@ body {
   overflow: hidden; 
   border-left: 1px solid var(--line);
   border-right: 1px solid var(--line);
+  padding-bottom: 20px;
 }
 
 .hidden { display: none !important; }
@@ -55,6 +55,8 @@ body {
   flex-direction: column; 
   justify-content: center; 
   flex-grow: 1; 
+  width: 100%;
+  max-width: 450px;
 }
 
 .auth-card { 
@@ -82,9 +84,7 @@ body {
   border-radius: 8px; 
   outline: none; 
 }
-.form-group input:focus {
-  border-color: var(--cyan);
-}
+.form-group input:focus { border-color: var(--cyan); }
 
 .auth-btn { 
   width: 100%; 
@@ -165,15 +165,19 @@ select {
   outline: none; 
 }
 
+.dhikr-select-wrapper {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
 /* COUNTER TAB */
 .counter-wrapper { 
   display: flex; 
   flex-direction: column; 
   align-items: center; 
-  margin: 20px 0; 
-  position: relative; 
+  margin: 15px 0; 
+  width: 100%;
 }
-
 
 .main-circle-btn { 
   width: 190px; 
@@ -206,7 +210,7 @@ select {
   justify-content: space-between; 
   width: 100%; 
   max-width: 260px;
-  margin-top: 20px; 
+  margin-top: 15px; 
   color: var(--muted); 
   font-size: 14px; 
 }
@@ -214,7 +218,8 @@ select {
 .tool-bar { 
   display: flex; 
   justify-content: center;
-  gap: 15px;
+  align-items: center;
+  gap: 20px;
   width: 100%; 
   margin-top: 20px; 
 }
@@ -232,6 +237,7 @@ select {
   align-items: center; 
   justify-content: center; 
   outline: none; 
+  flex-shrink: 0;
   transition: background 0.2s;
 }
 .tool-btn:hover {
@@ -252,11 +258,7 @@ select {
 .dua-translation { font-size: 13px; color: var(--muted); font-style: italic; }
 
 /* AI COMPANION STREAM */
-.chat-container { position: relative; width: 100%; flex: 1; display: flex; flex-direction: column; padding: 10px 5px; overflow-y: auto; gap: 12px; max-height: 400px; background: var(--panel); border-radius: 12px; border: 1px solid var(--line); }
-.watermark { position: absolute; top: 15%; left: 5%; width: 90%; height: 70%; transform: rotate(-15deg); font-size: 0.6rem; font-weight: 800; letter-spacing: 2px; color: rgba(98, 214, 202, 0.03); display: flex; flex-wrap: wrap; gap: 15px; align-content: center; justify-content: center; pointer-events: none; z-index: 0; }
-.message { position: relative; z-index: 1; max-width: 95%; padding: 12px 14px; border-radius: 10px; }
-.user-message { background: var(--panel2); color: var(--text); align-self: flex-end; border-bottom-right-radius: 2px; border: 1px solid var(--line); font-size: 0.8rem; margin-bottom: 8px; }
-.bot-message { background: var(--panel2); color: var(--text); align-self: flex-start; border-left: 4px solid var(--cyan); width: 100%; border: 1px solid var(--line); }
+.bot-message { background: var(--panel2); color: var(--text); border-left: 4px solid var(--cyan); width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
 .bot-header { font-size: 0.6rem; font-weight: bold; color: var(--cyan); text-transform: uppercase; margin-bottom: 6px; display: flex; justify-content: space-between; }
 .chat-arabic-text { font-family: 'Traditional Arabic', serif; font-size: 1.15rem; text-align: right; color: var(--text); margin-bottom: 8px; }
 .chat-translation-text { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; font-style: italic; }
@@ -264,7 +266,6 @@ select {
 .reflection-title { font-size: 0.6rem; font-weight: bold; color: var(--cyan); text-transform: uppercase; margin-bottom: 2px; }
 .reflection-text { font-size: 0.72rem; color: var(--muted); }
 .audio-btn { background: var(--cyan); color: var(--bg); border: none; padding: 6px 12px; font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; }
-.button-panel { width: 100%; padding-top: 12px; }
 .main-action-btn { width: 100%; background: var(--cyan); color: var(--bg); border: none; padding: 12px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; }
 
 /* QIBLA COMPASS */
@@ -273,8 +274,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 20px;
-  margin: 25px auto;
-  max-width: 420px;
+  margin: 20px 0 0 0;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
@@ -354,6 +354,14 @@ select {
   transition: opacity 0.2s ease;
 }
 
-.qibla-btn:hover {
-  opacity: 0.9;
+.qibla-btn:hover { opacity: 0.9; }
+
+.footer-bar {
+  text-align: center; 
+  padding: 10px; 
+  font-size: 11px; 
+  color: var(--muted); 
+  background: var(--panel); 
+  border-top: 1px solid var(--line);
+  margin-top: auto;
 }
