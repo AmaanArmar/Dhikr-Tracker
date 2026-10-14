@@ -1,4 +1,4 @@
-// Force unregister stuck service workers on version change
+// --- SERVICE WORKER & UPGRADE LOGIC ---
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {
     for (let registration of registrations) {
@@ -9,15 +9,15 @@ if ('serviceWorker' in navigator) {
       }
     }
   });
-}
 
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('./sw.js')
       .then(reg => console.log('SW Registered:', reg.scope))
       .catch(err => console.error('SW Registration Failed:', err));
   });
 }
 
+// --- FIREBASE INITIALIZATION ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, enableIndexedDbPersistence, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -35,12 +35,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code == 'failed-precondition') {
-        console.warn("Persistence failed: Multiple tabs open.");
-    } else if (err.code == 'unimplemented') {
-        console.warn("Persistence not supported by this browser.");
-    }
+  if (err.code == 'failed-precondition') {
+    console.warn("Persistence failed: Multiple tabs open.");
+  } else if (err.code == 'unimplemented') {
+    console.warn("Persistence not supported by this browser.");
+  }
 });
 
 let isSignUpMode = false;
@@ -133,7 +134,7 @@ window.deleteLogItem = async function(index) {
 
 function renderLogList() {
   const container = document.getElementById('logContainer');
-  container.innerHTML = userData.logs.length ? '' : '<p style="color:#64748b;">No logs in Cloud.</p>';
+  container.innerHTML = userData.logs.length ? '' : '<p style="color:#83999d;">No logs in Cloud.</p>';
   
   userData.logs.forEach((item, index) => {
     container.innerHTML += `
@@ -202,7 +203,7 @@ window.switchTab = function(tabId, btn) {
       type: 'bar',
       data: {
         labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
-        datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#00e5ff' }]
+        datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#62d6ca' }]
       },
       options: { scales: { y: { beginAtZero: true } } }
     });
@@ -212,7 +213,6 @@ window.switchTab = function(tabId, btn) {
 // --- AI COMPANION WISDOM STREAM ---
 let wisdomDatabase = [];
 
-// Fetch the single verses.json file
 async function loadWisdomDatabase() {
     try {
         const response = await fetch('verses.json');
@@ -268,11 +268,12 @@ window.askRandomWisdom = function() {
         const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
         appendBotMessage(wisdomDatabase[randomIndex]);
     }, 300);
-}
+};
 
 function speakBilingualWisdom(item) {
     if (!('speechSynthesis' in window)) {
         alert("Text-to-speech is not supported on your browser.");
+        return;
     }
     window.speechSynthesis.cancel();
 
@@ -291,37 +292,20 @@ function speakBilingualWisdom(item) {
 
     window.speechSynthesis.speak(arabicUtterance);
 }
+
+// Initializations
 document.addEventListener('DOMContentLoaded', () => {
     const savedCount = localStorage.getItem('activeDhikrCount');
     if (savedCount !== null) {
         currentCount = parseInt(savedCount, 10);
-        document.getElementById('counterBtn').innerText = currentCount;
-    }
-});
-// 1. Recover last saved count when the page opens
-document.addEventListener('DOMContentLoaded', () => {
-    const savedCount = localStorage.getItem('activeDhikrCount');
-    if (savedCount !== null) {
-        currentCount = parseInt(savedCount, 10);
-        document.getElementById('counterBtn').innerText = currentCount;
+        const counterBtn = document.getElementById('counterBtn');
+        if (counterBtn) counterBtn.innerText = currentCount;
     }
 });
 
-// 2. Register Service Worker for offline execution
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(() => console.log("Offline Service Worker Active!"))
-            .catch((err) => console.log("Service Worker registration failed:", err));
-    });
-}
-
-// 3. Initial load call
 loadWisdomDatabase();
 
-// Initial load
-loadWisdomDatabase();
-// Expose functions globally for HTML inline onclick handlers
+// Expose functions globally
 window.processAuth = processAuth;
 window.toggleAuthMode = toggleAuthMode;
 window.switchTab = switchTab;
@@ -331,3 +315,4 @@ window.decrement = decrement;
 window.saveSessionToCloud = saveSessionToCloud;
 window.logOut = logOut;
 window.askRandomWisdom = askRandomWisdom;
+window.deleteLogItem = deleteLogItem;
