@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dhikr Tracker Engine</title>
+  <title>Dhikr Tracker</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,7 @@
   <div id="authScreen" class="card auth-card">
     <h2 id="authTitle">Sign In</h2>
     <div class="input-group">
-      <input type="email" id="authEmail" placeholder="Email" required>
+      <input type="email" id="authEmail" placeholder="Email address" required>
     </div>
     <div class="input-group">
       <input type="password" id="authPassword" placeholder="Password" required>
@@ -34,7 +34,7 @@
       <button class="btn btn-small btn-secondary" onclick="logOut()">Sign Out</button>
     </header>
 
-    <!-- TOP NAVIGATION -->
+    <!-- NAVIGATION TABS -->
     <nav class="nav-bar">
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">Counter</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">History</button>
@@ -42,33 +42,77 @@
       <button class="nav-btn" onclick="switchTab('wisdomTab', this)">AI Wisdom</button>
     </nav>
 
-    <!-- TAB 1: COUNTER -->
+    <!-- TAB 1: COUNTER & MAIN TOOLS -->
     <section id="counterTab" class="tab-content active">
+      
+      <!-- STREAK & DAILY STATS BANNER -->
+      <div class="stats-banner card">
+        <div class="stat-item">
+          <span class="stat-label">Daily Streak</span>
+          <span class="stat-value" id="streakCount">🔥 0 Days</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Today's Total</span>
+          <span class="stat-value" id="dailyTotalCount">0</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Target Round</span>
+          <span class="stat-value" id="lapCount">0/33</span>
+        </div>
+      </div>
+
+      <!-- MAIN TALLY COUNTER CARD -->
       <div class="card counter-card">
+        <!-- FULL DHIKR SELECTION LIST -->
         <div class="dhikr-select-wrapper">
           <select id="dhikrSelect">
             <option value="SubhanAllah">SubhanAllah (سُبْحَانَ اللَّهِ)</option>
             <option value="Alhamdulillah">Alhamdulillah (الْحَمْدُ لِلَّهِ)</option>
             <option value="Allahu Akbar">Allahu Akbar (اللَّهُ أَكْبَرُ)</option>
             <option value="La ilaha illallah">La ilaha illallah (لَا إِلٰهَ إِلَّا اللَّهُ)</option>
+            <option value="Astaghfirullah">Astaghfirullah (أَسْتَغْفِرُ اللَّهَ)</option>
+            <option value="SubhanAllahi wa Bihamdihi">SubhanAllahi wa Bihamdihi (سُبْحَانَ اللَّهِ وَبِحَمْدِهِ)</option>
+            <option value="SubhanAllahil Azim">SubhanAllahil Azim (سُبْحَانَ اللَّهِ الْعَظِيمِ)</option>
+            <option value="Salawat">Salawat (اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ)</option>
+            <option value="La hawla wa la quwwata illa billah">La hawla wa la quwwata illa billah (لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ)</option>
+            <option value="Custom / General">Custom / General Recitation</option>
           </select>
         </div>
 
-        <div class="counter-display">
-          <button id="counterBtn" onclick="increment()">0</button>
+        <!-- BIG CIRCULAR TAP BUTTON -->
+        <div class="circle-button-container">
+          <button id="counterBtn" class="circular-tap-btn" onclick="increment()">
+            <span id="counterValue">0</span>
+            <span class="tap-hint">TAP</span>
+          </button>
         </div>
 
-        <div class="counter-stats">
-          <div>Lap: <span id="lapCount">0/33</span></div>
-          <div>Rounds: <span id="roundsCount">0</span></div>
+        <div class="rounds-indicator">
+          Completed Rounds: <strong id="roundsCount">0</strong>
         </div>
 
+        <!-- ACTION BUTTONS -->
         <div class="counter-actions">
           <button class="btn btn-secondary" onclick="decrement()">-1</button>
           <button class="btn btn-secondary" onclick="resetCounter()">Reset</button>
-          <button class="btn btn-primary" onclick="saveSessionToCloud()">Save to Cloud</button>
+          <button class="btn btn-primary" onclick="saveSessionToCloud()">Save Session</button>
         </div>
       </div>
+
+      <!-- QIBLA COMPASS WIDGET -->
+      <div class="card qibla-card">
+        <h3>Qibla Direction</h3>
+        <div id="qiblaContainer" class="qibla-container">
+          <!-- kibla.js injects or updates compass element here -->
+          <div id="compassRing" class="compass-ring">
+            <div id="compassNeedle" class="compass-needle">▲</div>
+          </div>
+          <p id="qiblaStatus" class="qibla-status">Calibrating location...</p>
+        </div>
+      </div>
+
     </section>
 
     <!-- TAB 2: HISTORY -->
