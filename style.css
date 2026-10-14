@@ -179,3 +179,42 @@ select { width: 100%; padding: 12px; background: var(--panel); color: var(--cyan
   border-radius: 6px;
   cursor: pointer;
 }
+.top-nav {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  background: #0f172a;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+.nav-btn {
+  flex: 1 1 0%; /* Forces all 5 items to share the exact width equally */
+  min-width: 0;   /* Prevents flex items from overflowing their container */
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 6px 1px;
+  font-size: 10px; /* Compact font size so text never clips */
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-btn.active {
+  background: #00e5ff;
+  color: #0f172a;
+  font-weight: 700;
+  border-color: #00e5ff;
+}
