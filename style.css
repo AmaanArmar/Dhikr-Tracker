@@ -99,20 +99,23 @@ select { width: 100%; padding: 12px; background: var(--panel); color: var(--cyan
 .audio-btn { background: var(--cyan); color: var(--bg); border: none; padding: 6px 12px; font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; }
 .main-action-btn { width: 100%; background: var(--cyan); color: var(--bg); border: none; padding: 12px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-align: center; }
 
+
+
+/* --- HYBRID COMPACT QIBLA COMPASS STYLES --- */
 .qibla-card {
   background: #1e293b;
   border-radius: 12px;
-  padding: 15px; /* Reduced padding to save vertical space */
+  padding: 15px;
   text-align: center;
-  margin-top: 12px;
+  margin-top: 15px;
   border: 1px solid rgba(0, 229, 255, 0.2);
 }
 
 .mini-compass-container {
   position: relative;
-  width: 120px;  /* Compact width */
-  height: 120px; /* Compact height */
-  margin: 8px auto 12px auto;
+  width: 120px;
+  height: 120px;
+  margin: 10px auto 12px auto;
 }
 
 .compass-dial {
@@ -130,11 +133,14 @@ select { width: 100%; padding: 12px; background: var(--panel); color: var(--cyan
   top: 50%;
   left: 50%;
   width: 3px;
-  height: 45px; /* Scaled down needle to match 120px dial */
+  height: 45px;
   background: #00e5ff;
-  transform-origin: bottom center;
-  transform: translate(-50%, -100%) rotate(0deg);
-  transition: transform 0.2s ease-out;
+  /* Pivot precisely on the bottom center of the needle */
+  transform-origin: bottom center; 
+  /* Lock base onto the center dot and rotate */
+  transform: translate(-50%, -100%) rotate(0deg); 
+  /* Smooth damper to eliminate violent jitter */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
 }
 
@@ -160,9 +166,9 @@ select { width: 100%; padding: 12px; background: var(--panel); color: var(--cyan
 }
 
 .qibla-status {
-  font-size: 12px; /* Clean, compact text size */
+  font-size: 12px;
   color: #94a3b8;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   line-height: 1.3;
 }
 
