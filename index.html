@@ -2,160 +2,159 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Cloud Islamic Counter & AI Deed Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dhikr Tracker</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="kibla.js"></script>
 </head>
 <body>
 
-  <div class="app-container">
-    
-    <!-- PAGE 1: AUTH SCREEN -->
-    <div id="authScreen" class="auth-container">
-      <div class="auth-card">
-        <h2 id="authTitle">Sign In</h2>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="authEmail" placeholder="Enter your email" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="authPassword" placeholder="Enter your password" required>
-        </div>
-        <button id="mainAuthBtn" class="auth-btn" onclick="processAuth()">Sign In</button>
-        <p class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</p>
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-container">
+    <div class="auth-card">
+      <h2 id="authTitle">Sign In</h2>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="authEmail" placeholder="Enter your email" required>
       </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Enter your password" required>
+      </div>
+      <button id="mainAuthBtn" class="auth-btn" onclick="processAuth()">Sign In</button>
+      <p class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</p>
+    </div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="mainDashboard" class="app-container hidden">
+
+    <!-- USER BAR -->
+    <div class="user-bar">
+      <span>User: <strong id="userDisplay">...</strong></span>
+      <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
 
-    <!-- PAGE 2: DASHBOARD -->
-    <div id="mainDashboard" class="hidden">
+    <!-- TOP NAVIGATION TABS (NO EMOJIS) -->
+    <nav class="top-nav">
+      <button class="nav-btn active" onclick="switchTab('counterTab', this)">Counter</button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">Usage & Qibla</button>
+      <button class="nav-btn" onclick="switchTab('historyTab', this)">Log</button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)">Duas & Zikr</button>
+      <button class="nav-btn" onclick="switchTab('wisdomTab', this)">Reminder</button>
+    </nav>
 
-      <!-- USER BAR -->
-      <div class="user-bar">
-        <span>User: <strong id="userDisplay" style="color:#00e5ff;">...</strong></span>
-        <button class="logout-btn" onclick="logOut()">Sign Out</button>
+    <!-- TAB 1: COUNTER -->
+    <section id="counterTab" class="tab-content active">
+      <div class="dhikr-select-wrapper" style="margin-bottom: 20px;">
+        <select id="dhikrSelect">
+          <option value="SubhanAllahi wa bihamdihi ('adada khalqi...)">SubhanAllahi wa bihamdihi ('adada khalqi...) – Juwayriyah's High Reward Zikr</option>
+          <option value="SubhanAllahi wa bihamdihi & SubhanAllahil Adheem">SubhanAllahi wa bihamdihi & SubhanAllahil Adheem (Beloved & Heavy on Scales)</option>
+          <option value="Dua For Daily Protection">Dua For Daily Protection (Bismillahi-ladhi la yadurru...)</option>
+          <option value="Dua For Best in Both Worlds">Dua For Best in Both Worlds (Surah Al-Baqarah: 201)</option>
+          <option value="Dua For The Evil Eye Protection">Dua For The Evil Eye Protection (A'oodu bikalimaat il-laahit-taammaati...)</option>
+          <option value="Wudu before going to sleep">Wudu before going to sleep (Angels make dua)</option>
+          <option value="Last 2 verses of Surah Baqarah">Last 2 verses of Surah Baqarah (Sufficient for night prayer)</option>
+          <option value="Istighfaar">Istighfaar / Astaghfirullah (Sins forgiven)</option>
+          <option value="Surah Ikhlaas">Surah Ikhlaas (10 times - House in Jannah)</option>
+          <option value="Dua of Market Place">Dua of Market Place (1M Deeds recorded/erased)</option>
+          <option value="SubhanAllah (100 times)">SubhanAllah (100 times - 1000 good deeds written)</option>
+        </select>
       </div>
 
-      <!-- TOP NAVIGATION TABS -->
-      <nav class="top-nav">
-        <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
-        <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage & Qibla</button>
-        <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
-        <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
-        <button class="nav-btn" onclick="switchTab('wisdomTab', this)">🌟 Reminders</button>
-      </nav>
+      <div class="counter-wrapper">
+        <button id="counterBtn" class="main-circle-btn" onclick="increment()">0</button>
 
-      <!-- TAB 1: COUNTER -->
-      <section id="counterTab" class="tab-content active">
-        <div class="dhikr-select-wrapper">
-          <select id="dhikrSelect" onchange="resetCounter()">
-            <option value="SubhanAllahi wa bihamdihi ('adada khalqi...)">SubhanAllahi wa bihamdihi ('adada khalqi...) – Juwayriyah's High Reward Zikr</option>
-            <option value="SubhanAllahi wa bihamdihi & SubhanAllahil Adheem">SubhanAllahi wa bihamdihi & SubhanAllahil Adheem (Beloved & Heavy on Scales)</option>
-            <option value="Dua For Daily Protection">Dua For Daily Protection (Bismillahi-ladhi la yadurru...)</option>
-            <option value="Dua For Best in Both Worlds">Dua For Best in Both Worlds (Surah Al-Baqarah: 201)</option>
-            <option value="Dua For The Evil Eye Protection">Dua For The Evil Eye Protection (A'oodu bikalimaat il-laahit-taammaati...)</option>
-            <option value="Wudu before going to sleep">Wudu before going to sleep (Angels make dua)</option>
-            <option value="Last 2 verses of Surah Baqarah">Last 2 verses of Surah Baqarah (Sufficient for night prayer)</option>
-            <option value="Istighfaar">Istighfaar / Astaghfirullah (Sins forgiven)</option>
-            <option value="Surah Ikhlaas">Surah Ikhlaas (10 times - House in Jannah)</option>
-            <option value="Dua of Market Place">Dua of Market Place (1M Deeds recorded/erased)</option>
-            <option value="SubhanAllah (100 times)">SubhanAllah (100 times - 1000 good deeds written)</option>
-            <option value="SubhanAllahi wa bihamdihi (100 times)">SubhanAllahi wa bihamdihi (100 times - Sins forgiven like sea foam)</option>
-            <option value="Alhamdulillah (100 times)">Alhamdulillah (100 times - 100 horses in path of Allah)</option>
-            <option value="Laa ilaha illAllah (100 times)">Laa ilaha illAllah (100 times - Fills heaven & earth)</option>
-            <option value="Allahu Akbar (100 times)">Allahu Akbar (100 times - 100 camels for Allah)</option>
-            <option value="Laa hawla wa laa quwwata illa billah">Laa hawla wa laa quwwata illa billah (Treasure from Jannah)</option>
-            <option value="Darood Shareef">Darood Shareef (10 Hasanaat, 10 Sins wiped, 10 Ranks raised)</option>
-          </select>
+        <div class="counter-info">
+          <div>Rounds: <span id="roundsCount">0</span></div>
+          <div>Count: <span id="lapCount">0/33</span></div>
         </div>
 
-        <div class="counter-wrapper">
-          <button id="counterBtn" class="main-circle-btn" onclick="increment()">0</button>
-          
-          <div class="counter-info">
-            <div>Rounds: <span id="roundsCount">0</span></div>
-            <div>Count: <span id="lapCount">0/33</span></div>
-          </div>
+        <div class="tool-bar">
+          <button class="tool-btn" onclick="resetCounter()" title="Reset">↺</button>
+          <button class="tool-btn" onclick="decrement()" title="Decrease">-</button>
+          <button class="tool-btn" onclick="saveSessionToCloud()" title="Save to Cloud">☁</button>
+        </div>
+      </div>
+    </section>
 
-          <div class="tool-bar">
-            <button class="tool-btn" onclick="resetCounter()" title="Reset">↺</button>
-            <button class="tool-btn" onclick="decrement()" title="Decrease">-</button>
-            <button class="tool-btn" onclick="saveSessionToCloud()" title="Save to Cloud">☁</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- TAB 2: USAGE & QIBLA -->
-      <section id="usageTab" class="tab-content">
-        <div class="chart-box">
-          <h3 style="color: #00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
-          <canvas id="usageChart" width="400" height="200"></canvas>
-        </div>
-
-        <div class="qibla-card">
-          <h3 class="qibla-title">Qibla Compass</h3>
-          <div class="compass-container" id="qiblaContainer">
-            <div class="kaaba-marker">🕋</div>
-            <div class="compass-dial" id="compassRing">
-              <div class="compass-needle" id="compassNeedle"></div>
-              <div class="compass-center-dot"></div>
-            </div>
-          </div>
-          <div class="qibla-status" id="qiblaStatus">Tap below to calibrate & find direction</div>
-          <button class="qibla-btn" id="qibla-btn" onclick="initQiblaCompass()">Enable Compass</button>
-        </div>
-      </section>
-
-      <!-- TAB 3: LOG (HISTORY) -->
-      <section id="historyTab" class="tab-content">
-        <h3 style="color: #00e5ff; margin-top: 0; font-size: 16px;">Cloud Recitation Log</h3>
-        <div id="logContainer">
-          <p style="color: #94a3b8; font-size: 13px;">No logs in Cloud.</p>
-        </div>
-      </section>
-
-      <!-- TAB 4: DUAS & ZIKR REFERENCE -->
-      <section id="duasTab" class="tab-content">
-        <h3 style="color: #00e5ff; margin-top:0;">Essential Duas & Zikr Reference</h3>
-        <div class="dua-card">
-          <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
-          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ</div>
-          <div class="dua-translation">"Glory be to Allah and praise be to Him, by the number of His creation..."</div>
-        </div>
-        <div class="dua-card">
-          <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
-          <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
-          <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."</div>
-        </div>
-        <div class="dua-card">
-          <div class="dua-title">Dua For Daily Protection (Morning & Evening)</div>
-          <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ</div>
-          <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven..."</div>
-        </div>
-      </section>
-
-      <!-- TAB 5: REMINDER / AI WISDOM -->
-      <section id="wisdomTab" class="tab-content">
-        <div class="dua-card" style="border-left: 4px solid #00e5ff;">
-          <div class="bot-header"><span>Dhikr AI Companion</span><span>Active Stream</span></div>
-          <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 12px;">As-salamu alaykum! Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.</div>
-          <div class="button-panel">
-            <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
-          </div>
-        </div>
-        
-        <div id="chatContainer" class="chat-container"></div>
-      </section>
-
-      <!-- FOOTER -->
-      <div class="footer-bar" style="text-align: center; padding: 10px; font-size: 11px; color: #94a3b8;">
-        Powered by Netlify
+    <!-- TAB 2: USAGE & QIBLA -->
+    <section id="usageTab" class="tab-content">
+      <div class="chart-box">
+        <h3 style="color: var(--cyan); margin-top: 0; font-size: 15px;">Weekly Cloud Usage</h3>
+        <canvas id="usageChart" width="400" height="200"></canvas>
       </div>
 
+          <section id="usageTab" class="tab-content">
+      <div class="chart-box">...</div>
+
+      <div class="qibla-card" style="margin: 20px 0 0 0; width: 100%;">
+        <div class="qibla-title">Qibla Compass</div>
+        <div class="compass-container" id="qiblaContainer">
+          <div class="kaaba-marker">🕋</div>
+          <div class="compass-dial" id="compassRing">
+            <div class="compass-needle" id="compassNeedle"></div>
+            <div class="compass-center-dot"></div>
+          </div>
+        </div>
+        <div class="qibla-status" id="qiblaStatus">Tap below to calibrate & find direction</div>
+        <button class="qibla-btn" id="enableCompassBtn">Enable Compass</button>
+      </div>
+          </section>
+
+    <!-- TAB 3: LOG (HISTORY) -->
+    <section id="historyTab" class="tab-content">
+      <h3 style="color: var(--cyan); margin-top: 0; font-size: 16px;">Cloud Recitation Log</h3>
+      <div id="logContainer">
+        <p style="color: var(--muted); font-size: 13px;">No logs in Cloud.</p>
+      </div>
+    </section>
+
+    <!-- TAB 4: DUAS & ZIKR (EXPANDED) -->
+    <section id="duasTab" class="tab-content">
+      <div class="dua-card">
+        <div class="dua-title">The Four Most Beloved Words (Subhanallah, Alhamdulillah, etc.)</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلاَ إِلَهَ إِلاَّ اللَّهُ، وَاللَّهُ أَكْبَرُ</div>
+        <div class="dua-translation">"Glory be to Allah, Praise be to Allah, There is no god but Allah, and Allah is the Greatest." (Sahih Muslim)</div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Juwayriyah's High Reward Zikr</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ</div>
+        <div class="dua-translation">"Glory be to Allah and Praise be to Him, equal to the number of His creation, the pleasure of His Self, the weight of His Throne, and the ink of His words."</div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Sayyid al-Istighfaar (Master of Forgiveness - Morning & Evening)</div>
+        <div class="arabic-text">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ</div>
+        <div class="dua-translation">"O Allah, You are my Lord, none has the right to be worshipped except You. You created me and I am Your servant..."</div>
+      </div>
+
+      <div class="dua-card">
+        <div class="dua-title">Dua for Purification & Piety of the Soul</div>
+        <div class="arabic-text">اللَّهُمَّ آتِ نَفْسِي تَقْوَاهَا، زَكِّهَا أَنْتَ خَيْرُ مَنْ زَكَّاهَا، أَنْتَ وَلِيُّهَا وَمَوْلَاهَا</div>
+        <div class="dua-translation">"O Allah, grant my soul its piety and purify it, for You are the best who purifies it. You are its Guardian and Master." (Sahih Muslim)</div>
+      </div>
+    </section>
+
+    <!-- TAB 5: REMINDER / AI WISDOM -->
+    <section id="wisdomTab" class="tab-content">
+      <div class="dua-card" style="border-left: 4px solid var(--cyan);">
+        <div class="bot-header"><span>Dhikr AI Companion</span><span>Active Stream</span></div>
+        <div style="font-size: 13px; color: var(--text); margin-bottom: 12px;">As-salamu alaykum! Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.</div>
+        <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
+      </div>
+
+      <div id="chatContainer" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <div style="text-align: center; padding: 10px; font-size: 11px; color: var(--muted); background: var(--panel); border-top: 1px solid var(--line); margin-top: auto;">
+      Powered by Netlify
     </div>
   </div>
 
