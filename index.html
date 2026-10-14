@@ -13,134 +13,127 @@
 <body>
 
   <!-- AUTH SCREEN -->
-  <div id="authScreen" class="card auth-card">
-    <h2 id="authTitle">Sign In</h2>
-    <div class="input-group">
-      <input type="email" id="authEmail" placeholder="Email address" required>
+  <div id="authScreen" class="auth-container">
+    <div class="auth-card">
+      <h2 id="authTitle">Sign In</h2>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="authEmail" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="Enter your password" required>
+      </div>
+      <button id="mainAuthBtn" class="auth-btn" onclick="processAuth()">Sign In</button>
+      <p class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</p>
     </div>
-    <div class="input-group">
-      <input type="password" id="authPassword" placeholder="Password" required>
-    </div>
-    <button id="mainAuthBtn" class="btn btn-primary" onclick="processAuth()">Sign In</button>
-    <p class="toggle-text" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</p>
   </div>
 
   <!-- MAIN DASHBOARD -->
-  <div id="mainDashboard" class="hidden">
-    <header class="app-header">
-      <div class="user-info">
-        <span>Logged in as: <strong id="userDisplay">...</strong></span>
-      </div>
-      <button class="btn btn-small btn-secondary" onclick="logOut()">Sign Out</button>
-    </header>
+  <div id="mainDashboard" class="app-container hidden">
+    
+    <!-- USER BAR -->
+    <div class="user-bar">
+      <span>User: <strong id="userDisplay">...</strong>[span_2](start_span)[span_2](end_span)</span>
+      <button class="logout-btn" onclick="logOut()">Sign Out[span_3](start_span)[span_3](end_span)</button>
+    </div>
 
-    <!-- NAVIGATION TABS -->
-    <nav class="nav-bar">
-      <button class="nav-btn active" onclick="switchTab('counterTab', this)">Counter</button>
-      <button class="nav-btn" onclick="switchTab('historyTab', this)">History</button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">Analytics</button>
-      <button class="nav-btn" onclick="switchTab('wisdomTab', this)">AI Wisdom</button>
+    <!-- TOP NAVIGATION TABS -->
+    <nav class="top-nav">
+      <button class="nav-btn active" onclick="switchTab('counterTab', this)">Counter[span_4](start_span)[span_4](end_span)</button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">Usage & Qibla[span_5](start_span)[span_5](end_span)</button>
+      <button class="nav-btn" onclick="switchTab('historyTab', this)">Log[span_6](start_span)[span_6](end_span)</button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)">Duas & Zikr[span_7](start_span)[span_7](end_span)</button>
+      <button class="nav-btn" onclick="switchTab('wisdomTab', this)">Reminder[span_8](start_span)[span_8](end_span)</button>
     </nav>
 
-    <!-- TAB 1: COUNTER & MAIN TOOLS -->
+    <!-- TAB 1: COUNTER -->
     <section id="counterTab" class="tab-content active">
-      
-      <!-- STREAK & DAILY STATS BANNER -->
-      <div class="stats-banner card">
-        <div class="stat-item">
-          <span class="stat-label">Daily Streak</span>
-          <span class="stat-value" id="streakCount">🔥 0 Days</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-label">Today's Total</span>
-          <span class="stat-value" id="dailyTotalCount">0</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-label">Target Round</span>
-          <span class="stat-value" id="lapCount">0/33</span>
-        </div>
+      <div class="dhikr-select-wrapper" style="margin-bottom: 20px;">
+        <select id="dhikrSelect">
+          <option value="SubhanAllahi wa bihamdihi ('adada khalqi...)">SubhanAllahi wa bihamdihi ('adada khalqi...) – Juwayriyah's High Reward Zikr[span_9](start_span)[span_9](end_span)</option>
+          <option value="SubhanAllahi wa bihamdihi & SubhanAllahil Adheem">SubhanAllahi wa bihamdihi & SubhanAllahil Adheem (Beloved & Heavy on Scales)</option>
+          <option value="Dua For Daily Protection">Dua For Daily Protection (Bismillahi-ladhi la yadurru...)</option>
+          <option value="Dua For Best in Both Worlds">Dua For Best in Both Worlds (Surah Al-Baqarah: 201)</option>
+          <option value="Dua For The Evil Eye Protection">Dua For The Evil Eye Protection (A'oodu bikalimaat il-laahit-taammaati...)</option>
+          <option value="Wudu before going to sleep">Wudu before going to sleep (Angels make dua)</option>
+          <option value="Last 2 verses of Surah Baqarah">Last 2 verses of Surah Baqarah (Sufficient for night prayer)</option>
+          <option value="Istighfaar">Istighfaar / Astaghfirullah (Sins forgiven)</option>
+          <option value="Surah Ikhlaas">Surah Ikhlaas (10 times - House in Jannah)</option>
+          <option value="Dua of Market Place">Dua of Market Place (1M Deeds recorded/erased)</option>
+          <option value="SubhanAllah (100 times)">SubhanAllah (100 times - 1000 good deeds written)</option>
+        </select>
       </div>
 
-      <!-- MAIN TALLY COUNTER CARD -->
-      <div class="card counter-card">
-        <!-- FULL DHIKR SELECTION LIST -->
-        <div class="dhikr-select-wrapper">
-          <select id="dhikrSelect">
-            <option value="SubhanAllah">SubhanAllah (سُبْحَانَ اللَّهِ)</option>
-            <option value="Alhamdulillah">Alhamdulillah (الْحَمْدُ لِلَّهِ)</option>
-            <option value="Allahu Akbar">Allahu Akbar (اللَّهُ أَكْبَرُ)</option>
-            <option value="La ilaha illallah">La ilaha illallah (لَا إِلٰهَ إِلَّا اللَّهُ)</option>
-            <option value="Astaghfirullah">Astaghfirullah (أَسْتَغْفِرُ اللَّهَ)</option>
-            <option value="SubhanAllahi wa Bihamdihi">SubhanAllahi wa Bihamdihi (سُبْحَانَ اللَّهِ وَبِحَمْدِهِ)</option>
-            <option value="SubhanAllahil Azim">SubhanAllahil Azim (سُبْحَانَ اللَّهِ الْعَظِيمِ)</option>
-            <option value="Salawat">Salawat (اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ)</option>
-            <option value="La hawla wa la quwwata illa billah">La hawla wa la quwwata illa billah (لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ)</option>
-            <option value="Custom / General">Custom / General Recitation</option>
-          </select>
+      <div class="counter-wrapper">
+        <button id="counterBtn" class="main-circle-btn" onclick="increment()">0[span_10](start_span)[span_10](end_span)</button>
+        
+        <div class="counter-info">
+          <div>Rounds: <span id="roundsCount">0</span>[span_11](start_span)[span_11](end_span)</div>
+          <div>Count: <span id="lapCount">0/33</span>[span_12](start_span)[span_12](end_span)</div>
         </div>
 
-        <!-- BIG CIRCULAR TAP BUTTON -->
-        <div class="circle-button-container">
-          <button id="counterBtn" class="circular-tap-btn" onclick="increment()">
-            <span id="counterValue">0</span>
-            <span class="tap-hint">TAP</span>
-          </button>
-        </div>
-
-        <div class="rounds-indicator">
-          Completed Rounds: <strong id="roundsCount">0</strong>
-        </div>
-
-        <!-- ACTION BUTTONS -->
-        <div class="counter-actions">
-          <button class="btn btn-secondary" onclick="decrement()">-1</button>
-          <button class="btn btn-secondary" onclick="resetCounter()">Reset</button>
-          <button class="btn btn-primary" onclick="saveSessionToCloud()">Save Session</button>
-        </div>
-      </div>
-
-      <!-- QIBLA COMPASS WIDGET -->
-      <div class="card qibla-card">
-        <h3>Qibla Direction</h3>
-        <div id="qiblaContainer" class="qibla-container">
-          <!-- kibla.js injects or updates compass element here -->
-          <div id="compassRing" class="compass-ring">
-            <div id="compassNeedle" class="compass-needle">▲</div>
-          </div>
-          <p id="qiblaStatus" class="qibla-status">Calibrating location...</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- TAB 2: HISTORY -->
-    <section id="historyTab" class="tab-content">
-      <div class="card">
-        <h3>Cloud Log History</h3>
-        <div id="logContainer">
-          <p style="color: var(--text-muted);">No logs in Cloud.</p>
+        <div class="tool-bar">
+          <button class="tool-btn" onclick="resetCounter()" title="Reset">↺[span_13](start_span)[span_13](end_span)</button>
+          <button class="tool-btn" onclick="decrement()" title="Decrease">-[span_14](start_span)[span_14](end_span)</button>
+          <button class="tool-btn" onclick="saveSessionToCloud()" title="Save to Cloud">☁[span_15](start_span)[span_15](end_span)</button>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: ANALYTICS -->
+    <!-- TAB 2: USAGE & QIBLA -->
     <section id="usageTab" class="tab-content">
-      <div class="card">
-        <h3>Weekly Recitation Activity</h3>
+      <div class="chart-box">
+        <h3 style="color: var(--cyan); margin-top: 0; font-size: 15px;">Weekly Cloud Usage[span_16](start_span)[span_16](end_span)</h3>
         <canvas id="usageChart" width="400" height="200"></canvas>
       </div>
-    </section>
 
-    <!-- TAB 4: AI WISDOM -->
-    <section id="wisdomTab" class="tab-content">
-      <div class="card">
-        <h3>Dhikr Companion Stream</h3>
-        <div id="chatContainer" class="chat-container"></div>
-        <button class="btn btn-primary" onclick="askRandomWisdom()" style="margin-top: 15px;">Get Reminder</button>
+      <div class="qibla-card" style="margin: 20px 0 0 0; width: 100%;">
+        <div class="qibla-title">Qibla Compass[span_17](start_span)[span_17](end_span)</div>
+        <div class="compass-container" id="qiblaContainer">
+          <div class="kaaba-marker">🕋[span_18](start_span)[span_18](end_span)</div>
+          <div class="compass-dial" id="compassRing">
+            <div class="compass-needle" id="compassNeedle"></div>
+            <div class="compass-center-dot"></div>
+          </div>
+        </div>
+        <div class="qibla-status" id="qiblaStatus">Tap below to calibrate & find direction[span_19](start_span)[span_19](end_span)</div>
+        <button class="qibla-btn" onclick="initQiblaCompass()">Enable Compass[span_20](start_span)[span_20](end_span)</button>
       </div>
     </section>
+
+    <!-- TAB 3: LOG (HISTORY) -->
+    <section id="historyTab" class="tab-content">
+      <h3 style="color: var(--cyan); margin-top: 0; font-size: 16px;">Cloud Recitation Log[span_21](start_span)[span_21](end_span)</h3>
+      <div id="logContainer">
+        <p style="color: var(--muted); font-size: 13px;">No logs in Cloud.</p>
+      </div>
+    </section>
+
+    <!-- TAB 4: DUAS & ZIKR -->
+    <section id="tab-content duasTab" class="tab-content">
+      <div class="dua-card">
+        <div class="dua-title">Juwayriyah's High Reward Zikr</div>
+        <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ</div>
+        <div class="dua-translation">"Glory be to Allah and Praise be to Him, equal to the number of His creation..."</div>
+      </div>
+    </section>
+
+    <!-- TAB 5: REMINDER / AI WISDOM -->
+    <section id="wisdomTab" class="tab-content">
+      <div class="dua-card" style="border-left: 4px solid var(--cyan);">
+        <div class="bot-header"><span>Dhikr AI Companion[span_22](start_span)[span_22](end_span)</span><span>Active Stream[span_23](start_span)[span_23](end_span)</span></div>
+        <div style="font-size: 13px; color: var(--text); margin-bottom: 12px;">As-salamu alaykum! Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.[span_24](start_span)[span_24](end_span)</div>
+        <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder[span_25](start_span)[span_25](end_span)</button>
+      </div>
+      
+      <div id="chatContainer" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <div style="text-align: center; padding: 10px; font-size: 11px; color: var(--muted); background: var(--panel); border-top: 1px solid var(--line);">
+      Powered by Netlify[span_26](start_span)[span_26](end_span)
+    </div>
   </div>
 
   <script src="kibla.js"></script>
