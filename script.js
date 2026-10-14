@@ -240,23 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDisplay();
 });
     
-
-
-
-
-
-
-
-
-// --- QIBLA COMPASS LOGIC ---
-document.addEventListener('DOMContentLoaded', () => {
-  const compassBtn = document.getElementById('enableCompassBtn');
-  if (compassBtn) {
-    compassBtn.addEventListener('click', initQiblaCompass);
-  }
-});
-
-function initQiblaCompass() {
+  // --- QIBLA COMPASS LOGIC ---
+window.initQiblaCompass = function() {
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
   
@@ -314,7 +299,7 @@ function initQiblaCompass() {
     },
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
   );
-}
+};
 
 function startCompassTracking(qiblaAngle, needleEl, statusEl) {
   const handleOrientation = (event) => {
