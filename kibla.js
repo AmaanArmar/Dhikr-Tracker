@@ -1,4 +1,7 @@
 window.initQiblaCompass = function() {
+  // TEST ALERT: This will pop up immediately if the click reaches the function
+  alert("Button clicked successfully!");
+
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
   
@@ -64,10 +67,8 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
     let heading = null;
 
     if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-      // iOS Safari
       heading = event.webkitCompassHeading;
     } else if (event.alpha !== null) {
-      // Android Chrome (normalize counter-clockwise alpha to clockwise heading)
       heading = (360 - event.alpha) % 360;
     }
 
@@ -80,7 +81,6 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
     }
   };
 
-  // Listen to device orientation events safely
   window.addEventListener('deviceorientationabsolute', handleOrientation, true);
   window.addEventListener('deviceorientation', handleOrientation, true);
 }
