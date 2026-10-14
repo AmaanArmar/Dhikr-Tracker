@@ -135,12 +135,9 @@ select { width: 100%; padding: 12px; background: var(--panel); color: var(--cyan
   width: 3px;
   height: 45px;
   background: #00e5ff;
-  /* Pivot precisely on the bottom center of the needle */
-  transform-origin: bottom center; 
-  /* Lock base onto the center dot and rotate */
-  transform: translate(-50%, -100%) rotate(0deg); 
-  /* Smooth damper to eliminate violent jitter */
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom center;
+  transform: translate(-50%, -100%) rotate(0deg);
+  transition: transform 0.3s ease-out; /* Smooth damping effect */
   z-index: 2;
 }
 
