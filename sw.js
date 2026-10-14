@@ -1,12 +1,3 @@
-w.js
-Search within code
- 
-‎sw.js‎
-+31
--65
-Lines changed: 31 additions & 65 deletions
-Original file line number	Diff line number	Diff line change
-@@ -1,45 +1,33 @@
 const CACHE_NAME = 'dhikr-tracker-cache-v15';
 const CACHE_NAME = 'dhikr-tracker-cache-v17';
 const SITE_ORIGIN = 'https://dhikertracker.netlify.app';
