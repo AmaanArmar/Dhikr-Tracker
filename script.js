@@ -321,3 +321,13 @@ loadWisdomDatabase();
 
 // Initial load
 loadWisdomDatabase();
+// Expose functions globally for HTML inline onclick handlers
+window.processAuth = processAuth;
+window.toggleAuthMode = toggleAuthMode;
+window.switchTab = switchTab;
+window.increment = increment;
+window.resetCounter = resetCounter;
+window.decrement = decrement;
+window.saveSessionToCloud = saveSessionToCloud;
+window.logOut = logOut;
+window.askRandomWisdom = askRandomWisdom;
