@@ -3,7 +3,7 @@ window.initQiblaCompass = function() {
   const needleEl = document.getElementById('compassNeedle');
   
   if (!navigator.geolocation) {
-    if (statusEl) statusEl.innerText = "Geolocation not supported.";
+    if (statusEl) statusEl.innerText = "Error: Geolocation not supported.";
     alert("Geolocation is not supported by your browser.");
     return;
   }
@@ -29,28 +29,32 @@ window.initQiblaCompass = function() {
       qibla = (qibla * 180) / Math.PI;
       qibla = (qibla + 360) % 360;
 
-      if (statusEl) statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° from North`;
-      if (needleEl) {
-        needleEl.style.transform = `rotate(${qibla}deg)`;
-      }
+      if (statusEl) statusEl.innerText = `GPS OK. Qibla: ${qibla.toFixed(1)}°. Requesting sensors...`;
 
-      // Handle iOS 13+ permission request if present
+      // Handle iOS 13+ permission request
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            startCompassTracking(qibla, needleEl, statusEl);
-          } else {
-            alert("Compass orientation permission was denied.");
-          }
-        }).catch(console.error);
+        DeviceOrientationEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              startCompassTracking(qibla, needleEl, statusEl);
+            } else {
+              if (statusEl) statusEl.innerText = "Sensor permission denied (iOS).";
+            }
+          })
+          .catch(err => {
+            if (statusEl) statusEl.innerText = "Sensor error: " + err.message;
+          });
       } else {
+        // Android / Standard Browsers
         startCompassTracking(qibla, needleEl, statusEl);
       }
     },
     (error) => {
-      let errorMsg = "Unable to retrieve GPS location.";
+      let errorMsg = "GPS Failed: ";
       if (error.code === error.PERMISSION_DENIED) {
-        errorMsg = "Location permission denied. Please enable Location in site settings.";
+        errorMsg += "Location permission denied.";
+      } else {
+        errorMsg += error.message;
       }
       if (statusEl) statusEl.innerText = errorMsg;
       alert(errorMsg);
@@ -60,29 +64,41 @@ window.initQiblaCompass = function() {
 };
 
 function startCompassTracking(qiblaAngle, needleEl, statusEl) {
+  let sensorDetected = false;
+
   const handleOrientation = (event) => {
     let heading = null;
 
+    // 1. Check iOS Safari specific compass property
     if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-      // iOS Safari provides direct clockwise heading
       heading = event.webkitCompassHeading;
-    } else if (event.alpha !== null) {
-      // Android Chrome: Normalize alpha counter-clockwise reading to clockwise heading
+    } 
+    // 2. Check Android / Standard alpha property
+    else if (event.alpha !== null && event.alpha !== undefined) {
+      // Normalizing alpha to a 0-360 degree heading
       heading = (360 - event.alpha) % 360;
     }
 
-    if (heading !== null && needleEl) {
-      // Calculate smooth relative needle rotation
+    if (heading !== null) {
+      sensorDetected = true;
       let compassRotation = (qiblaAngle - heading + 360) % 360;
-      needleEl.style.transform = `rotate(${compassRotation}deg)`;
       
+      if (needleEl) {
+        needleEl.style.transform = `rotate(${compassRotation}deg)`;
+        needleEl.style.transition = 'transform 0.1s ease-out'; // Smooth out jitter
+      }
+
       if (statusEl) {
-        statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
+        statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Heading: ${heading.toFixed(0)}° | Rot: ${compassRotation.toFixed(0)}°`;
+      }
+    } else {
+      if (!sensorDetected && statusEl) {
+        statusEl.innerText = `GPS OK (${qiblaAngle.toFixed(1)}°), but device sensors (alpha/heading) returning null. Try moving phone in figure-8.`;
       }
     }
   };
 
-  // Register both event listeners safely for maximum cross-platform support
+  // Attach both listeners for maximum compatibility
   window.addEventListener('deviceorientationabsolute', handleOrientation, true);
   window.addEventListener('deviceorientation', handleOrientation, true);
 }
