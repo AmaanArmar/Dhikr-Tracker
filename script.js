@@ -50,16 +50,16 @@ let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri
 let myChartInstance = null;
 
 // --- AUTHENTICATION SYSTEM ---
-window.toggleAuthMode = function() {
+function toggleAuthMode() {
   isSignUpMode = !isSignUpMode;
   document.getElementById('authTitle').innerText = isSignUpMode ? "Create Account" : "Sign In";
   document.getElementById('mainAuthBtn').innerText = isSignUpMode ? "Register" : "Sign In";
   document.getElementById('toggleAuthText').innerText = isSignUpMode ? "Already have an account? Sign In" : "Need an account? Register here";
-};
+}
 
-window.processAuth = async function() {
-  const email = document.getElementById('authEmail').value;
-  const password = document.getElementById('authPassword').value;
+async function processAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value.trim();
 
   if (!email || !password) return alert("Please fill in all fields.");
 
@@ -73,7 +73,7 @@ window.processAuth = async function() {
   } catch (error) {
     alert("Auth Error: " + error.message);
   }
-};
+}
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -94,12 +94,12 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-window.logOut = function() {
+function logOut() {
   signOut(auth);
-};
+}
 
 // --- DATA & CLOUD LOGGING ---
-window.saveSessionToCloud = async function() {
+async function saveSessionToCloud() {
   if (currentCount === 0 || !currentUser) return;
 
   const selectedDhikr = document.getElementById('dhikrSelect').value;
@@ -115,9 +115,9 @@ window.saveSessionToCloud = async function() {
   
   alert("Saved securely to Cloud!");
   resetCounter();
-};
+}
 
-window.deleteLogItem = async function(index) {
+async function deleteLogItem(index) {
   if (!currentUser) return;
   const confirmed = confirm("Are you sure you want to delete this log entry?");
   if (!confirmed) return;
@@ -130,7 +130,7 @@ window.deleteLogItem = async function(index) {
   } catch (error) {
     alert("Error deleting entry: " + error.message);
   }
-};
+}
 
 function renderLogList() {
   const container = document.getElementById('logContainer');
@@ -154,16 +154,16 @@ function renderLogList() {
 let currentCount = 0;
 let totalSessionCount = 0;
 
-window.increment = function() {
+function increment() {
   currentCount++;
   totalSessionCount++;
   localStorage.setItem('activeDhikrCount', currentCount);
   document.getElementById('counterBtn').innerText = currentCount;
   document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
   document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
-};
+}
 
-window.decrement = function() {
+function decrement() {
   if (currentCount > 0) {
     currentCount--;
     totalSessionCount--;
@@ -172,22 +172,22 @@ window.decrement = function() {
     document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
     document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
   }
-};
+}
 
-window.resetCounter = function() {
+function resetCounter() {
   currentCount = 0;
   totalSessionCount = 0;
   localStorage.setItem('activeDhikrCount', currentCount);
   document.getElementById('counterBtn').innerText = 0;
   document.getElementById('roundsCount').innerText = 0;
   document.getElementById('lapCount').innerText = '0/33';
-};
+}
 
-window.switchTab = function(tabId, btn) {
+function switchTab(tabId, btn) {
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(tabId).classList.add('active');
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
 
   if (tabId === 'historyTab') {
     renderLogList();
@@ -208,7 +208,7 @@ window.switchTab = function(tabId, btn) {
       options: { scales: { y: { beginAtZero: true } } }
     });
   }
-};
+}
 
 // --- AI COMPANION WISDOM STREAM ---
 let wisdomDatabase = [];
@@ -217,95 +217,36 @@ async function loadWisdomDatabase() {
     try {
         const response = await fetch('verses.json');
         wisdomDatabase = await response.json();
-        console.log(`Successfully loaded ${wisdomDatabase.length} entries.`);
     } catch (error) {
         console.error('Error loading verses.json:', error);
     }
 }
 
-const chatContainer = document.getElementById('chatContainer');
+function askRandomWisdom() {
+    if (wisdomDatabase.length === 0) {
+        alert("Verses are still loading, please wait a moment.");
+        return;
+    }
+    const chatContainer = document.getElementById('chatContainer');
+    const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
+    const item = wisdomDatabase[randomIndex];
 
-function appendUserMessage(text) {
-    const msg = document.createElement('div');
-    msg.className = 'message user-message';
-    msg.textContent = text;
-    chatContainer.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function appendBotMessage(item) {
     const msg = document.createElement('div');
     msg.className = 'message bot-message';
-
     msg.innerHTML = `
         <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
         <div class="chat-arabic-text">${item.arabic}</div>
         <div class="chat-translation-text">${item.translation}</div>
         <div class="reflection-box">
-            <div class="reflection-title">A Quick Reflection</div>
+            <div class="reflection-title">Reflection</div>
             <div class="reflection-text">${item.reflection}</div>
         </div>
-        <div class="bot-actions">
-            <button class="audio-btn">🔊 Read Aloud</button>
-        </div>
     `;
-    
     chatContainer.appendChild(msg);
     chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    msg.querySelector('.audio-btn').addEventListener('click', () => {
-        speakBilingualWisdom(item);
-    });
 }
 
-window.askRandomWisdom = function() {
-    if (wisdomDatabase.length === 0) {
-        alert("Verses are still loading, please wait a moment.");
-        return;
-    }
-    appendUserMessage("Give me a random reminder.");
-    setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
-        appendBotMessage(wisdomDatabase[randomIndex]);
-    }, 300);
-};
-
-function speakBilingualWisdom(item) {
-    if (!('speechSynthesis' in window)) {
-        alert("Text-to-speech is not supported on your browser.");
-        return;
-    }
-    window.speechSynthesis.cancel();
-
-    const arabicUtterance = new SpeechSynthesisUtterance(item.arabic);
-    arabicUtterance.lang = 'ar-SA';
-    arabicUtterance.rate = 0.9;
-
-    const englishText = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
-    const englishUtterance = new SpeechSynthesisUtterance(englishText);
-    englishUtterance.lang = 'en-US';
-    englishUtterance.rate = 0.95;
-
-    arabicUtterance.onend = () => {
-        window.speechSynthesis.speak(englishUtterance);
-    };
-
-    window.speechSynthesis.speak(arabicUtterance);
-}
-
-// Initializations
-document.addEventListener('DOMContentLoaded', () => {
-    const savedCount = localStorage.getItem('activeDhikrCount');
-    if (savedCount !== null) {
-        currentCount = parseInt(savedCount, 10);
-        const counterBtn = document.getElementById('counterBtn');
-        if (counterBtn) counterBtn.innerText = currentCount;
-    }
-});
-
-loadWisdomDatabase();
-
-// Expose functions globally
+// Global Expose
 window.processAuth = processAuth;
 window.toggleAuthMode = toggleAuthMode;
 window.switchTab = switchTab;
@@ -316,3 +257,14 @@ window.saveSessionToCloud = saveSessionToCloud;
 window.logOut = logOut;
 window.askRandomWisdom = askRandomWisdom;
 window.deleteLogItem = deleteLogItem;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedCount = localStorage.getItem('activeDhikrCount');
+    if (savedCount !== null) {
+        currentCount = parseInt(savedCount, 10);
+        const btn = document.getElementById('counterBtn');
+        if (btn) btn.innerText = currentCount;
+    }
+    loadWisdomDatabase();
+});
+  
