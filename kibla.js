@@ -4,11 +4,12 @@ window.initQiblaCompass = function() {
   const needleEl = document.getElementById('compassNeedle');
   
   if (!navigator.geolocation) {
-    if (statusEl) statusEl.innerText = "Geolocation not supported.";
+    if (statusEl) statusEl.innerText = "Geolocation is not supported by your browser.";
+    alert("Geolocation is not supported by your browser.");
     return;
   }
 
-  if (statusEl) statusEl.innerText = "Acquiring GPS location...";
+  if (statusEl) statusEl.innerText = "Requesting location access...";
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -34,21 +35,34 @@ window.initQiblaCompass = function() {
         needleEl.style.transform = `rotate(${qibla}deg)`;
       }
 
-      // Handle iOS 13+ permission request for device orientation
+      // Request iOS 13+ device orientation permission if needed
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
             setupOrientationListener(qibla, needleEl, statusEl);
+          } else {
+            alert("Compass orientation permission was denied.");
           }
-        }).catch(err => console.log("Orientation permission error:", err));
+        }).catch(err => {
+          console.error("Orientation error:", err);
+        });
       } else {
         setupOrientationListener(qibla, needleEl, statusEl);
       }
     },
     (error) => {
-      if (statusEl) statusEl.innerText = "Location permission denied or unavailable.";
+      let errorMsg = "Unable to retrieve location.";
+      if (error.code === error.PERMISSION_DENIED) {
+        errorMsg = "Location permission denied. Check your browser site settings (tap the lock icon near the URL) to allow location access.";
+      } else if (error.code === error.POSITION_UNAVAILABLE) {
+        errorMsg = "Location information is unavailable.";
+      } else if (error.code === error.TIMEOUT) {
+        errorMsg = "Location request timed out.";
+      }
+      if (statusEl) statusEl.innerText = errorMsg;
+      alert(errorMsg);
     },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
   );
 };
 
