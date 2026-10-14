@@ -167,6 +167,19 @@ window.switchTab = function(tabId, btn) {
 let wisdomDatabase = [];
 fetch('verses.json').then(r => r.json()).then(d => wisdomDatabase = d).catch(() => {});
 
+// Working Text-to-Speech Audio Playback
+window.readAloudText = function(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); // Stop any previous speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ar-SA'; // Arabic voice engine
+    utterance.rate = 0.9; // Slightly slower for clarity
+    window.speechSynthesis.speak(utterance);
+  } else {
+    alert("Speech synthesis is not supported on this device/browser.");
+  }
+};
+
 window.askRandomWisdom = function() {
   if (!wisdomDatabase.length) return alert("Verses loading...");
   const item = wisdomDatabase[Math.floor(Math.random() * wisdomDatabase.length)];
@@ -180,7 +193,7 @@ window.askRandomWisdom = function() {
         <div class="reflection-title">A Quick Reflection</div>
         <div class="reflection-text">${item.reflection}</div>
       </div>
-      <button class="audio-btn" style="margin-top:8px;">Read Aloud</button>
+      <button class="audio-btn" onclick="readAloudText('${item.arabic.replace(/'/g, "\\'")}')" style="margin-top:8px;">Read Aloud</button>
     </div>
   `;
 };
