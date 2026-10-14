@@ -1,16 +1,22 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {
     for (let registration of registrations) {
+      if (!localStorage.getItem('sw_version_v15')) {
+        registration.unregister().then(() => console.log('Old SW Unregistered'));
+        localStorage.setItem('sw_version_v15', 'true');
       if (!localStorage.getItem('sw_version_v17')) {
         registration.unregister().then(() => console.log('Upgraded to SW v17'));
         localStorage.setItem('sw_version_v17', 'true');
-      }
-      if (!localStorage.getItem('sw_version_v18')) {
-        registration.unregister().then(() => console.log('Upgraded to SW v18 - Slim Cache'));
-        localStorage.setItem('sw_version_v18', 'true');
         window.location.reload();
       }
     }
+  });
+}
+
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW Registered:', reg.scope))
+      .catch(err => console.error('SW Registration Failed:', err));
   });
 }
 
@@ -31,7 +37,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
 enableIndexedDbPersistence(db).catch((err) => {
     if (err.code == 'failed-precondition') {
         console.warn("Persistence failed: Multiple tabs open.");
@@ -209,6 +214,7 @@ window.switchTab = function(tabId, btn) {
 // --- AI COMPANION WISDOM STREAM ---
 let wisdomDatabase = [];
 
+// Fetch the single verses.json file
 async function loadWisdomDatabase() {
     try {
         const response = await fetch('verses.json');
@@ -269,7 +275,6 @@ window.askRandomWisdom = function() {
 function speakBilingualWisdom(item) {
     if (!('speechSynthesis' in window)) {
         alert("Text-to-speech is not supported on your browser.");
-        return;
     }
     window.speechSynthesis.cancel();
 
@@ -288,8 +293,14 @@ function speakBilingualWisdom(item) {
 
     window.speechSynthesis.speak(arabicUtterance);
 }
-
-// Initializers
+document.addEventListener('DOMContentLoaded', () => {
+    const savedCount = localStorage.getItem('activeDhikrCount');
+    if (savedCount !== null) {
+        currentCount = parseInt(savedCount, 10);
+        document.getElementById('counterBtn').innerText = currentCount;
+    }
+});
+// 1. Recover last saved count when the page opens
 document.addEventListener('DOMContentLoaded', () => {
     const savedCount = localStorage.getItem('activeDhikrCount');
     if (savedCount !== null) {
@@ -298,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// 2. Register Service Worker for offline execution
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -306,4 +318,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// 3. Initial load call
+loadWisdomDatabase();
+
+// Initial load
 loadWisdomDatabase();
