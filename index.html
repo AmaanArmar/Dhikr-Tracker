@@ -38,16 +38,16 @@
       <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
 
-    <!-- TOP NAVIGATION TABS (NO EMOJIS) -->
+    <!-- TOP NAVIGATION TABS -->
     <nav class="top-nav">
       <button class="nav-btn active" onclick="switchTab('counterTab', this)">Counter</button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">Usage & Qibla</button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">Usage</button>
       <button class="nav-btn" onclick="switchTab('historyTab', this)">Log</button>
       <button class="nav-btn" onclick="switchTab('duasTab', this)">Duas & Zikr</button>
       <button class="nav-btn" onclick="switchTab('wisdomTab', this)">Reminder</button>
     </nav>
 
-    <!-- TAB 1: COUNTER -->
+    <!-- TAB 1: COUNTER (WITH FULL ZIKR OPTIONS) -->
     <section id="counterTab" class="tab-content active">
       <div class="dhikr-select-wrapper" style="margin-bottom: 20px;">
         <select id="dhikrSelect">
@@ -80,27 +80,14 @@
         </div>
       </div>
     </section>
-    <!-- TAB 2: USAGE & QIBLA -->
+
+    <!-- TAB 2: USAGE -->
     <section id="usageTab" class="tab-content">
       <div class="chart-box">
         <h3 style="color: var(--cyan); margin-top: 0; font-size: 15px;">Weekly Cloud Usage</h3>
         <canvas id="usageChart" width="400" height="200"></canvas>
       </div>
-
-      <div class="qibla-card">
-        <div class="qibla-title">Qibla Compass</div>
-        <div class="compass-container" id="qiblaContainer">
-          <div class="kaaba-marker">🕋</div>
-          <div class="compass-dial" id="compassRing">
-            <div class="compass-needle" id="compassNeedle"></div>
-            <div class="compass-center-dot"></div>
-          </div>
-        </div>
-        <div class="qibla-status" id="qiblaStatus">Tap below to calibrate & find direction</div>
-        <button class="qibla-btn" id="enableCompassBtn">Enable Compass</button>
-      </div>
     </section>
-    
       
     <!-- TAB 3: LOG (HISTORY) -->
     <section id="historyTab" class="tab-content">
@@ -110,10 +97,10 @@
       </div>
     </section>
 
-    <!-- TAB 4: DUAS & ZIKR (EXPANDED) -->
+    <!-- TAB 4: DUAS & ZIKR -->
     <section id="duasTab" class="tab-content">
       <div class="dua-card">
-        <div class="dua-title">The Four Most Beloved Words (Subhanallah, Alhamdulillah, etc.)</div>
+        <div class="dua-title">The Four Most Beloved Words</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ، وَالْحَمْدُ لِلَّهِ، وَلاَ إِلَهَ إِلاَّ اللَّهُ، وَاللَّهُ أَكْبَرُ</div>
         <div class="dua-translation">"Glory be to Allah, Praise be to Allah, There is no god but Allah, and Allah is the Greatest." (Sahih Muslim)</div>
       </div>
@@ -121,27 +108,21 @@
       <div class="dua-card">
         <div class="dua-title">Juwayriyah's High Reward Zikr</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ وَرِضَا نَفْسِهِ وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ</div>
-        <div class="dua-translation">"Glory be to Allah and Praise be to Him, equal to the number of His creation, the pleasure of His Self, the weight of His Throne, and the ink of His words."</div>
+        <div class="dua-translation">"Glory be to Allah and Praise be to Him, equal to the number of His creation..."</div>
       </div>
 
       <div class="dua-card">
-        <div class="dua-title">Sayyid al-Istighfaar (Master of Forgiveness - Morning & Evening)</div>
-        <div class="arabic-text">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ</div>
-        <div class="dua-translation">"O Allah, You are my Lord, none has the right to be worshipped except You. You created me and I am Your servant..."</div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dua for Purification & Piety of the Soul</div>
-        <div class="arabic-text">اللَّهُمَّ آتِ نَفْسِي تَقْوَاهَا، زَكِّهَا أَنْتَ خَيْرُ مَنْ زَكَّاهَا، أَنْتَ وَلِيُّهَا وَمَوْلَاهَا</div>
-        <div class="dua-translation">"O Allah, grant my soul its piety and purify it, for You are the best who purifies it. You are its Guardian and Master." (Sahih Muslim)</div>
+        <div class="dua-title">Sayyid al-Istighfaar (Master of Forgiveness)</div>
+        <div class="arabic-text">اللَّهُمَّ أَنْتَ رَبِّي لاَ إِلَهَ إِلاَّ أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ...</div>
+        <div class="dua-translation">"O Allah, You are my Lord, none has the right to be worshipped except You..."</div>
       </div>
     </section>
 
     <!-- TAB 5: REMINDER / AI WISDOM -->
     <section id="wisdomTab" class="tab-content">
       <div class="dua-card" style="border-left: 4px solid var(--cyan);">
-        <div class="bot-header"><span>Dhikr AI Companion</span><span>Active Stream</span></div>
-        <div style="font-size: 13px; color: var(--text); margin-bottom: 12px;">As-salamu alaykum! Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.</div>
+        <div class="bot-header"><span>Dhikr Companion</span><span>Active Stream</span></div>
+        <div style="font-size: 13px; color: var(--text); margin-bottom: 12px;">Tap below to pull random authenticated Sahih & Quranic reminders with audio playback.</div>
         <button class="main-action-btn" onclick="askRandomWisdom()">✨ Tap for Random Wisdom & Reminder</button>
       </div>
       
@@ -154,8 +135,6 @@
     </div>
   </div>
 
-  <script src="kibla.js"></script>
   <script type="module" src="script.js"></script>
 </body>
 </html>
-
