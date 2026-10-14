@@ -1,5 +1,4 @@
-// kibla.js - Standalone Qibla Compass Module
-
+// kibla.js - Hybrid Qibla Compass Module
 window.initQiblaCompass = function() {
   const statusEl = document.getElementById('qibla-status');
   const needleEl = document.getElementById('qibla-needle');
@@ -19,7 +18,7 @@ window.initQiblaCompass = function() {
       const kaabaLat = 21.4225;
       const kaabaLng = 39.8262;
 
-      // Spherical Trigonometry Formula for Qibla Bearing
+      // Great Circle Spherical Trigonometry Formula
       const phiK = (kaabaLat * Math.PI) / 180;
       const lambdaK = (kaabaLng * Math.PI) / 180;
       const phi = (lat * Math.PI) / 180;
@@ -36,10 +35,10 @@ window.initQiblaCompass = function() {
       }
       
       if (needleEl) {
-        needleEl.style.transform = `rotate(${qiblaAngle}deg)`;
+        needleEl.style.transform = `translate(-50%, -100%) rotate(${qiblaAngle}deg)`;
       }
 
-      // Handle iOS 13+ Device Orientation Permission
+      // Handle iOS 13+ Device Orientation Permission Request
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
@@ -52,7 +51,6 @@ window.initQiblaCompass = function() {
           startCompassTracking(qiblaAngle, needleEl, statusEl);
         });
       } else {
-        // Standard Android / Desktop Tracking
         startCompassTracking(qiblaAngle, needleEl, statusEl);
       }
     },
@@ -81,7 +79,8 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
 
     if (heading !== null && needleEl) {
       let compassRotation = (qiblaAngle - heading + 360) % 360;
-      needleEl.style.transform = `rotate(${compassRotation}deg)`;
+      // Maintain translate(-50%, -100%) so it pivots perfectly on the center dot while rotating
+      needleEl.style.transform = `translate(-50%, -100%) rotate(${compassRotation}deg)`;
       
       if (statusEl) {
         statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
