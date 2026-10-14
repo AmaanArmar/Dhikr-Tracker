@@ -167,8 +167,15 @@ window.switchTab = function(tabId, btn) {
 let wisdomDatabase = [];
 fetch('verses.json').then(r => r.json()).then(d => wisdomDatabase = d).catch(() => {});
 
-// Global reference prevents mobile browsers from garbage-collecting the audio speech utterance
 let activeUtterance = null;
+
+function cleanArabicTextForSpeech(text) {
+  if (!text) return '';
+  return text
+    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '') // Strip Tashkeel
+    .replace(/['"“”«»]/g, '') // Strip quotes
+    .trim();
+}
 
 window.readAloudText = function(text) {
   if (!('speechSynthesis' in window)) {
@@ -178,13 +185,14 @@ window.readAloudText = function(text) {
 
   window.speechSynthesis.cancel();
   
-  activeUtterance = new SpeechSynthesisUtterance(text);
-  activeUtterance.lang = 'ar'; // General Arabic tag for maximum mobile compatibility
+  const cleanedText = cleanArabicTextForSpeech(text);
+  activeUtterance = new SpeechSynthesisUtterance(cleanedText || text);
+  activeUtterance.lang = 'ar';
   activeUtterance.rate = 0.85;
 
   activeUtterance.onerror = (event) => {
     console.error("Speech error:", event);
-    alert("Audio playback failed. Please check if your mobile device has an Arabic voice engine installed.");
+    alert("Audio playback failed. Please check if your phone media volume is turned up.");
   };
 
   window.speechSynthesis.speak(activeUtterance);
@@ -194,18 +202,27 @@ window.askRandomWisdom = function() {
   if (!wisdomDatabase.length) return alert("Verses loading...");
   const item = wisdomDatabase[Math.floor(Math.random() * wisdomDatabase.length)];
   const chatContainer = document.getElementById('chatContainer');
-  chatContainer.innerHTML = `
-    <div class="bot-message">
-      <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
-      <div class="chat-arabic-text">${item.arabic}</div>
-      <div class="chat-translation-text">${item.translation}</div>
-      <div class="reflection-box">
-        <div class="reflection-title">A Quick Reflection</div>
-        <div class="reflection-text">${item.reflection}</div>
-      </div>
-      <button class="audio-btn" onclick="readAloudText('${item.arabic.replace(/'/g, "\\'")}')" style="margin-top:8px;">Read Aloud</button>
+  
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'bot-message';
+  msgDiv.innerHTML = `
+    <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
+    <div class="chat-arabic-text">${item.arabic}</div>
+    <div class="chat-translation-text">${item.translation}</div>
+    <div class="reflection-box">
+      <div class="reflection-title">A Quick Reflection</div>
+      <div class="reflection-text">${item.reflection}</div>
     </div>
+    <button class="audio-btn read-audio-btn" style="margin-top:8px;">Read Aloud</button>
   `;
+
+  const audioBtn = msgDiv.querySelector('.read-audio-btn');
+  audioBtn.addEventListener('click', () => {
+    window.readAloudText(item.arabic);
+  });
+
+  chatContainer.appendChild(msgDiv);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -213,3 +230,4 @@ document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('totalSessionCount')) totalSessionCount = parseInt(localStorage.getItem('totalSessionCount'), 10);
   updateDisplay();
 });
+  
