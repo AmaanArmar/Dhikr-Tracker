@@ -1,86 +1,72 @@
 // kibla.js - Real-time Rotating Qibla Compass Logic
-
-const KAABA_LAT = 21.4225;
-const KAABA_LNG = 39.8262;
-
-let qiblaBearing = 0;
-
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('qibla-btn');
-  if (btn) {
-    btn.addEventListener('click', initQiblaCompass);
-  }
-});
-
-function initQiblaCompass() {
-  const statusEl = document.getElementById('qibla-status');
+window.initQiblaCompass = function() {
+  const statusEl = document.getElementById('qiblaStatus');
+  const needleEl = document.getElementById('compassNeedle');
   
   if (!navigator.geolocation) {
-    if (statusEl) statusEl.textContent = "Geolocation is not supported.";
+    if (statusEl) statusEl.innerText = "Geolocation not supported.";
     return;
   }
 
-  if (statusEl) statusEl.textContent = "Acquiring GPS location...";
+  if (statusEl) statusEl.innerText = "Acquiring GPS location...";
 
   navigator.geolocation.getCurrentPosition(
-    position => {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
       
-      qiblaBearing = calculateQiblaBearing(userLat, userLng);
-      if (statusEl) statusEl.textContent = `Qibla: ${qiblaBearing.toFixed(1)}° from North`;
-      
-      // Handle iOS 13+ permissions
+      const kaabaLat = 21.4225;
+      const kaabaLng = 39.8262;
+
+      const phiK = (kaabaLat * Math.PI) / 180;
+      const lambdaK = (kaabaLng * Math.PI) / 180;
+      const phi = (lat * Math.PI) / 180;
+      const lambda = (lng * Math.PI) / 180;
+
+      const y = Math.sin(lambdaK - lambda);
+      const x = Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda);
+      let qibla = Math.atan2(y, x);
+      qibla = (qibla * 180) / Math.PI;
+      qibla = (qibla + 360) % 360;
+
+      if (statusEl) statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° from North`;
+      if (needleEl) {
+        needleEl.style.transform = `rotate(${qibla}deg)`;
+      }
+
+      // Handle iOS 13+ permission request for device orientation
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-          .then(response => {
-            if (response === 'granted') {
-              window.addEventListener('deviceorientation', handleOrientation, true);
-              hideCompassButton();
-            } else {
-              if (statusEl) statusEl.textContent = "Permission denied for sensors.";
-            }
-          })
-          .catch(err => console.error(err));
+        DeviceOrientationEvent.requestPermission().then(response => {
+          if (response === 'granted') {
+            setupOrientationListener(qibla, needleEl, statusEl);
+          }
+        }).catch(err => console.log("Orientation permission error:", err));
       } else {
-        window.addEventListener('deviceorientation', handleOrientation, true);
-        hideCompassButton();
+        setupOrientationListener(qibla, needleEl, statusEl);
       }
     },
-    error => {
-      if (statusEl) statusEl.textContent = "Location access needed for Qibla.";
-    }
+    (error) => {
+      if (statusEl) statusEl.innerText = "Location permission denied or unavailable.";
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
-}
+};
 
-function calculateQiblaBearing(lat1, lng1) {
-  const rad = Math.PI / 180;
-  const phi1 = lat1 * rad;
-  const phi2 = KAABA_LAT * rad;
-  const deltaLambda = (KAABA_LNG - lng1) * rad;
-
-  const y = Math.sin(deltaLambda) * Math.cos(phi2);
-  const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
-
-  let bearing = Math.atan2(y, x) * (180 / Math.PI);
-  return (bearing + 360) % 360;
-}
-
-function handleOrientation(event) {
-  // Support both iOS (webkitCompassHeading) and Android (alpha)
-  let heading = event.webkitCompassHeading || (event.alpha ? 360 - event.alpha : 0);
-  
-  if (heading !== null && heading !== undefined) {
-    // Calculate relative rotation angle for the needle
-    let needleAngle = qiblaBearing - heading;
-    const needle = document.getElementById('qibla-needle');
-    if (needle) {
-      needle.style.transform = `rotate(${needleAngle}deg)`;
+function setupOrientationListener(qibla, needleEl, statusEl) {
+  window.addEventListener('deviceorientation', (event) => {
+    let heading = null;
+    if (event.webkitCompassHeading !== undefined) {
+      heading = event.webkitCompassHeading; // iOS Safari
+    } else if (event.alpha !== null) {
+      heading = 360 - event.alpha; // Android Chrome
     }
-  }
-}
 
-function hideCompassButton() {
-  const btn = document.getElementById('qibla-btn');
-  if (btn) btn.style.display = 'none';
+    if (heading !== null && needleEl) {
+      let finalRotation = qibla - heading;
+      needleEl.style.transform = `rotate(${finalRotation}deg)`;
+      if (statusEl) {
+        statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
+      }
+    }
+  }, true);
 }
