@@ -1,4 +1,5 @@
-// kibla.js - Production-Ready Fused Qibla Compass Module
+// kibla.js - Standalone Qibla Compass Module
+
 window.initQiblaCompass = function() {
   const statusEl = document.getElementById('qibla-status');
   const needleEl = document.getElementById('qibla-needle');
@@ -38,7 +39,7 @@ window.initQiblaCompass = function() {
         needleEl.style.transform = `rotate(${qiblaAngle}deg)`;
       }
 
-      // Handle iOS 13+ Device Orientation Permission (from Code 1)
+      // Handle iOS 13+ Device Orientation Permission
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
@@ -72,12 +73,9 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
   const handleOrientation = (event) => {
     let heading = null;
 
-    // Check iOS heading first
     if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
       heading = event.webkitCompassHeading;
-    } 
-    // Fallback to standard alpha rotation
-    else if (event.alpha !== null) {
+    } else if (event.alpha !== null) {
       heading = (360 - event.alpha) % 360;
     }
 
@@ -91,7 +89,6 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
     }
   };
 
-  // Attach listeners for both absolute and standard orientation events
   if ('ondeviceorientationabsolute' in window) {
     window.addEventListener('deviceorientationabsolute', handleOrientation, true);
     trackerAttached = true;
