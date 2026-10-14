@@ -242,18 +242,33 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
 
-// --- QIBLA COMPASS LOGIC (UPDATED & FIXED) ---
+
+// --- QIBLA COMPASS LOGIC (SYNCHRONOUS PERMISSION FIX) ---
 window.initQiblaCompass = function() {
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
   
+  if (statusEl) statusEl.innerText = "Requesting permissions & GPS...";
+
+  // 1. Handle iOS 13+ motion permission synchronously inside the click gesture
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(response => {
+        if (response === 'granted') {
+          console.log("Orientation permission granted.");
+        } else {
+          console.log("Orientation permission denied.");
+        }
+      })
+      .catch(console.error);
+  }
+
+  // 2. Fetch Geolocation coordinates
   if (!navigator.geolocation) {
     if (statusEl) statusEl.innerText = "Geolocation not supported.";
     alert("Geolocation is not supported by your browser.");
     return;
   }
-
-  if (statusEl) statusEl.innerText = "Acquiring GPS location (please wait)...";
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -274,26 +289,12 @@ window.initQiblaCompass = function() {
       qibla = (qibla * 180) / Math.PI;
       qibla = (qibla + 360) % 360;
 
-      if (statusEl) statusEl.innerText = `GPS Acquired! Qibla: ${qibla.toFixed(1)}°`;
+      if (statusEl) statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° from North`;
       if (needleEl) {
         needleEl.style.transform = `rotate(${qibla}deg)`;
       }
 
-      // Handle iOS 13+ permission request or standard orientation start
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            startCompassTracking(qibla, needleEl, statusEl);
-          } else {
-            if (statusEl) statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° (Motion denied)`;
-          }
-        }).catch(err => {
-          console.error(err);
-          startCompassTracking(qibla, needleEl, statusEl);
-        });
-      } else {
-        startCompassTracking(qibla, needleEl, statusEl);
-      }
+      startCompassTracking(qibla, needleEl, statusEl);
     },
     (error) => {
       let errorMsg = "Unable to retrieve GPS location.";
@@ -308,8 +309,6 @@ window.initQiblaCompass = function() {
 };
 
 function startCompassTracking(qiblaAngle, needleEl, statusEl) {
-  let sensorReceived = false;
-
   const handleOrientation = (event) => {
     let heading = null;
 
@@ -319,12 +318,9 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
       heading = (360 - event.alpha) % 360; // Android Chrome
     }
 
-    if (heading !== null) {
-      sensorReceived = true;
-      if (needleEl) {
-        let compassRotation = (qiblaAngle - heading + 360) % 360;
-        needleEl.style.transform = `rotate(${compassRotation}deg)`;
-      }
+    if (heading !== null && needleEl) {
+      let compassRotation = (qiblaAngle - heading + 360) % 360;
+      needleEl.style.transform = `rotate(${compassRotation}deg)`;
       if (statusEl) {
         statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
       }
@@ -333,12 +329,4 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
 
   window.addEventListener('deviceorientationabsolute', handleOrientation, true);
   window.addEventListener('deviceorientation', handleOrientation, true);
-
-  // Fallback check if device doesn't stream orientation events
-  setTimeout(() => {
-    if (!sensorReceived && statusEl) {
-      statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° (Static Line-of-Sight)`;
-    }
-  }, 3000);
 }
-
