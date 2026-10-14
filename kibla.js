@@ -64,26 +64,25 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
     let heading = null;
 
     if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-      // iOS Safari
+      // iOS Safari provides direct clockwise heading
       heading = event.webkitCompassHeading;
     } else if (event.alpha !== null) {
-      // Android Chrome (use absolute orientation or fallback alpha)
-      heading = event.absolute ? event.alpha : (360 - event.alpha);
+      // Android Chrome: Normalize alpha counter-clockwise reading to clockwise heading
+      heading = (360 - event.alpha) % 360;
     }
 
     if (heading !== null && needleEl) {
-      let compassRotation = qiblaAngle - heading;
+      // Calculate smooth relative needle rotation
+      let compassRotation = (qiblaAngle - heading + 360) % 360;
       needleEl.style.transform = `rotate(${compassRotation}deg)`;
+      
       if (statusEl) {
-        statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Device Heading: ${heading.toFixed(0)}°`;
+        statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
       }
     }
   };
 
-  // Listen to deviceorientationabsolute for Android Chrome, fallback to deviceorientation
-  if ('ondeviceorientationabsolute' in window) {
-    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-  } else {
-    window.addEventListener('deviceorientation', handleOrientation, true);
-  }
+  // Register both event listeners safely for maximum cross-platform support
+  window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+  window.addEventListener('deviceorientation', handleOrientation, true);
 }
