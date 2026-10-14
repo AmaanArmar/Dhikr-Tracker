@@ -1,15 +1,14 @@
-// kibla.js - Real-time Rotating Qibla Compass Logic
 window.initQiblaCompass = function() {
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
   
   if (!navigator.geolocation) {
-    if (statusEl) statusEl.innerText = "Geolocation is not supported by your browser.";
+    if (statusEl) statusEl.innerText = "Geolocation not supported.";
     alert("Geolocation is not supported by your browser.");
     return;
   }
 
-  if (statusEl) statusEl.innerText = "Requesting location access...";
+  if (statusEl) statusEl.innerText = "Acquiring GPS location...";
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -35,29 +34,23 @@ window.initQiblaCompass = function() {
         needleEl.style.transform = `rotate(${qibla}deg)`;
       }
 
-      // Request iOS 13+ device orientation permission if needed
+      // Handle iOS 13+ permission request if present
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
-            setupOrientationListener(qibla, needleEl, statusEl);
+            startCompassTracking(qibla, needleEl, statusEl);
           } else {
             alert("Compass orientation permission was denied.");
           }
-        }).catch(err => {
-          console.error("Orientation error:", err);
-        });
+        }).catch(console.error);
       } else {
-        setupOrientationListener(qibla, needleEl, statusEl);
+        startCompassTracking(qibla, needleEl, statusEl);
       }
     },
     (error) => {
-      let errorMsg = "Unable to retrieve location.";
+      let errorMsg = "Unable to retrieve GPS location.";
       if (error.code === error.PERMISSION_DENIED) {
-        errorMsg = "Location permission denied. Check your browser site settings (tap the lock icon near the URL) to allow location access.";
-      } else if (error.code === error.POSITION_UNAVAILABLE) {
-        errorMsg = "Location information is unavailable.";
-      } else if (error.code === error.TIMEOUT) {
-        errorMsg = "Location request timed out.";
+        errorMsg = "Location permission denied. Please enable Location in site settings.";
       }
       if (statusEl) statusEl.innerText = errorMsg;
       alert(errorMsg);
@@ -66,21 +59,31 @@ window.initQiblaCompass = function() {
   );
 };
 
-function setupOrientationListener(qibla, needleEl, statusEl) {
-  window.addEventListener('deviceorientation', (event) => {
+function startCompassTracking(qiblaAngle, needleEl, statusEl) {
+  const handleOrientation = (event) => {
     let heading = null;
-    if (event.webkitCompassHeading !== undefined) {
-      heading = event.webkitCompassHeading; // iOS Safari
+
+    if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
+      // iOS Safari
+      heading = event.webkitCompassHeading;
     } else if (event.alpha !== null) {
-      heading = 360 - event.alpha; // Android Chrome
+      // Android Chrome (use absolute orientation or fallback alpha)
+      heading = event.absolute ? event.alpha : (360 - event.alpha);
     }
 
     if (heading !== null && needleEl) {
-      let finalRotation = qibla - heading;
-      needleEl.style.transform = `rotate(${finalRotation}deg)`;
+      let compassRotation = qiblaAngle - heading;
+      needleEl.style.transform = `rotate(${compassRotation}deg)`;
       if (statusEl) {
-        statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
+        statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Device Heading: ${heading.toFixed(0)}°`;
       }
     }
-  }, true);
+  };
+
+  // Listen to deviceorientationabsolute for Android Chrome, fallback to deviceorientation
+  if ('ondeviceorientationabsolute' in window) {
+    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+  } else {
+    window.addEventListener('deviceorientation', handleOrientation, true);
+  }
 }
