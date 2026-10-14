@@ -43,27 +43,15 @@
       <span>User: <strong id="userDisplay" style="color:#00e5ff;">--</strong></span>
       <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
-    
 
-        <!-- TOP NAVIGATION TABS -->
+    <!-- TOP NAVIGATION TABS (All 5 Fitted Compactly) -->
     <nav class="top-nav">
-      <button class="nav-btn active" onclick="switchTab('counterTab', this)">
-        <span>🏠</span><span>Counter</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">
-        <span>📊</span><span>Usage & Qibla</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('historyTab', this)">
-        <span>📜</span><span>Log</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('duasTab', this)">
-        <span>📖</span><span>Duas</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('remindersTab', this)">
-        <span>🌟</span><span>Reminders</span>
-      </button>
+      <button class="nav-btn active" onclick="switchTab('counterTab', this)"><span>🏠</span><span>Counter</span></button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)"><span>📊</span><span>Usage/Qibla</span></button>
+      <button class="nav-btn" onclick="switchTab('historyTab', this)"><span>📜</span><span>Log</span></button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)"><span>📖</span><span>Duas</span></button>
+      <button class="nav-btn" onclick="switchTab('remindersTab', this)"><span>🌟</span><span>Reminders</span></button>
     </nav>
-    
 
     <!-- TAB 1: COUNTER -->
     <div id="counterTab" class="tab-content active">
@@ -110,18 +98,17 @@
       </div>
     </div>
 
-        <!-- TAB 2: USAGE & QIBLA -->
+    <!-- TAB 2: USAGE & QIBLA -->
     <div id="usageTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
       <div class="chart-box">
         <canvas id="usageChart"></canvas>
       </div>
 
-          <!-- Qibla Card with Miniature Visual Compass & Precision Readout -->
+      <!-- Qibla Card -->
       <div class="qibla-card">
         <h3 class="qibla-title" style="color:#00e5ff; font-size:16px; margin-bottom:8px;">Qibla Compass</h3>
 
-        <!-- Miniature Circular Visual Dial -->
         <div class="mini-compass-container">
           <div class="compass-dial">
             <div class="compass-needle" id="qibla-needle"></div>
@@ -130,12 +117,11 @@
           <div class="kaaba-marker">🕋</div>
         </div>
 
-        <!-- High-Precision Numerical Status -->
         <p id="qibla-status" class="qibla-status">Tap below to calibrate & find direction</p>
         <button id="qibla-btn" class="qibla-btn" onclick="initQiblaCompass()">Enable Compass</button>
       </div>
-      
-      
+    </div>
+
     <!-- TAB 3: LOG (HISTORY) -->
     <div id="historyTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Cloud Recitation Log</h3>
@@ -158,12 +144,6 @@
         <div class="dua-title">Two Beloved & Heavy Phrases on the Scales</div>
         <div class="arabic-text">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ</div>
         <div class="dua-translation">"Glory be to Allah and His is the praise, Glory be to Allah the Greatest."</div>
-      </div>
-
-      <div class="dua-card">
-        <div class="dua-title">Dua For Daily Protection (Morning & Evening)</div>
-        <div class="arabic-text">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ</div>
-        <div class="dua-translation">"In the Name of Allah, with Whose Name nothing can harm on earth or in heaven..."</div>
       </div>
     </div>
 
