@@ -43,15 +43,27 @@
       <span>User: <strong id="userDisplay" style="color:#00e5ff;">--</strong></span>
       <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
+    
 
-    <!-- TOP NAVIGATION TABS -->
+        <!-- TOP NAVIGATION TABS -->
     <nav class="top-nav">
-      <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
-      <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage & Qibla</button>
-      <button class="nav-btn" onclick="switchTab('historyTab', this)">📜 Log</button>
-      <button class="nav-btn" onclick="switchTab('duasTab', this)">📖 Duas & Zikr</button>
-      <button class="nav-btn" onclick="switchTab('remindersTab', this)">🌟 Reminders</button>
+      <button class="nav-btn active" onclick="switchTab('counterTab', this)">
+        <span>🏠</span><span>Counter</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('usageTab', this)">
+        <span>📊</span><span>Usage & Qibla</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('historyTab', this)">
+        <span>📜</span><span>Log</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('duasTab', this)">
+        <span>📖</span><span>Duas</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('remindersTab', this)">
+        <span>🌟</span><span>Reminders</span>
+      </button>
     </nav>
+    
 
     <!-- TAB 1: COUNTER -->
     <div id="counterTab" class="tab-content active">
