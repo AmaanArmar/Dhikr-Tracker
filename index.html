@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Cloud Islamic Counter & AI Deed Tracker</title>
+  <!-- Google Font: DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="./style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -32,7 +37,7 @@
   <div id="mainDashboard" class="hidden">
     
     <div class="user-bar">
-      <span>User: <strong id="userDisplay" style="color:#00e5ff;">--</strong></span>
+      <span>User: <strong id="userDisplay" style="color:var(--cyan);">--</strong></span>
       <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
 
@@ -76,8 +81,8 @@
       <div class="counter-wrapper">
         <button class="main-circle-btn" id="counterBtn" onclick="increment()">0</button>
         <div class="counter-info">
-          <span>Rounds: <strong id="roundsCount" style="color:#00e5ff;">0</strong></span>
-          <span>Count: <strong id="lapCount" style="color:#00e5ff;">0/33</strong></span>
+          <span>Rounds: <strong id="roundsCount" style="color:var(--cyan);">0</strong></span>
+          <span>Count: <strong id="lapCount" style="color:var(--cyan);">0/33</strong></span>
         </div>
       </div>
 
@@ -89,40 +94,38 @@
     </div>
 
     <!-- 2. USAGE & QIBLA TAB -->
-<div id="usageTab" class="tab-content">
-  <h3 style="color:#00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
-  <div class="chart-box">
-    <canvas id="usageChart"></canvas>
-  </div>
-
-  <!-- Qibla Compass Card with Visual Dial & Needle -->
-  <div class="qibla-card">
-    <h3 class="qibla-title">Qibla Compass</h3>
-    
-    <!-- This is the visual circular dial that was missing -->
-    <div class="compass-container">
-      <div class="compass-dial">
-        <div class="compass-needle" id="qibla-needle"></div>
-        <div class="compass-center-dot"></div>
+    <div id="usageTab" class="tab-content">
+      <h3 style="color:var(--cyan); margin-top:0;">Weekly Cloud Usage</h3>
+      <div class="chart-box">
+        <canvas id="usageChart"></canvas>
       </div>
-      <div class="kaaba-marker">🕋</div>
-    </div>
 
-    <p id="qibla-status" class="qibla-status">Tap below to calibrate & find direction</p>
-    <button id="qibla-btn" class="qibla-btn">Enable Compass</button>
-  </div>
-</div>
-    
+      <!-- Qibla Compass Card -->
+      <div class="qibla-card">
+        <h3 class="qibla-title">Qibla Compass</h3>
+        
+        <div class="compass-container">
+          <div class="compass-dial">
+            <div class="compass-needle" id="qibla-needle"></div>
+            <div class="compass-center-dot"></div>
+          </div>
+          <div class="kaaba-marker">🕋</div>
+        </div>
+
+        <p id="qibla-status" class="qibla-status">Tap below to calibrate & find direction</p>
+        <button id="qibla-btn" class="qibla-btn">Enable Compass</button>
+      </div>
+    </div>
 
     <!-- 3. LOG TAB -->
     <div id="historyTab" class="tab-content">
-      <h3 style="color:#00e5ff; margin-top:0;">Cloud Recitation Log</h3>
+      <h3 style="color:var(--cyan); margin-top:0;">Cloud Recitation Log</h3>
       <div id="logContainer"></div>
     </div>
 
     <!-- 4. DUAS & ZIKR REFERENCE TAB -->
     <div id="duasTab" class="tab-content">
-      <h3 style="color:#00e5ff; margin-top:0;">Essential Duas & Zikr Reference</h3>
+      <h3 style="color:var(--cyan); margin-top:0;">Essential Duas & Zikr Reference</h3>
       
       <div class="dua-card">
         <div class="dua-title">SubhanAllahi wa bihamdihi (Full High-Reward Version)</div>
@@ -143,9 +146,9 @@
       </div>
     </div>
 
-    <!-- 5. REMINDERS TAB (AI COMPANION CHAT STREAM) -->
+    <!-- 5. REMINDERS TAB -->
     <div id="remindersTab" class="tab-content">
-      <h3 style="color:#00e5ff; margin-top:0; margin-bottom: 10px;">AI Wisdom & Reminder Stream</h3>
+      <h3 style="color:var(--cyan); margin-top:0; margin-bottom: 10px;">AI Wisdom & Reminder Stream</h3>
       
       <div class="chat-container" id="chatContainer">
         <div class="watermark">DHIKR TRACKER &bull; AI COMPANION &bull; DHIKR TRACKER &bull; AI COMPANION &bull;</div>
@@ -164,6 +167,8 @@
   </div>
 
 </div>
+
+<!-- Scripts -->
 <script src="kibla.js"></script>
 <script type="module" src="script.js"></script>
 </body>
