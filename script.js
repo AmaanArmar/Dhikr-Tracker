@@ -8,6 +8,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, enableIndexedDbPersistence, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// Ensure your Firebase configuration object is properly defined here
 const firebaseConfig = {
   apiKey: "AIzaSyDNjTCd-LE0buyE2aDktb-ORN0Ncwvzcgo",
   authDomain: "dhikr-tracker-9930.firebaseapp.com",
@@ -74,9 +75,13 @@ onAuthStateChanged(auth, async (user) => {
 window.logOut = function() { signOut(auth); };
 
 function updateDisplay() {
-  document.getElementById('counterBtn').innerText = currentCount;
-  document.getElementById('roundsCount').innerText = Math.floor(totalSessionCount / 33);
-  document.getElementById('lapCount').innerText = `${totalSessionCount % 33}/33`;
+  const counterBtn = document.getElementById('counterBtn');
+  const roundsCount = document.getElementById('roundsCount');
+  const lapCount = document.getElementById('lapCount');
+
+  if (counterBtn) counterBtn.innerText = currentCount;
+  if (roundsCount) roundsCount.innerText = Math.floor(totalSessionCount / 33);
+  if (lapCount) lapCount.innerText = `${totalSessionCount % 33}/33`;
 }
 
 window.increment = function() {
@@ -130,6 +135,7 @@ window.deleteLogItem = async function(index) {
 
 function renderLogList() {
   const container = document.getElementById('logContainer');
+  if (!container) return;
   container.innerHTML = userData.logs.length ? '' : '<p style="color:var(--muted); font-size:13px;">No logs in Cloud.</p>';
   userData.logs.forEach((item, index) => {
     container.innerHTML += `
@@ -145,37 +151,34 @@ function renderLogList() {
 window.switchTab = function(tabId, btn) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
+  const targetTab = document.getElementById(tabId);
+  if (targetTab) targetTab.classList.add('active');
   if (btn) btn.classList.add('active');
 
   if (tabId === 'historyTab') renderLogList();
   if (tabId === 'usageTab') {
-    const ctx = document.getElementById('usageChart').getContext('2d');
-    if (myChartInstance) myChartInstance.destroy();
-    myChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
-        datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#62d6ca' }]
-      },
-      options: { scales: { y: { beginAtZero: true } } }
-    });
+    const canvas = document.getElementById('usageChart');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (myChartInstance) myChartInstance.destroy();
+      myChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
+          datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#62d6ca' }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+      });
+    }
   }
 };
 
 // --- AI WISDOM & AUDIO STREAM ---
 let wisdomDatabase = [];
-fetch('verses.json').then(r => r.json()).then(d => wisdomDatabase = d).catch(() => {});
-
-let activeUtterance = null;
-
-function cleanArabicTextForSpeech(text) {
-  if (!text) return '';
-  return text
-    .replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED]/g, '') // Strip Tashkeel
-    .replace(/['"“”«»]/g, '') // Strip quotes
-    .trim();
-}
+fetch('verses.json')
+  .then(r => r.json())
+  .then(d => { wisdomDatabase = d; })
+  .catch(() => {});
 
 window.readAloudText = function(text) {
   if (!('speechSynthesis' in window)) {
@@ -184,59 +187,48 @@ window.readAloudText = function(text) {
   }
 
   window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ar';
   utterance.rate = 0.85;
 
-  // Check available voices on the mobile device
   const voices = window.speechSynthesis.getVoices();
   const arabicVoice = voices.find(v => v.lang.toLowerCase().includes('ar'));
-
-  if (arabicVoice) {
-    utterance.voice = arabicVoice;
-  } else {
-    console.warn("No specific Arabic TTS voice found on this device. Using default fallback.");
-  }
-
-  utterance.onerror = (event) => {
-    console.error("Speech error:", event);
-    alert("Audio playback failed. Your phone may lack an installed Arabic voice package in system settings.");
-  };
+  if (arabicVoice) utterance.voice = arabicVoice;
 
   window.speechSynthesis.speak(utterance);
 };
 
-// Ensure voices are pre-loaded in modern mobile browsers
 if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => {
     window.speechSynthesis.getVoices();
   };
 }
 
-
 window.askRandomWisdom = function() {
-  if (!wisdomDatabase.length) return alert("Verses loading...");
+  if (!wisdomDatabase.length) return alert("Verses still loading...");
   const item = wisdomDatabase[Math.floor(Math.random() * wisdomDatabase.length)];
   const chatContainer = document.getElementById('chatContainer');
+  if (!chatContainer) return;
   
   const msgDiv = document.createElement('div');
   msgDiv.className = 'bot-message';
   msgDiv.innerHTML = `
-    <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
-    <div class="chat-arabic-text">${item.arabic}</div>
-    <div class="chat-translation-text">${item.translation}</div>
+    <div class="bot-header"><span>${item.reference || ''}</span><span>${item.type || 'Wisdom'}</span></div>
+    <div class="chat-arabic-text">${item.arabic || ''}</div>
+    <div class="chat-translation-text">${item.translation || ''}</div>
     <div class="reflection-box">
       <div class="reflection-title">A Quick Reflection</div>
-      <div class="reflection-text">${item.reflection}</div>
+      <div class="reflection-text">${item.reflection || ''}</div>
     </div>
     <button class="audio-btn read-audio-btn" style="margin-top:8px;">Read Aloud</button>
   `;
 
   const audioBtn = msgDiv.querySelector('.read-audio-btn');
-  audioBtn.addEventListener('click', () => {
-    window.readAloudText(item.arabic);
-  });
+  if (audioBtn) {
+    audioBtn.addEventListener('click', () => {
+      window.readAloudText(item.arabic);
+    });
+  }
 
   chatContainer.appendChild(msgDiv);
   chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -247,4 +239,4 @@ document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('totalSessionCount')) totalSessionCount = parseInt(localStorage.getItem('totalSessionCount'), 10);
   updateDisplay();
 });
-  
+    
