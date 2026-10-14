@@ -105,11 +105,11 @@
         <canvas id="usageChart"></canvas>
       </div>
 
-      <!-- Qibla Card with Miniature Visual Compass + Precision Text -->
+          <!-- Qibla Card with Miniature Visual Compass & Precision Readout -->
       <div class="qibla-card">
-        <h3 class="qibla-title">Qibla Direction & Compass</h3>
+        <h3 class="qibla-title" style="color:#00e5ff; font-size:16px; margin-bottom:8px;">Qibla Compass</h3>
 
-        <!-- Miniature Visual Compass Dial -->
+        <!-- Miniature Circular Visual Dial -->
         <div class="mini-compass-container">
           <div class="compass-dial">
             <div class="compass-needle" id="qibla-needle"></div>
@@ -118,12 +118,12 @@
           <div class="kaaba-marker">🕋</div>
         </div>
 
-        <!-- Precision Text Readouts -->
+        <!-- High-Precision Numerical Status -->
         <p id="qibla-status" class="qibla-status">Tap below to calibrate & find direction</p>
         <button id="qibla-btn" class="qibla-btn" onclick="initQiblaCompass()">Enable Compass</button>
       </div>
-    </div>
-
+      
+      
     <!-- TAB 3: LOG (HISTORY) -->
     <div id="historyTab" class="tab-content">
       <h3 style="color:#00e5ff; margin-top:0;">Cloud Recitation Log</h3>
