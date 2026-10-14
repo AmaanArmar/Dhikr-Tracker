@@ -81,13 +81,24 @@
       </div>
     </section>
 
-    <!-- TAB 2: USAGE -->
-    <section id="usageTab" class="tab-content">
-      <div class="chart-box">
-        <h3 style="color: var(--cyan); margin-top: 0; font-size: 15px;">Weekly Cloud Usage</h3>
-        <canvas id="usageChart" width="400" height="200"></canvas>
-      </div>
-    </section>
+    <!-- Inside TAB 2: USAGE in index.html -->
+<section id="usageTab" class="tab-content">
+  <div class="chart-box">
+    <h3 style="color: var(--cyan); margin-top: 0; font-size: 15px;">Weekly Cloud Usage</h3>
+    <canvas id="usageChart" width="400" height="200"></canvas>
+  </div>
+
+  <div class="qibla-card" style="margin-top: 20px; background: var(--panel); padding: 20px; border-radius: 12px; border: 1px solid var(--line); text-align: center;">
+    <h3 style="color: var(--cyan); margin-top: 0; font-size: 16px;">Qibla Compass</h3>
+    <div class="compass-container" style="position: relative; width: 160px; height: 160px; margin: 15px auto; border: 3px solid var(--cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+      <div style="position: absolute; top: 6px; font-size: 1.2rem;">🕋</div>
+      <div id="compassNeedle" style="width: 4px; height: 100px; background: var(--cyan); transition: transform 0.1s linear; transform-origin: center center;"></div>
+    </div>
+    <div id="qiblaStatus" style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">Tap below to find direction</div>
+    <button class="auth-btn" style="width: auto; padding: 8px 16px;" onclick="initQiblaCompass()">Enable Compass</button>
+  </div>
+</section>
+    
       
     <!-- TAB 3: LOG (HISTORY) -->
     <section id="historyTab" class="tab-content">
