@@ -31,14 +31,16 @@
       </div>
     </div>
 
-    <!-- PAGE 2: DASHBOARD -->
+    <!-- PAGE 2: MAIN DASHBOARD -->
     <div id="mainDashboard" class="hidden">
+
       <!-- USER BAR -->
       <div class="user-bar">
         <span>User: <strong id="userDisplay" style="color:#00e5ff;">...</strong></span>
         <button class="logout-btn" onclick="logOut()">Sign Out</button>
       </div>
-      <!-- TOP NAVIGATION TABS -->
+
+      <!-- TOP NAVIGATION TABS WITH ICONS -->
       <nav class="top-nav">
         <button class="nav-btn active" onclick="switchTab('counterTab', this)">🏠 Counter</button>
         <button class="nav-btn" onclick="switchTab('usageTab', this)">📊 Usage & Qibla</button>
@@ -70,12 +72,15 @@
             <option value="Darood Shareef">Darood Shareef (10 Hasanaat, 10 Sins wiped, 10 Ranks raised)</option>
           </select>
         </div>
+
         <div class="counter-wrapper">
-          <button id="counterBtn" class="main-circle-btn" onclick="increment()">0</button>     
+          <button id="counterBtn" class="main-circle-btn" onclick="increment()">0</button>
+          
           <div class="counter-info">
             <div>Rounds: <span id="roundsCount">0</span></div>
             <div>Count: <span id="lapCount">0/33</span></div>
           </div>
+
           <div class="tool-bar">
             <button class="tool-btn" onclick="resetCounter()" title="Reset">↺</button>
             <button class="tool-btn" onclick="decrement()" title="Decrease">-</button>
@@ -90,9 +95,11 @@
           <h3 style="color: #00e5ff; margin-top:0;">Weekly Cloud Usage</h3>
           <canvas id="usageChart" width="400" height="200"></canvas>
         </div>
+
+        <!-- QIBLA COMPASS CARD WITH VISUAL DIAL & NEEDLE -->
         <div class="qibla-card">
-          <h3 class="qibla-title">Qibla Compass</h3>       
-          <!-- Visual 2D/3D Circular Dial & Pointer -->
+          <h3 class="qibla-title">Qibla Compass</h3>
+          
           <div class="compass-container" id="qiblaContainer">
             <div class="kaaba-marker">🕋</div>
             <div class="compass-dial" id="compassRing">
@@ -100,11 +107,12 @@
               <div class="compass-center-dot"></div>
             </div>
           </div>
-          <!-- Live Numerical Degrees, Pointer Direction, and Sensor Calibration Below Compass -->
+
           <div class="qibla-status" id="qiblaStatus">Tap below to calibrate & find direction</div>
           <button class="qibla-btn" id="qibla-btn" onclick="initQiblaCompass()">Enable Compass</button>
         </div>
       </section>
+
       <!-- TAB 3: LOG (HISTORY) -->
       <section id="historyTab" class="tab-content">
         <h3 style="color: #00e5ff; margin-top: 0; font-size: 16px;">Cloud Recitation Log</h3>
@@ -133,7 +141,7 @@
         </div>
       </section>
 
-      <!-- TAB 5: REMINDER / AI WISDOM -->
+      <!-- TAB 5: REMINDERS & AI WISDOM STREAM -->
       <section id="wisdomTab" class="tab-content">
         <div class="dua-card" style="border-left: 4px solid #00e5ff;">
           <div class="bot-header"><span>Dhikr AI Companion</span><span>Active Stream</span></div>
@@ -143,7 +151,9 @@
           </div>
         </div>
         
-        <div id="chatContainer" class="chat-container"></div>
+        <div class="chat-container" id="chatContainer">
+          <div class="watermark">DHIKR TRACKER &bull; AI COMPANION &bull; DHIKR TRACKER &bull; AI COMPANION &bull;</div>
+        </div>
       </section>
 
       <!-- FOOTER -->
