@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v22'; // Bumped version
+const CACHE_NAME = 'dhikr-tracker-cache-v24'; // Bump this number up
 
 const ASSETS_TO_CACHE = [
   '/',
