@@ -179,24 +179,41 @@ function cleanArabicTextForSpeech(text) {
 
 window.readAloudText = function(text) {
   if (!('speechSynthesis' in window)) {
-    alert("Speech synthesis is not supported on this device/browser.");
+    alert("Speech synthesis is not supported on this browser.");
     return;
   }
 
   window.speechSynthesis.cancel();
-  
-  const cleanedText = cleanArabicTextForSpeech(text);
-  activeUtterance = new SpeechSynthesisUtterance(cleanedText || text);
-  activeUtterance.lang = 'ar';
-  activeUtterance.rate = 0.85;
 
-  activeUtterance.onerror = (event) => {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ar';
+  utterance.rate = 0.85;
+
+  // Check available voices on the mobile device
+  const voices = window.speechSynthesis.getVoices();
+  const arabicVoice = voices.find(v => v.lang.toLowerCase().includes('ar'));
+
+  if (arabicVoice) {
+    utterance.voice = arabicVoice;
+  } else {
+    console.warn("No specific Arabic TTS voice found on this device. Using default fallback.");
+  }
+
+  utterance.onerror = (event) => {
     console.error("Speech error:", event);
-    alert("Audio playback failed. Please check if your phone media volume is turned up.");
+    alert("Audio playback failed. Your phone may lack an installed Arabic voice package in system settings.");
   };
 
-  window.speechSynthesis.speak(activeUtterance);
+  window.speechSynthesis.speak(utterance);
 };
+
+// Ensure voices are pre-loaded in modern mobile browsers
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+
 
 window.askRandomWisdom = function() {
   if (!wisdomDatabase.length) return alert("Verses loading...");
