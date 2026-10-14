@@ -1,6 +1,25 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v35';
+w.js
+Search within code
+ 
+‎sw.js‎
++31
+-65
+Lines changed: 31 additions & 65 deletions
+Original file line number	Diff line number	Diff line change
+@@ -1,45 +1,33 @@
+const CACHE_NAME = 'dhikr-tracker-cache-v15';
+const CACHE_NAME = 'dhikr-tracker-cache-v17';
+const SITE_ORIGIN = 'https://dhikertracker.netlify.app';
 
+// All assets mapped explicitly to absolute origin
 const ASSETS_TO_CACHE = [
+  `${SITE_ORIGIN}/`,
+  `${SITE_ORIGIN}/index.html`,
+  `${SITE_ORIGIN}/script.js`,
+  `${SITE_ORIGIN}/kibla.js`,
+  `${SITE_ORIGIN}/style.css`,
+  `${SITE_ORIGIN}/verses.json`,
+  `${SITE_ORIGIN}/manifest.json`
   '/',
   '/index.html',
   '/script.js',
@@ -10,15 +29,30 @@ const ASSETS_TO_CACHE = [
   '/manifest.json'
 ];
 
-// Install Event: Cache critical assets and take control immediately
+// Install: Store every asset under clean absolute keys
+// Install Event
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => {
+      return Promise.all(
+        ASSETS_TO_CACHE.map((url) => {
+          return fetch(url)
+            .then((response) => {
+              if (response.ok) {
+                return cache.put(url, response);
+              }
+            })
+            .catch((err) => console.warn('Failed to cache:', url, err));
+        })
+      );
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
 });
 
-// Activate Event: Wipe out all old caches and claim clients immediately
+// Activate: Delete all older caches (v1 through v14) and take control immediately
+// Activate Event
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -29,17 +63,32 @@ self.addEventListener('activate', (event) => {
             return caches.delete(key);
           }
         })
-      );
-    }).then(() => self.clients.claim())
+@@ -48,57 +36,35 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Handles navigation fallbacks and cache-first asset loading
+// Fetch Listener: CACHE-FIRST for immediate offline rendering
+// Fetch Event: Handles Cold-Start Offline Launch
 self.addEventListener('fetch', (event) => {
-  // Ignore non-GET requests (e.g. Firebase Firestore/Auth network calls)
+  // Ignore non-GET requests (Firebase/Sync)
   if (event.request.method !== 'GET') return;
 
-  // 1. Navigation Request (Cold-Start / Page reloads): Serve index.html
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const reqUrl = new URL(event.request.url);
+      // 1. Try matching the exact URL or the relative pathname (e.g., /style.css)
+      let cachedResponse = await cache.match(event.request.url);
+      
+      if (!cachedResponse) {
+        // Fallback search: Match by pathname ending
+        const allKeys = await cache.keys();
+        const matchedKey = allKeys.find((k) => new URL(k.url).pathname === reqUrl.pathname);
+        if (matchedKey) {
+          cachedResponse = await cache.match(matchedKey);
+        }
+      }
+  // Fix for Cold Starts: If navigating to the app page, serve index.html directly
   if (event.request.mode === 'navigate') {
     event.respondWith(
       caches.match('/index.html').then((cachedIndex) => {
@@ -49,26 +98,43 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Asset Requests (CSS, JS, JSON, Images): Cache-first strategy
+      // 2. CACHE-FIRST: If found in local memory, return immediately!
+  // Cache-First strategy for CSS, JS, Images, and JSON
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
+        // Optionally update in background if online
+        fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request.url, networkResponse);
+            }
+          })
+          .catch(() => {}); // Suppress network failures offline
         return cachedResponse;
       }
-
+      // 3. NETWORK FALLBACK: If not in cache, try fetching from network
+      try {
+        const networkResponse = await fetch(event.request);
       return fetch(event.request).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
+          cache.put(event.request.url, networkResponse.clone());
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
-      }).catch(() => {
-        // Safe offline fallback for script/style requests
-        if (event.request.url.includes('.js') || event.request.url.includes('.css')) {
-          return new Response('/* Offline fallback */', { headers: { 'Content-Type': 'text/javascript' } });
+      } catch (error) {
+        // 4. NAVIGATION FALLBACK: If page reload fails offline, deliver cached index.html
+        if (event.request.mode === 'navigate') {
+          return (
+            (await cache.match(`${SITE_ORIGIN}/index.html`)) ||
+            (await cache.match(`${SITE_ORIGIN}/`))
+          );
         }
+      }
+    })()
       });
     })
   );
