@@ -240,7 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDisplay();
 });
     
-  // --- QIBLA COMPASS LOGIC ---
+
+
+// --- QIBLA COMPASS LOGIC (UPDATED & FIXED) ---
 window.initQiblaCompass = function() {
   const statusEl = document.getElementById('qiblaStatus');
   const needleEl = document.getElementById('compassNeedle');
@@ -251,7 +253,7 @@ window.initQiblaCompass = function() {
     return;
   }
 
-  if (statusEl) statusEl.innerText = "Acquiring GPS location...";
+  if (statusEl) statusEl.innerText = "Acquiring GPS location (please wait)...";
 
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -272,19 +274,23 @@ window.initQiblaCompass = function() {
       qibla = (qibla * 180) / Math.PI;
       qibla = (qibla + 360) % 360;
 
-      if (statusEl) statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° from North`;
+      if (statusEl) statusEl.innerText = `GPS Acquired! Qibla: ${qibla.toFixed(1)}°`;
       if (needleEl) {
         needleEl.style.transform = `rotate(${qibla}deg)`;
       }
 
+      // Handle iOS 13+ permission request or standard orientation start
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
             startCompassTracking(qibla, needleEl, statusEl);
           } else {
-            alert("Compass orientation permission was denied.");
+            if (statusEl) statusEl.innerText = `Qibla: ${qibla.toFixed(1)}° (Motion denied)`;
           }
-        }).catch(console.error);
+        }).catch(err => {
+          console.error(err);
+          startCompassTracking(qibla, needleEl, statusEl);
+        });
       } else {
         startCompassTracking(qibla, needleEl, statusEl);
       }
@@ -292,28 +298,33 @@ window.initQiblaCompass = function() {
     (error) => {
       let errorMsg = "Unable to retrieve GPS location.";
       if (error.code === error.PERMISSION_DENIED) {
-        errorMsg = "Location permission denied. Please enable Location in site settings.";
+        errorMsg = "Location permission denied in browser settings.";
       }
       if (statusEl) statusEl.innerText = errorMsg;
       alert(errorMsg);
     },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 };
 
 function startCompassTracking(qiblaAngle, needleEl, statusEl) {
+  let sensorReceived = false;
+
   const handleOrientation = (event) => {
     let heading = null;
 
     if (event.webkitCompassHeading !== undefined && event.webkitCompassHeading !== null) {
-      heading = event.webkitCompassHeading;
+      heading = event.webkitCompassHeading; // iOS Safari
     } else if (event.alpha !== null) {
-      heading = (360 - event.alpha) % 360;
+      heading = (360 - event.alpha) % 360; // Android Chrome
     }
 
-    if (heading !== null && needleEl) {
-      let compassRotation = (qiblaAngle - heading + 360) % 360;
-      needleEl.style.transform = `rotate(${compassRotation}deg)`;
+    if (heading !== null) {
+      sensorReceived = true;
+      if (needleEl) {
+        let compassRotation = (qiblaAngle - heading + 360) % 360;
+        needleEl.style.transform = `rotate(${compassRotation}deg)`;
+      }
       if (statusEl) {
         statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° | Heading: ${heading.toFixed(0)}°`;
       }
@@ -322,4 +333,12 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
 
   window.addEventListener('deviceorientationabsolute', handleOrientation, true);
   window.addEventListener('deviceorientation', handleOrientation, true);
+
+  // Fallback check if device doesn't stream orientation events
+  setTimeout(() => {
+    if (!sensorReceived && statusEl) {
+      statusEl.innerText = `Qibla: ${qiblaAngle.toFixed(1)}° (Static Line-of-Sight)`;
+    }
+  }, 3000);
 }
+
