@@ -21,7 +21,7 @@ window.initQiblaCompass = function() {
       const kaabaLat = 21.4225;
       const kaabaLng = 39.8262;
 
-      // Spherical Trigonometry Formula for Qibla Bearing
+      // Great Circle Spherical Trigonometry Formula for Qibla Bearing
       const phiK = (kaabaLat * Math.PI) / 180;
       const lambdaK = (kaabaLng * Math.PI) / 180;
       const phi = (lat * Math.PI) / 180;
@@ -71,6 +71,7 @@ window.initQiblaCompass = function() {
 
 function startCompassTracking(qiblaAngle, needleEl, statusEl) {
   let trackerAttached = false;
+  let lastValidHeading = null;
 
   const handleOrientation = (event) => {
     let heading = null;
@@ -83,12 +84,20 @@ function startCompassTracking(qiblaAngle, needleEl, statusEl) {
     }
 
     if (heading !== null && needleEl) {
+      // Filter out erratic single-frame jumps (> 45 degrees instant shift)
+      if (lastValidHeading !== null) {
+        let diff = Math.abs(heading - lastValidHeading);
+        if (diff > 45 && diff < 315) {
+          return; // Ignore jittery outlier frame
+        }
+      }
+      lastValidHeading = heading;
+
       // Calculate target rotation relative to north
       let targetDegree = (qiblaAngle - heading + 360) % 360;
 
-      // --- SHORTEST PATH ANGLE UNWRAPPING (Prevents 360° Wild Spins) ---
+      // --- SHORTEST PATH ANGLE UNWRAPPING ---
       let delta = targetDegree - (currentDisplayedRotation % 360);
-      
       if (delta < -180) {
         delta += 360;
       } else if (delta > 180) {
