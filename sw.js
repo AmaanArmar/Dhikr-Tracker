@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dhikr-tracker-cache-v19'; // Bumped from v18 to v19
+const CACHE_NAME = 'dhikr-tracker-cache-v22'; // Bumped version
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -10,36 +10,29 @@ const ASSETS_TO_CACHE = [
   '/manifest.json'
 ];
 
-// Install Event: Cache only core static assets
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
 });
 
-// Activate Event: Clean up all older cache versions
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       );
     }).then(() => self.clients.claim())
   );
 });
 
-// Fetch Event: Cache-First for core files, network fallback for dynamic requests without storing bloat
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Handle Navigation / Cold Starts
+  // Handle Navigation (HTML pages)
   if (event.request.mode === 'navigate') {
     event.respondWith(
       caches.match('/index.html').then((cachedIndex) => {
@@ -49,14 +42,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Standard Cache-First for local assets, network-only for external SDKs/Firebase to save storage
+  // Standard Cache-First for assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        // Fallback if offline and asset isn't pre-cached
+      if (cachedResponse) return cachedResponse;
+
+      return fetch(event.request).then((networkResponse) => {
+        return networkResponse;
+      }).catch(() => {
+        // Only fallback to index.html if it's not a script/style request
+        if (event.request.url.includes('.js') || event.request.url.includes('.css')) {
+          return new Response('/* Offline fallback */', { headers: { 'Content-Type': 'text/javascript' } });
+        }
         return caches.match('/index.html');
       });
     })
