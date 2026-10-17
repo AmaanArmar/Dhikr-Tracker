@@ -311,6 +311,3 @@ if ('serviceWorker' in navigator) {
 
 // 3. Initial load call
 loadWisdomDatabase();
-
-// Initial load
-loadWisdomDatabase();
