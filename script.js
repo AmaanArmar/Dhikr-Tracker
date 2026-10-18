@@ -154,7 +154,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     enterDashboard(user.email ? user.email.split('@')[0] : "User");
 
-    // Fetch cloud data and merge seamlessly with local state if online
+    // Force a fresh fetch from Firestore when online
     if (navigator.onLine) {
       try {
         const docRef = doc(db, "users", user.uid);
@@ -162,20 +162,34 @@ onAuthStateChanged(auth, async (user) => {
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
           
-          const existingLocalLogs = userData.logs || [];
-          const incomingCloudLogs = cloudData.logs || [];
+          // Pull cloud logs and weekly usage directly into local state
+          if (cloudData.logs && cloudData.logs.length > 0) {
+            userData.logs = cloudData.logs;
+          }
+          if (cloudData.weeklyUsage) {
+            userData.weeklyUsage = cloudData.weeklyUsage;
+          }
 
-          // Merge local and cloud logs without creating duplicates
-          const combinedLogs = [...existingLocalLogs];
+          // Save to local storage so it stays visible offline too
+          localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
           
-          incomingCloudLogs.forEach(cloudItem => {
-            const exists = combinedLogs.some(
-              localItem => localItem.timestamp === cloudItem.timestamp && localItem.count === cloudItem.count
-            );
-            if (!exists) {
-              combinedLogs.push(cloudItem);
-            }
-          });
+          // Re-render the history list and chart immediately
+          renderLogList();
+          console.log("Successfully synced records from cloud:", userData.logs.length);
+        } else {
+          console.log("No remote document found for this user UID yet.");
+        }
+      } catch (err) {
+        console.warn("Cloud read failed:", err);
+      }
+    }
+  } else {
+    currentUser = null;
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('mainDashboard').classList.add('hidden');
+  }
+});
+
 
           userData.logs = combinedLogs;
           userData.weeklyUsage = { ...(cloudData.weeklyUsage || {}), ...(userData.weeklyUsage || {}) };
