@@ -1,5 +1,5 @@
 // sw.js - Production PWA Service Worker for Dhikr Tracker
-const CACHE_NAME = 'dhikr-tracker-cache-v18';
+const CACHE_NAME = 'dhikr-tracker-cache-v19';
 const SITE_ORIGIN = 'https://dhikertracker.netlify.app';
 
 // All assets mapped explicitly (supports both absolute production & relative local testing)
