@@ -55,6 +55,15 @@ window.processAuth = async function() {
 
   if (!email || !password) return alert("Please fill in all fields.");
 
+  // 1. If the device is completely offline, bypass cloud auth and enter offline mode
+  if (!navigator.onLine) {
+    alert("You are offline. Entering Offline Mode.");
+    document.getElementById('userDisplay').innerText = email ? email.split('@')[0] : "Offline User";
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('mainDashboard').classList.remove('hidden');
+    return;
+  }
+
   try {
     if (isSignUpMode) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -63,28 +72,18 @@ window.processAuth = async function() {
       await signInWithEmailAndPassword(auth, email, password);
     }
   } catch (error) {
-    alert("Auth Error: " + error.message);
+    // 2. Catch network failures if connection drops mid-request and fallback gracefully
+    if (error.code === 'auth/network-request-failed' || error.message.includes('network')) {
+      alert("Network request failed. Switching to Offline Mode.");
+      document.getElementById('userDisplay').innerText = email ? email.split('@')[0] : "Offline User";
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('mainDashboard').classList.remove('hidden');
+    } else {
+      alert("Auth Error: " + error.message);
+    }
   }
 };
 
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    document.getElementById('userDisplay').innerText = user.email.split('@')[0];
-    document.getElementById('authScreen').classList.add('hidden');
-    document.getElementById('mainDashboard').classList.remove('hidden');
-
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      userData = docSnap.data();
-    }
-  } else {
-    currentUser = null;
-    document.getElementById('authScreen').classList.remove('hidden');
-    document.getElementById('mainDashboard').classList.add('hidden');
-  }
-});
 
 window.logOut = function() {
   signOut(auth);
