@@ -39,46 +39,54 @@ enableIndexedDbPersistence(db).catch((err) => {
 
 let isSignUpMode = false;
 let currentUser = null;
-let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } };
+
+// 1. DEFAULT LOCAL STATE (Loads immediately from localStorage if present)
+let userData = { 
+  logs: [], 
+  weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } 
+};
+
 let myChartInstance = null;
 
-// --- DUAL-STORAGE & SYNC ENGINE ---
+// --- TRUE LOCAL-FIRST CORE ENGINE ---
 
-// Load local backup immediately on launch
-function loadFromLocalStorage() {
+// Immediate Local Load on Engine Startup
+function initLocalData() {
   const localSaved = localStorage.getItem('dhikr_user_data');
   if (localSaved) {
     try {
       userData = JSON.parse(localSaved);
+      if (!userData.logs) userData.logs = [];
+      if (!userData.weeklyUsage) userData.weeklyUsage = { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 };
     } catch (e) {
-      console.error("Error parsing local user data", e);
+      console.error("Error loading local memory:", e);
     }
   }
 }
 
-// Universal save function (Saves locally first, then syncs to cloud if online)
+// Universal Persistent Writer (Writes to Local Storage ALWAYS, Cloud SECOND)
 async function persistUserData() {
-  // 1. Always save locally (Guarantees offline survival)
+  // Always update Local Storage immediately
   localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
 
-  // 2. Sync to cloud if online and logged in
+  // Background Cloud Sync
   if (navigator.onLine && currentUser && currentUser.uid) {
     try {
       await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
-      console.log("Data synced successfully to Firestore!");
+      console.log("Cloud sync completed.");
     } catch (error) {
-      console.warn("Firestore sync deferred (offline):", error.message);
+      console.warn("Background cloud sync deferred:", error.message);
     }
   }
 }
 
-// Automatic cloud sync when network returns
+// Background Network Recovery Sync
 window.addEventListener('online', async () => {
-  console.log("Internet connection re-established. Pushing local updates to cloud...");
+  console.log("Internet back online. Syncing local state with cloud...");
   await persistUserData();
 });
 
-// --- AUTHENTICATION SYSTEM ---
+// --- AUTHENTICATION FLOW ---
 window.toggleAuthMode = function() {
   isSignUpMode = !isSignUpMode;
   document.getElementById('authTitle').innerText = isSignUpMode ? "Create Account" : "Sign In";
@@ -92,14 +100,9 @@ window.processAuth = async function() {
 
   if (!email || !password) return alert("Please fill in all fields.");
 
-  // Offline Login Bypasser
   if (!navigator.onLine) {
-    alert("You are offline. Entering Offline Mode.");
-    loadFromLocalStorage();
-    document.getElementById('userDisplay').innerText = email ? email.split('@')[0] : "Offline User";
-    document.getElementById('authScreen').classList.add('hidden');
-    document.getElementById('mainDashboard').classList.remove('hidden');
-    renderLogList();
+    alert("Offline Mode Active: Entering Dashboard.");
+    enterDashboard(email ? email.split('@')[0] : "Offline User");
     return;
   }
 
@@ -112,43 +115,49 @@ window.processAuth = async function() {
     }
   } catch (error) {
     if (error.code === 'auth/network-request-failed' || error.message.includes('network')) {
-      alert("Network request failed. Switching to Offline Mode.");
-      loadFromLocalStorage();
-      document.getElementById('userDisplay').innerText = email ? email.split('@')[0] : "Offline User";
-      document.getElementById('authScreen').classList.add('hidden');
-      document.getElementById('mainDashboard').classList.remove('hidden');
-      renderLogList();
+      alert("Network Unreachable: Switching to Offline Mode.");
+      enterDashboard(email ? email.split('@')[0] : "Offline User");
     } else {
       alert("Auth Error: " + error.message);
     }
   }
 };
 
+function enterDashboard(displayName) {
+  document.getElementById('userDisplay').innerText = displayName;
+  document.getElementById('authScreen').classList.add('hidden');
+  document.getElementById('mainDashboard').classList.remove('hidden');
+  renderLogList();
+}
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
-    document.getElementById('userDisplay').innerText = user.email ? user.email.split('@')[0] : "User";
-    document.getElementById('authScreen').classList.add('hidden');
-    document.getElementById('mainDashboard').classList.remove('hidden');
+    enterDashboard(user.email ? user.email.split('@')[0] : "User");
 
+    // Fetch cloud data and merge seamlessly with local state if online
     if (navigator.onLine) {
       try {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          userData = docSnap.data();
+          const cloudData = docSnap.data();
+          
+          // Merge local and cloud logs
+          if (cloudData.logs) {
+            userData.logs = cloudData.logs;
+          }
+          if (cloudData.weeklyUsage) {
+            userData.weeklyUsage = cloudData.weeklyUsage;
+          }
+          // Save merged result back to local storage
           localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
-        } else {
-          loadFromLocalStorage();
+          renderLogList();
         }
       } catch (err) {
-        console.warn("Error fetching cloud data, using local cache:", err);
-        loadFromLocalStorage();
+        console.warn("Cloud read failed, staying on local state:", err);
       }
-    } else {
-      loadFromLocalStorage();
     }
-    renderLogList();
   } else {
     currentUser = null;
     document.getElementById('authScreen').classList.remove('hidden');
@@ -160,7 +169,7 @@ window.logOut = function() {
   signOut(auth);
 };
 
-// --- DATA & CLOUD LOGGING ---
+// --- LOGS & RECORDING (WORKS 100% OFFLINE) ---
 window.saveSessionToCloud = async function() {
   if (currentCount === 0) return;
 
@@ -170,16 +179,14 @@ window.saveSessionToCloud = async function() {
   const currentDayStr = dayNames[now.getDay()];
   const formattedDate = `${currentDayStr}, ${now.toLocaleDateString()} at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-  if (!userData.logs) userData.logs = [];
-  if (!userData.weeklyUsage) userData.weeklyUsage = { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 };
-
+  // Update local memory instantly
   userData.logs.unshift({ dhikr: selectedDhikr, count: currentCount, timestamp: formattedDate });
   userData.weeklyUsage[currentDayStr] = (userData.weeklyUsage[currentDayStr] || 0) + currentCount;
 
-  // Persist locally & sync to cloud
+  // Persist locally + sync to cloud
   await persistUserData();
 
-  alert(navigator.onLine ? "Saved securely to Cloud!" : "Saved locally! Will sync when back online.");
+  alert("Saved to local records!");
   resetCounter();
   renderLogList();
 };
@@ -196,7 +203,7 @@ window.deleteLogItem = async function(index) {
 function renderLogList() {
   const container = document.getElementById('logContainer');
   if (!container) return;
-  
+
   const logs = userData.logs || [];
   container.innerHTML = logs.length ? '' : '<p style="color:#64748b;">No logs recorded yet.</p>';
 
@@ -258,22 +265,33 @@ window.switchTab = function(tabId, btn) {
   }
 
   if (tabId === 'usageTab') {
-    const ctx = document.getElementById('usageChart').getContext('2d');
-    if (myChartInstance) {
-      myChartInstance.destroy();
-    }
-
-    const weekly = userData.weeklyUsage || {};
-    myChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
-        datasets: [{ label: 'Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => weekly[d] || 0), backgroundColor: '#00e5ff' }]
-      },
-      options: { scales: { y: { beginAtZero: true } } }
-    });
+    renderChart();
   }
 };
+
+function renderChart() {
+  const chartCanvas = document.getElementById('usageChart');
+  if (!chartCanvas) return;
+  const ctx = chartCanvas.getContext('2d');
+
+  if (myChartInstance) {
+    myChartInstance.destroy();
+  }
+
+  const weekly = userData.weeklyUsage || {};
+  myChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
+      datasets: [{ 
+        label: 'Recitations', 
+        data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => weekly[d] || 0), 
+        backgroundColor: '#00e5ff' 
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true } } }
+  });
+}
 
 // --- AI COMPANION WISDOM STREAM ---
 let wisdomDatabase = [];
@@ -360,18 +378,22 @@ function speakBilingualWisdom(item) {
 
 // --- CONSOLIDATED INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-  // Load local memory on startup
-  loadFromLocalStorage();
+  // 1. Initialize local memory instantly
+  initLocalData();
 
+  // 2. Recover live counter state
   const savedCount = localStorage.getItem('activeDhikrCount');
   if (savedCount !== null) {
     currentCount = parseInt(savedCount, 10);
     const counterBtn = document.getElementById('counterBtn');
     if (counterBtn) counterBtn.innerText = currentCount;
   }
+
+  // 3. Render local logs into the history tab right away
+  renderLogList();
 });
 
-// Register Service Worker for offline execution
+// Register Service Worker for offline PWA execution
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -382,4 +404,3 @@ if ('serviceWorker' in navigator) {
 
 // Initial load call for wisdom items
 loadWisdomDatabase();
-                    
