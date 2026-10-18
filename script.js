@@ -40,7 +40,7 @@ enableIndexedDbPersistence(db).catch((err) => {
 let isSignUpMode = false;
 let currentUser = null;
 
-// 1. DEFAULT LOCAL STATE (Loads immediately from localStorage if present)
+// 1. DEFAULT LOCAL STATE
 let userData = { 
   logs: [], 
   weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } 
@@ -48,12 +48,31 @@ let userData = {
 
 let myChartInstance = null;
 
-// --- TRUE LOCAL-FIRST CORE ENGINE ---
+// --- TRUE LOCAL-FIRST CORE ENGINE & LEGACY MIGRATION ---
 
-// Immediate Local Load on Engine Startup
+// Immediate Local Load on Engine Startup with Auto-Migration
 function initLocalData() {
-  const localSaved = localStorage.getItem('dhikr_user_data');
-  if (localSaved) {
+  // 1. Try loading current primary format
+  let localSaved = localStorage.getItem('dhikr_user_data');
+  
+  // 2. Legacy Migration: If primary key is missing, check older storage keys from past builds
+  if (!localSaved) {
+    const oldKeys = ['dhikr_tracker_logs', 'dhikrLogs', 'dhikr_history', 'user_logs', 'activeDhikrLogs'];
+    for (let oldKey of oldKeys) {
+      const oldData = localStorage.getItem(oldKey);
+      if (oldData) {
+        console.log(`Migrating legacy records from key: ${oldKey}`);
+        try {
+          const parsed = JSON.parse(oldData);
+          userData.logs = Array.isArray(parsed) ? parsed : (parsed.logs || []);
+          localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
+          break;
+        } catch (e) {
+          console.error("Error parsing legacy key:", e);
+        }
+      }
+    }
+  } else {
     try {
       userData = JSON.parse(localSaved);
       if (!userData.logs) userData.logs = [];
@@ -143,13 +162,24 @@ onAuthStateChanged(auth, async (user) => {
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
           
-          // Merge local and cloud logs
-          if (cloudData.logs) {
-            userData.logs = cloudData.logs;
-          }
-          if (cloudData.weeklyUsage) {
-            userData.weeklyUsage = cloudData.weeklyUsage;
-          }
+          const existingLocalLogs = userData.logs || [];
+          const incomingCloudLogs = cloudData.logs || [];
+
+          // Merge local and cloud logs without creating duplicates
+          const combinedLogs = [...existingLocalLogs];
+          
+          incomingCloudLogs.forEach(cloudItem => {
+            const exists = combinedLogs.some(
+              localItem => localItem.timestamp === cloudItem.timestamp && localItem.count === cloudItem.count
+            );
+            if (!exists) {
+              combinedLogs.push(cloudItem);
+            }
+          });
+
+          userData.logs = combinedLogs;
+          userData.weeklyUsage = { ...(cloudData.weeklyUsage || {}), ...(userData.weeklyUsage || {}) };
+
           // Save merged result back to local storage
           localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
           renderLogList();
@@ -173,13 +203,18 @@ window.logOut = function() {
 window.saveSessionToCloud = async function() {
   if (currentCount === 0) return;
 
-  const selectedDhikr = document.getElementById('dhikrSelect').value;
+  const selectEl = document.getElementById('dhikrSelect');
+  const selectedDhikr = selectEl ? selectEl.value : "General Dhikr";
+
   const now = new Date();
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const currentDayStr = dayNames[now.getDay()];
   const formattedDate = `${currentDayStr}, ${now.toLocaleDateString()} at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
   // Update local memory instantly
+  if (!userData.logs) userData.logs = [];
+  if (!userData.weeklyUsage) userData.weeklyUsage = { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 };
+
   userData.logs.unshift({ dhikr: selectedDhikr, count: currentCount, timestamp: formattedDate });
   userData.weeklyUsage[currentDayStr] = (userData.weeklyUsage[currentDayStr] || 0) + currentCount;
 
@@ -205,7 +240,7 @@ function renderLogList() {
   if (!container) return;
 
   const logs = userData.logs || [];
-  container.innerHTML = logs.length ? '' : '<p style="color:#64748b;">No logs recorded yet.</p>';
+  container.innerHTML = logs.length ? '' : '<p style="color:#64748b; text-align:center; padding:20px;">No logs recorded yet.</p>';
 
   logs.forEach((item, index) => {
     container.innerHTML += `
@@ -278,18 +313,25 @@ function renderChart() {
     myChartInstance.destroy();
   }
 
+  const daysOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weekly = userData.weeklyUsage || {};
+  const chartData = daysOrder.map(d => weekly[d] || 0);
+
   myChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
+      labels: daysOrder,
       datasets: [{ 
         label: 'Recitations', 
-        data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => weekly[d] || 0), 
+        data: chartData, 
         backgroundColor: '#00e5ff' 
       }]
     },
-    options: { scales: { y: { beginAtZero: true } } }
+    options: { 
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true } } 
+    }
   });
 }
 
@@ -378,7 +420,7 @@ function speakBilingualWisdom(item) {
 
 // --- CONSOLIDATED INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Initialize local memory instantly
+  // 1. Initialize local memory & scan legacy keys
   initLocalData();
 
   // 2. Recover live counter state
@@ -404,3 +446,4 @@ if ('serviceWorker' in navigator) {
 
 // Initial load call for wisdom items
 loadWisdomDatabase();
+    
