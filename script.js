@@ -1,8 +1,7 @@
-// Force unregister stuck service workers on version change
+// --- SERVICE WORKER CLEANUP & FIREBASE IMPORTS ---
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {
     for (let registration of registrations) {
-      // If the worker is running an old version, unregister it
       if (!localStorage.getItem('sw_version_v13')) {
         registration.unregister().then(() => console.log('Old SW Unregistered'));
         localStorage.setItem('sw_version_v13', 'true');
@@ -11,6 +10,7 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, enableIndexedDbPersistence, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -28,18 +28,55 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code == 'failed-precondition') {
-        console.warn("Persistence failed: Multiple tabs open.");
-    } else if (err.code == 'unimplemented') {
-        console.warn("Persistence not supported by this browser.");
-    }
+  if (err.code === 'failed-precondition') {
+    console.warn("Persistence failed: Multiple tabs open.");
+  } else if (err.code === 'unimplemented') {
+    console.warn("Persistence not supported by this browser.");
+  }
 });
 
 let isSignUpMode = false;
 let currentUser = null;
 let userData = { logs: [], weeklyUsage: { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 } };
 let myChartInstance = null;
+
+// --- DUAL-STORAGE & SYNC ENGINE ---
+
+// Load local backup immediately on launch
+function loadFromLocalStorage() {
+  const localSaved = localStorage.getItem('dhikr_user_data');
+  if (localSaved) {
+    try {
+      userData = JSON.parse(localSaved);
+    } catch (e) {
+      console.error("Error parsing local user data", e);
+    }
+  }
+}
+
+// Universal save function (Saves locally first, then syncs to cloud if online)
+async function persistUserData() {
+  // 1. Always save locally (Guarantees offline survival)
+  localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
+
+  // 2. Sync to cloud if online and logged in
+  if (navigator.onLine && currentUser && currentUser.uid) {
+    try {
+      await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
+      console.log("Data synced successfully to Firestore!");
+    } catch (error) {
+      console.warn("Firestore sync deferred (offline):", error.message);
+    }
+  }
+}
+
+// Automatic cloud sync when network returns
+window.addEventListener('online', async () => {
+  console.log("Internet connection re-established. Pushing local updates to cloud...");
+  await persistUserData();
+});
 
 // --- AUTHENTICATION SYSTEM ---
 window.toggleAuthMode = function() {
@@ -55,12 +92,14 @@ window.processAuth = async function() {
 
   if (!email || !password) return alert("Please fill in all fields.");
 
-  // 1. If the device is completely offline, bypass cloud auth and enter offline mode
+  // Offline Login Bypasser
   if (!navigator.onLine) {
     alert("You are offline. Entering Offline Mode.");
+    loadFromLocalStorage();
     document.getElementById('userDisplay').innerText = email ? email.split('@')[0] : "Offline User";
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainDashboard').classList.remove('hidden');
+    renderLogList();
     return;
   }
 
@@ -72,18 +111,50 @@ window.processAuth = async function() {
       await signInWithEmailAndPassword(auth, email, password);
     }
   } catch (error) {
-    // 2. Catch network failures if connection drops mid-request and fallback gracefully
     if (error.code === 'auth/network-request-failed' || error.message.includes('network')) {
       alert("Network request failed. Switching to Offline Mode.");
+      loadFromLocalStorage();
       document.getElementById('userDisplay').innerText = email ? email.split('@')[0] : "Offline User";
       document.getElementById('authScreen').classList.add('hidden');
       document.getElementById('mainDashboard').classList.remove('hidden');
+      renderLogList();
     } else {
       alert("Auth Error: " + error.message);
     }
   }
 };
 
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('userDisplay').innerText = user.email ? user.email.split('@')[0] : "User";
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('mainDashboard').classList.remove('hidden');
+
+    if (navigator.onLine) {
+      try {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          userData = docSnap.data();
+          localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
+        } else {
+          loadFromLocalStorage();
+        }
+      } catch (err) {
+        console.warn("Error fetching cloud data, using local cache:", err);
+        loadFromLocalStorage();
+      }
+    } else {
+      loadFromLocalStorage();
+    }
+    renderLogList();
+  } else {
+    currentUser = null;
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('mainDashboard').classList.add('hidden');
+  }
+});
 
 window.logOut = function() {
   signOut(auth);
@@ -91,7 +162,7 @@ window.logOut = function() {
 
 // --- DATA & CLOUD LOGGING ---
 window.saveSessionToCloud = async function() {
-  if (currentCount === 0 || !currentUser) return;
+  if (currentCount === 0) return;
 
   const selectedDhikr = document.getElementById('dhikrSelect').value;
   const now = new Date();
@@ -99,35 +170,37 @@ window.saveSessionToCloud = async function() {
   const currentDayStr = dayNames[now.getDay()];
   const formattedDate = `${currentDayStr}, ${now.toLocaleDateString()} at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
+  if (!userData.logs) userData.logs = [];
+  if (!userData.weeklyUsage) userData.weeklyUsage = { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 };
+
   userData.logs.unshift({ dhikr: selectedDhikr, count: currentCount, timestamp: formattedDate });
   userData.weeklyUsage[currentDayStr] = (userData.weeklyUsage[currentDayStr] || 0) + currentCount;
 
-  await setDoc(doc(db, "users", currentUser.uid), userData);
+  // Persist locally & sync to cloud
+  await persistUserData();
 
-  alert("Saved securely to Cloud!");
+  alert(navigator.onLine ? "Saved securely to Cloud!" : "Saved locally! Will sync when back online.");
   resetCounter();
+  renderLogList();
 };
 
 window.deleteLogItem = async function(index) {
-  if (!currentUser) return;
   const confirmed = confirm("Are you sure you want to delete this log entry?");
   if (!confirmed) return;
 
   userData.logs.splice(index, 1);
-
-  try {
-    await setDoc(doc(db, "users", currentUser.uid), userData);
-    renderLogList();
-  } catch (error) {
-    alert("Error deleting entry: " + error.message);
-  }
+  await persistUserData();
+  renderLogList();
 };
 
 function renderLogList() {
   const container = document.getElementById('logContainer');
-  container.innerHTML = userData.logs.length ? '' : '<p style="color:#64748b;">No logs in Cloud.</p>';
+  if (!container) return;
+  
+  const logs = userData.logs || [];
+  container.innerHTML = logs.length ? '' : '<p style="color:#64748b;">No logs recorded yet.</p>';
 
-  userData.logs.forEach((item, index) => {
+  logs.forEach((item, index) => {
     container.innerHTML += `
       <div class="history-card">
         <button class="delete-log-btn" onclick="deleteLogItem(${index})" title="Delete entry">&times;</button>
@@ -190,11 +263,12 @@ window.switchTab = function(tabId, btn) {
       myChartInstance.destroy();
     }
 
+    const weekly = userData.weeklyUsage || {};
     myChartInstance = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'],
-        datasets: [{ label: 'Cloud Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => userData.weeklyUsage[d] || 0), backgroundColor: '#00e5ff' }]
+        datasets: [{ label: 'Recitations', data: ['Fri','Sat','Sun','Mon','Tue','Wed','Thu'].map(d => weekly[d] || 0), backgroundColor: '#00e5ff' }]
       },
       options: { scales: { y: { beginAtZero: true } } }
     });
@@ -204,109 +278,108 @@ window.switchTab = function(tabId, btn) {
 // --- AI COMPANION WISDOM STREAM ---
 let wisdomDatabase = [];
 
-// Fetch the single verses.json file
 async function loadWisdomDatabase() {
-    try {
-        const response = await fetch('verses.json');
-        wisdomDatabase = await response.json();
-        console.log(`Successfully loaded ${wisdomDatabase.length} entries.`);
-    } catch (error) {
-        console.error('Error loading verses.json:', error);
-    }
+  try {
+    const response = await fetch('verses.json');
+    wisdomDatabase = await response.json();
+    console.log(`Successfully loaded ${wisdomDatabase.length} entries.`);
+  } catch (error) {
+    console.error('Error loading verses.json:', error);
+  }
 }
 
 const chatContainer = document.getElementById('chatContainer');
 
 function appendUserMessage(text) {
-    const msg = document.createElement('div');
-    msg.className = 'message user-message';
-    msg.textContent = text;
-    chatContainer.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+  const msg = document.createElement('div');
+  msg.className = 'message user-message';
+  msg.textContent = text;
+  chatContainer.appendChild(msg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 function appendBotMessage(item) {
-    const msg = document.createElement('div');
-    msg.className = 'message bot-message';
+  const msg = document.createElement('div');
+  msg.className = 'message bot-message';
 
-    msg.innerHTML = `
-        <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
-        <div class="chat-arabic-text">${item.arabic}</div>
-        <div class="chat-translation-text">${item.translation}</div>
-        <div class="reflection-box">
-            <div class="reflection-title">A Quick Reflection</div>
-            <div class="reflection-text">${item.reflection}</div>
-        </div>
-        <div class="bot-actions">
-            <button class="audio-btn">🔊 Read Aloud</button>
-        </div>
-    `;
+  msg.innerHTML = `
+    <div class="bot-header"><span>${item.ref}</span><span>${item.type}</span></div>
+    <div class="chat-arabic-text">${item.arabic}</div>
+    <div class="chat-translation-text">${item.translation}</div>
+    <div class="reflection-box">
+      <div class="reflection-title">A Quick Reflection</div>
+      <div class="reflection-text">${item.reflection}</div>
+    </div>
+    <div class="bot-actions">
+      <button class="audio-btn">🔊 Read Aloud</button>
+    </div>
+  `;
 
-    chatContainer.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+  chatContainer.appendChild(msg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 
-    msg.querySelector('.audio-btn').addEventListener('click', () => {
-        speakBilingualWisdom(item);
-    });
+  msg.querySelector('.audio-btn').addEventListener('click', () => {
+    speakBilingualWisdom(item);
+  });
 }
 
 window.askRandomWisdom = function() {
-    if (wisdomDatabase.length === 0) {
-        alert("Verses are still loading, please wait a moment.");
-        return;
-    }
-    appendUserMessage("Give me a random reminder.");
-    setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
-        appendBotMessage(wisdomDatabase[randomIndex]);
-    }, 300);
-}
+  if (wisdomDatabase.length === 0) {
+    alert("Verses are still loading, please wait a moment.");
+    return;
+  }
+  appendUserMessage("Give me a random reminder.");
+  setTimeout(() => {
+    const randomIndex = Math.floor(Math.random() * wisdomDatabase.length);
+    appendBotMessage(wisdomDatabase[randomIndex]);
+  }, 300);
+};
 
 function speakBilingualWisdom(item) {
-    if (!('speechSynthesis' in window)) {
-        alert("Text-to-speech is not supported on your browser.");
-    }
-    window.speechSynthesis.cancel();
+  if (!('speechSynthesis' in window)) {
+    alert("Text-to-speech is not supported on your browser.");
+    return;
+  }
+  window.speechSynthesis.cancel();
 
-    const arabicUtterance = new SpeechSynthesisUtterance(item.arabic);
-    arabicUtterance.lang = 'ar-SA';
-    arabicUtterance.rate = 0.9;
+  const arabicUtterance = new SpeechSynthesisUtterance(item.arabic);
+  arabicUtterance.lang = 'ar-SA';
+  arabicUtterance.rate = 0.9;
 
-    const englishText = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
-    const englishUtterance = new SpeechSynthesisUtterance(englishText);
-    englishUtterance.lang = 'en-US';
-    englishUtterance.rate = 0.95;
+  const englishText = `${item.ref}. ${item.translation}. Reflection: ${item.reflection}`;
+  const englishUtterance = new SpeechSynthesisUtterance(englishText);
+  englishUtterance.lang = 'en-US';
+  englishUtterance.rate = 0.95;
 
-    arabicUtterance.onend = () => {
-        window.speechSynthesis.speak(englishUtterance);
-    };
+  arabicUtterance.onend = () => {
+    window.speechSynthesis.speak(englishUtterance);
+  };
 
-    window.speechSynthesis.speak(arabicUtterance);
+  window.speechSynthesis.speak(arabicUtterance);
 }
+
+// --- CONSOLIDATED INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    const savedCount = localStorage.getItem('activeDhikrCount');
-    if (savedCount !== null) {
-        currentCount = parseInt(savedCount, 10);
-        document.getElementById('counterBtn').innerText = currentCount;
-    }
-});
-// 1. Recover last saved count when the page opens
-document.addEventListener('DOMContentLoaded', () => {
-    const savedCount = localStorage.getItem('activeDhikrCount');
-    if (savedCount !== null) {
-        currentCount = parseInt(savedCount, 10);
-        document.getElementById('counterBtn').innerText = currentCount;
-    }
+  // Load local memory on startup
+  loadFromLocalStorage();
+
+  const savedCount = localStorage.getItem('activeDhikrCount');
+  if (savedCount !== null) {
+    currentCount = parseInt(savedCount, 10);
+    const counterBtn = document.getElementById('counterBtn');
+    if (counterBtn) counterBtn.innerText = currentCount;
+  }
 });
 
-// 2. Register Service Worker for offline execution
+// Register Service Worker for offline execution
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(() => console.log("Offline Service Worker Active!"))
-            .catch((err) => console.log("Service Worker registration failed:", err));
-    });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log("Offline Service Worker Active!"))
+      .catch((err) => console.log("Service Worker registration failed:", err));
+  });
 }
 
-// 3. Initial load call
+// Initial load call for wisdom items
 loadWisdomDatabase();
+                    
