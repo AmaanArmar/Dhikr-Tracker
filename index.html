@@ -19,22 +19,48 @@
 <div class="app-container">
 
   <!-- PAGE 1: AUTH SCREEN -->
-  <div id="authScreen" class="auth-container">
-    <div class="auth-card">
-      <h2 id="authTitle">Sign In</h2>
-      <div class="form-group">
-        <label for="authEmail">Email Address</label>
-        <input type="email" id="authEmail" placeholder="user@example.com" required>
-      </div>
-      <div class="form-group">
-        <label for="authPassword">Password</label>
-        <input type="password" id="authPassword" placeholder="••••••••" required>
-      </div>
-      <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
-      <div class="toggle-auth" id="toggleAuthText" onclick="toggleAuthMode()">Need an account? Register here</div>
+<div id="authScreen" class="auth-container">
+  <div class="auth-card">
+    <h2 id="authTitle">Sign In</h2>
+    
+    <!-- Email Input -->
+    <div class="form-group">
+      <label for="authEmail">Email Address</label>
+      <input 
+        type="email" 
+        id="authEmail" 
+        placeholder="user@example.com" 
+        autocomplete="email"
+        required 
+      />
+    </div>
+
+    <!-- Password Input -->
+    <div class="form-group">
+      <label for="authPassword">Password</label>
+      <input 
+        type="password" 
+        id="authPassword" 
+        placeholder="••••••••" 
+        required 
+      />
+    </div>
+
+    <!-- Action Buttons & Toggles -->
+    <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
+    
+    <div 
+      class="toggle-auth" 
+      id="toggleAuthText" 
+      onclick="toggleAuthMode()"
+      role="button"
+      tabindex="0"
+    >
+      Need an account? Register here
     </div>
   </div>
-
+</div>
+  
   <!-- PAGE 2: MAIN DASHBOARD -->
   <div id="mainDashboard" class="hidden">
 
