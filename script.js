@@ -2,9 +2,9 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(registrations => {
     for (let registration of registrations) {
-      if (!localStorage.getItem('sw_version_v13')) {
+      if (!localStorage.getItem('sw_version_v19')) {
         registration.unregister().then(() => console.log('Old SW Unregistered'));
-        localStorage.setItem('sw_version_v13', 'true');
+        localStorage.setItem('sw_version_v19', 'true');
         window.location.reload();
       }
     }
@@ -50,12 +50,9 @@ let myChartInstance = null;
 
 // --- TRUE LOCAL-FIRST CORE ENGINE & LEGACY MIGRATION ---
 
-// Immediate Local Load on Engine Startup with Auto-Migration
 function initLocalData() {
-  // 1. Try loading current primary format
   let localSaved = localStorage.getItem('dhikr_user_data');
   
-  // 2. Legacy Migration: If primary key is missing, check older storage keys from past builds
   if (!localSaved) {
     const oldKeys = ['dhikr_tracker_logs', 'dhikrLogs', 'dhikr_history', 'user_logs', 'activeDhikrLogs'];
     for (let oldKey of oldKeys) {
@@ -83,12 +80,9 @@ function initLocalData() {
   }
 }
 
-// Universal Persistent Writer (Writes to Local Storage ALWAYS, Cloud SECOND)
 async function persistUserData() {
-  // Always update Local Storage immediately
   localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
 
-  // Background Cloud Sync
   if (navigator.onLine && currentUser && currentUser.uid) {
     try {
       await setDoc(doc(db, "users", currentUser.uid), userData, { merge: true });
@@ -99,7 +93,6 @@ async function persistUserData() {
   }
 }
 
-// Background Network Recovery Sync
 window.addEventListener('online', async () => {
   console.log("Internet back online. Syncing local state with cloud...");
   await persistUserData();
@@ -154,7 +147,6 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     enterDashboard(user.email ? user.email.split('@')[0] : "User");
 
-    // Force a fresh fetch from Firestore when online
     if (navigator.onLine) {
       try {
         const docRef = doc(db, "users", user.uid);
@@ -162,41 +154,25 @@ onAuthStateChanged(auth, async (user) => {
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
           
-          // Pull cloud logs and weekly usage directly into local state
-          if (cloudData.logs && cloudData.logs.length > 0) {
-            userData.logs = cloudData.logs;
-          }
-          if (cloudData.weeklyUsage) {
-            userData.weeklyUsage = cloudData.weeklyUsage;
-          }
-
-          // Save to local storage so it stays visible offline too
-          localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
+          const existingLocalLogs = userData.logs || [];
+          const incomingCloudLogs = cloudData.logs || [];
+          const combinedLogs = [...existingLocalLogs];
           
-          // Re-render the history list and chart immediately
-          renderLogList();
-          console.log("Successfully synced records from cloud:", userData.logs.length);
-        } else {
-          console.log("No remote document found for this user UID yet.");
-        }
-      } catch (err) {
-        console.warn("Cloud read failed:", err);
-      }
-    }
-  } else {
-    currentUser = null;
-    document.getElementById('authScreen').classList.remove('hidden');
-    document.getElementById('mainDashboard').classList.add('hidden');
-  }
-});
-
+          incomingCloudLogs.forEach(cloudItem => {
+            const exists = combinedLogs.some(
+              localItem => localItem.timestamp === cloudItem.timestamp && localItem.count === cloudItem.count
+            );
+            if (!exists) {
+              combinedLogs.push(cloudItem);
+            }
+          });
 
           userData.logs = combinedLogs;
           userData.weeklyUsage = { ...(cloudData.weeklyUsage || {}), ...(userData.weeklyUsage || {}) };
 
-          // Save merged result back to local storage
           localStorage.setItem('dhikr_user_data', JSON.stringify(userData));
           renderLogList();
+          console.log("Successfully synced records from cloud:", userData.logs.length);
         }
       } catch (err) {
         console.warn("Cloud read failed, staying on local state:", err);
@@ -213,7 +189,7 @@ window.logOut = function() {
   signOut(auth);
 };
 
-// --- LOGS & RECORDING (WORKS 100% OFFLINE) ---
+// --- LOGS & RECORDING ---
 window.saveSessionToCloud = async function() {
   if (currentCount === 0) return;
 
@@ -225,14 +201,12 @@ window.saveSessionToCloud = async function() {
   const currentDayStr = dayNames[now.getDay()];
   const formattedDate = `${currentDayStr}, ${now.toLocaleDateString()} at ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-  // Update local memory instantly
   if (!userData.logs) userData.logs = [];
   if (!userData.weeklyUsage) userData.weeklyUsage = { Sun:0, Mon:0, Tue:0, Wed:0, Thu:0, Fri:0, Sat:0 };
 
   userData.logs.unshift({ dhikr: selectedDhikr, count: currentCount, timestamp: formattedDate });
   userData.weeklyUsage[currentDayStr] = (userData.weeklyUsage[currentDayStr] || 0) + currentCount;
 
-  // Persist locally + sync to cloud
   await persistUserData();
 
   alert("Saved to local records!");
@@ -309,13 +283,8 @@ window.switchTab = function(tabId, btn) {
   document.getElementById(tabId).classList.add('active');
   btn.classList.add('active');
 
-  if (tabId === 'historyTab') {
-    renderLogList();
-  }
-
-  if (tabId === 'usageTab') {
-    renderChart();
-  }
+  if (tabId === 'historyTab') renderLogList();
+  if (tabId === 'usageTab') renderChart();
 };
 
 function renderChart() {
@@ -323,9 +292,7 @@ function renderChart() {
   if (!chartCanvas) return;
   const ctx = chartCanvas.getContext('2d');
 
-  if (myChartInstance) {
-    myChartInstance.destroy();
-  }
+  if (myChartInstance) myChartInstance.destroy();
 
   const daysOrder = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const weekly = userData.weeklyUsage || {};
@@ -335,17 +302,9 @@ function renderChart() {
     type: 'bar',
     data: {
       labels: daysOrder,
-      datasets: [{ 
-        label: 'Recitations', 
-        data: chartData, 
-        backgroundColor: '#00e5ff' 
-      }]
+      datasets: [{ label: 'Recitations', data: chartData, backgroundColor: '#00e5ff' }]
     },
-    options: { 
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: { y: { beginAtZero: true } } 
-    }
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
   });
 }
 
@@ -432,12 +391,10 @@ function speakBilingualWisdom(item) {
   window.speechSynthesis.speak(arabicUtterance);
 }
 
-// --- CONSOLIDATED INITIALIZATION ---
+// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Initialize local memory & scan legacy keys
   initLocalData();
 
-  // 2. Recover live counter state
   const savedCount = localStorage.getItem('activeDhikrCount');
   if (savedCount !== null) {
     currentCount = parseInt(savedCount, 10);
@@ -445,11 +402,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (counterBtn) counterBtn.innerText = currentCount;
   }
 
-  // 3. Render local logs into the history tab right away
   renderLogList();
 });
 
-// Register Service Worker for offline PWA execution
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -458,6 +413,5 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Initial load call for wisdom items
 loadWisdomDatabase();
-    
+  
