@@ -19,47 +19,48 @@
 <div class="app-container">
 
   <!-- PAGE 1: AUTH SCREEN -->
-<div id="authScreen" class="auth-container">
-  <div class="auth-card">
-    <h2 id="authTitle">Sign In</h2>
-    
-    <!-- Email Input -->
-    <div class="form-group">
-      <label for="authEmail">Email Address</label>
-      <input 
-        type="email" 
-        id="authEmail" 
-        placeholder="user@example.com" 
-        autocomplete="email"
-        required 
-      />
-    </div>
+  <div id="authScreen" class="auth-container">
+    <div class="auth-card">
+      <h2 id="authTitle">Sign In</h2>
+      
+      <!-- Email Input -->
+      <div class="form-group">
+        <label for="authEmail">Email Address</label>
+        <input 
+          type="email" 
+          id="authEmail" 
+          placeholder="user@example.com" 
+          autocomplete="email"
+          required 
+        />
+      </div>
 
-    <!-- Password Input -->
-    <div class="form-group">
-      <label for="authPassword">Password</label>
-      <input 
-        type="password" 
-        id="authPassword" 
-        placeholder="••••••••" 
-        required 
-      />
-    </div>
+      <!-- Password Input -->
+      <div class="form-group">
+        <label for="authPassword">Password</label>
+        <input 
+          type="password" 
+          id="authPassword" 
+          placeholder="••••••••" 
+          autocomplete="current-password"
+          required 
+        />
+      </div>
 
-    <!-- Action Buttons & Toggles -->
-    <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
-    
-    <div 
-      class="toggle-auth" 
-      id="toggleAuthText" 
-      onclick="toggleAuthMode()"
-      role="button"
-      tabindex="0"
-    >
-      Need an account? Register here
+      <!-- Action Buttons & Toggles -->
+      <button class="auth-btn" id="mainAuthBtn" onclick="processAuth()">Sign In</button>
+      
+      <div 
+        class="toggle-auth" 
+        id="toggleAuthText" 
+        onclick="toggleAuthMode()"
+        role="button"
+        tabindex="0"
+      >
+        Need an account? Register here
+      </div>
     </div>
   </div>
-</div>
   
   <!-- PAGE 2: MAIN DASHBOARD -->
   <div id="mainDashboard" class="hidden">
@@ -70,7 +71,7 @@
       <button class="logout-btn" onclick="logOut()">Sign Out</button>
     </div>
 
-    <!-- TOP NAVIGATION TABS (All 5 Fitted Compactly) -->
+    <!-- TOP NAVIGATION TABS -->
     <nav class="top-nav">
       <button class="nav-btn active" onclick="switchTab('counterTab', this)"><span>🏠</span><span>Counter</span></button>
       <button class="nav-btn" onclick="switchTab('usageTab', this)"><span>📊</span><span>Usage/Qibla</span></button>
